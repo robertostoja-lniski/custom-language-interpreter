@@ -8,6 +8,8 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include "Scanner.h"
 
 struct Configuration {
 
@@ -24,6 +26,8 @@ private:
     Configuration configuration;
     std::vector<std::string> filePathFlags = {"-f", "-o"};
     std::vector<std::string> nonFilePathFlags = {"-v"};
+
+    Scanner scanner;
 
     bool isPathFlag(std::string potentialFlag) {
         return std::find(filePathFlags.begin(), filePathFlags.end(), potentialFlag.c_str()) != filePathFlags.end();
@@ -89,10 +93,12 @@ public:
 
     void run() {
 //        Interprenter(configuration);
-         std::cout << "running with"
-         << " config: " << configuration.configPath
-         << " output: " << configuration.outputPath
-         << " verbose: " << configuration.isVerbose << std::endl;
+//         std::cout << "running with"
+//         << " config: " << configuration.configPath
+//         << " output: " << configuration.outputPath
+//         << " verbose: " << configuration.isVerbose << std::endl;
+
+         scanner.scan();
     }
 };
 
