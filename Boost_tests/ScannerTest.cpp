@@ -333,6 +333,46 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_8)
     Token receivedToken = scanner.getNextToken(input);
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
+BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_1)
+{
+    Scanner scanner;
+    std::string input = "\"a\"" + term;
+    Token expectedToken("a", T_STRING);
+    Token receivedToken = scanner.getNextToken(input);
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_2)
+{
+    Scanner scanner;
+    std::string input = "\" a \"" + term;
+    Token expectedToken(" a ", T_STRING);
+    Token receivedToken = scanner.getNextToken(input);
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_3)
+{
+    Scanner scanner;
+    std::string input = "\" a b c \"" + term;
+    Token expectedToken(" a b c ", T_STRING);
+    Token receivedToken = scanner.getNextToken(input);
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_4)
+{
+    Scanner scanner;
+    std::string input = "\"&|+_*/\"" + term;
+    Token expectedToken("&|+_*/", T_STRING);
+    Token receivedToken = scanner.getNextToken(input);
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_5)
+{
+    Scanner scanner;
+    std::string input = "\"unsigned_int\"" + term;
+    Token expectedToken("unsigned_int", T_STRING);
+    Token receivedToken = scanner.getNextToken(input);
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_PARENTHESIS)
 {
     Scanner scanner;
@@ -862,63 +902,63 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_10)
     BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
 }
 
-BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_1)
-{
-    Scanner scanner;
-    std::string input = "int a";
-    std::vector<Token> expectedTokens = {{"int", T_SPECIFIER}, {"a", T_USER_DEFINED_NAME}, {"$", T_END}};
-    std::vector<Token> actualTokens = scanner.testScan(input);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-}
-
-BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_2) {
-    Scanner scanner;
-    std::string input = "system_handler a = 500";
-    std::vector<Token> expectedTokens = {{"system_handler", T_SPECIFIER},
-                                         {"a",              T_USER_DEFINED_NAME},
-                                         {"=",              T_ASSIGN_OPERATOR},
-                                         {"500",            T_INT_NUM},
-                                         {"$",              T_END}};
-    std::vector<Token> actualTokens = scanner.testScan(input);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(),
-                                  actualTokens.end());
-}
-BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_3)
-{
-    Scanner scanner;
-    std::string input = "system_handler a = my_var";
-    std::vector<Token> expectedTokens = {{"system_handler", T_SPECIFIER}, {"a", T_USER_DEFINED_NAME},
-                                         {"=", T_ASSIGN_OPERATOR}, {"my_var", T_USER_DEFINED_NAME}, {"$", T_END}};
-    std::vector<Token> actualTokens = scanner.testScan(input);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-}
-BOOST_AUTO_TEST_CASE(MANY_TOKENS_COMPLEX_EXPR_1)
-{
-    Scanner scanner;
-    std::string input = "if(abc == 5        ) do w = 1.00005 done";
-    std::vector<Token> expectedTokens = {{"if", T_IF}, {"(", T_OPENING_PARENTHESIS}, {"abc" , T_USER_DEFINED_NAME},
-                                         {"==", T_BOOLEAN_OPERATOR}, {"5", T_INT_NUM}, {")", T_CLOSING_PARENTHESIS},
-                                         {"do", T_DO}, {"w", T_USER_DEFINED_NAME}, {"=", T_ASSIGN_OPERATOR},
-                                         {"1.00005", T_REAL_NUM}, {"done", T_DONE}, {"$", T_END}};
-    std::vector<Token> actualTokens = scanner.testScan(input);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-}
-BOOST_AUTO_TEST_CASE(MANY_TOKENS_COMPLEX_EXPR_2)
-{
-    Scanner scanner;
-    std::string input = "name * 5  & ( a + e22222 )*(12312 - 111.3333   * 123) | a";
-    std::vector<Token> expectedTokens = {{"name", T_USER_DEFINED_NAME}, {"*", T_MULT_OPERATOR}, {"5", T_INT_NUM},
-                                         {"&", T_MULT_OPERATOR},{"(", T_OPENING_PARENTHESIS}, {"a", T_USER_DEFINED_NAME},
-                                         {"+", T_ADD_OPERATOR},{"e22222", T_USER_DEFINED_NAME}, {")", T_CLOSING_PARENTHESIS},
-                                         {"*", T_MULT_OPERATOR},{"(", T_OPENING_PARENTHESIS}, {"12312", T_INT_NUM},
-                                         {"-", T_ADD_OPERATOR},{"111.3333", T_REAL_NUM}, {"*", T_MULT_OPERATOR},
-                                         {"123", T_INT_NUM},{")", T_CLOSING_PARENTHESIS},{"|", T_ADD_OPERATOR},
-                                         {"a", T_USER_DEFINED_NAME}, {"$", T_END}};
-    std::vector<Token> actualTokens = scanner.testScan(input);
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-}
+//BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_1)
+//{
+//    Scanner scanner;
+//    std::string input = "int a";
+//    std::vector<Token> expectedTokens = {{"int", T_SPECIFIER}, {"a", T_USER_DEFINED_NAME}, {"$", T_END}};
+//    std::vector<Token> actualTokens = scanner.testScan(input);
+//
+//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
+//}
+//
+//BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_2) {
+//    Scanner scanner;
+//    std::string input = "system_handler a = 500";
+//    std::vector<Token> expectedTokens = {{"system_handler", T_SPECIFIER},
+//                                         {"a",              T_USER_DEFINED_NAME},
+//                                         {"=",              T_ASSIGN_OPERATOR},
+//                                         {"500",            T_INT_NUM},
+//                                         {"$",              T_END}};
+//    std::vector<Token> actualTokens = scanner.testScan(input);
+//
+//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(),
+//                                  actualTokens.end());
+//}
+//BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_3)
+//{
+//    Scanner scanner;
+//    std::string input = "system_handler a = my_var";
+//    std::vector<Token> expectedTokens = {{"system_handler", T_SPECIFIER}, {"a", T_USER_DEFINED_NAME},
+//                                         {"=", T_ASSIGN_OPERATOR}, {"my_var", T_USER_DEFINED_NAME}, {"$", T_END}};
+//    std::vector<Token> actualTokens = scanner.testScan(input);
+//
+//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
+//}
+//BOOST_AUTO_TEST_CASE(MANY_TOKENS_COMPLEX_EXPR_1)
+//{
+//    Scanner scanner;
+//    std::string input = "if(abc == 5        ) do w = 1.00005 done";
+//    std::vector<Token> expectedTokens = {{"if", T_IF}, {"(", T_OPENING_PARENTHESIS}, {"abc" , T_USER_DEFINED_NAME},
+//                                         {"==", T_BOOLEAN_OPERATOR}, {"5", T_INT_NUM}, {")", T_CLOSING_PARENTHESIS},
+//                                         {"do", T_DO}, {"w", T_USER_DEFINED_NAME}, {"=", T_ASSIGN_OPERATOR},
+//                                         {"1.00005", T_REAL_NUM}, {"done", T_DONE}, {"$", T_END}};
+//    std::vector<Token> actualTokens = scanner.testScan(input);
+//
+//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
+//}
+//BOOST_AUTO_TEST_CASE(MANY_TOKENS_COMPLEX_EXPR_2)
+//{
+//    Scanner scanner;
+//    std::string input = "name * 5  & ( a + e22222 )*(12312 - 111.3333   * 123) | a";
+//    std::vector<Token> expectedTokens = {{"name", T_USER_DEFINED_NAME}, {"*", T_MULT_OPERATOR}, {"5", T_INT_NUM},
+//                                         {"&", T_MULT_OPERATOR},{"(", T_OPENING_PARENTHESIS}, {"a", T_USER_DEFINED_NAME},
+//                                         {"+", T_ADD_OPERATOR},{"e22222", T_USER_DEFINED_NAME}, {")", T_CLOSING_PARENTHESIS},
+//                                         {"*", T_MULT_OPERATOR},{"(", T_OPENING_PARENTHESIS}, {"12312", T_INT_NUM},
+//                                         {"-", T_ADD_OPERATOR},{"111.3333", T_REAL_NUM}, {"*", T_MULT_OPERATOR},
+//                                         {"123", T_INT_NUM},{")", T_CLOSING_PARENTHESIS},{"|", T_ADD_OPERATOR},
+//                                         {"a", T_USER_DEFINED_NAME}, {"$", T_END}};
+//    std::vector<Token> actualTokens = scanner.testScan(input);
+//
+//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
+//}

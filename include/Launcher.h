@@ -79,7 +79,6 @@ public:
                     configuration.outputPath = filePath;
                 }
 
-                //next argument can be ommited, because it is a proper filepath
                 i++;
 
             } else if(isNonPathFile(potentialFlag)) {
@@ -92,12 +91,6 @@ public:
     }
 
     void run() {
-//        Interprenter(configuration);
-//         std::cout << "running with"
-//         << " config: " << configuration.configPath
-//         << " output: " << configuration.outputPath
-//         << " verbose: " << configuration.isVerbose << std::endl;
-
          scanner.scan();
     }
 };
