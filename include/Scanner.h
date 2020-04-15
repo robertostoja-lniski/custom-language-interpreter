@@ -17,6 +17,8 @@ enum State {
     TRAILING_SPACE = 6,
     INTERPUNCTION = 7,
     READING_SPECIAL_SIGN = 8,
+    READING_SIGN = 9,
+    READING_SPECIAL = 10,
 };
 
 enum Type {
@@ -43,6 +45,7 @@ enum Type {
     T_CLOSING_BRACKET = 19,
     T_END = 20,
     T_NOT_DEFINED_YET = 21,
+    T_STRING = 22,
 
 };
 
@@ -73,34 +76,24 @@ class Scanner {
 private:
 //    NumAnalysingHelper numAnalysingHelper;
 //    std::string val;
-    State state{START};
+    std::string input;
+    size_t currentIndex {0};
+
     unsigned int currentCharIndex{0};
 
     bool isOperatorPrefix(char c);
     bool isAddOperator(char c);
     bool isMultOperator(char c);
-    bool isAssignmentOperator(char c);
+
     bool isBooleanOperatorPrefix(char c);
     bool isBooleanOperatorSuffix(char c);
 
-    bool isNum(char c);
-    bool isNonDigit(char c);
-    bool isSpace(char c);
-    bool isSemicon(char c);
-    bool isCon(char c);
-    bool isComa(char c);
-    bool isZero(char c);
     bool isEnd(char c);
-    bool isInstructionOpening(char c);
-    bool isInstructionClosing(char c);
-    bool isCollectionOpening(char c);
-    bool isCollectionClosing(char c);
-    bool isTerm(char c);
-    bool isInterpunction(char c);
+    bool isQuote(char c);
+    bool isBracketOrParenthesis(char c);
 
     bool isOperator(std::string val);
     bool isAllowedForName(char c);
-    bool isAllowedForNum(char c);
     bool isAllowedForOperator(char c);
 
     bool isOneOfNameTerm(char c);
@@ -112,14 +105,19 @@ private:
     Type getValueType(std::string val);
     Type getOperatorType(std::string val);
     Type getSpecialSignType(char c);
-    State getStateBasedOnFirstSign(char c);
 
 public:
     Scanner() = default;
-    Token getNextToken(std::string);
+    Token getNextToken();
     std::vector<Token> scan();
-    std::vector<Token> testScan(std::string);
 
+    // legacy tylko do testow, bedzie usuniete
+    Token getNextToken(std::string);
+    // not implemented yet
+//    void setPrams(Configuration configuration);
+    char getNextSign();
+
+    void setInput(std::string basicString);
 };
 
 

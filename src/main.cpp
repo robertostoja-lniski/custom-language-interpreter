@@ -2,8 +2,7 @@
 #include "../include/Launcher.h"
 
 int main(int argc, char* argv[]) {
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << argc << std::endl;
+    std::cout << "Scanner launched!" << std::endl;
 
     Launcher launcher;
 
@@ -15,5 +14,6 @@ int main(int argc, char* argv[]) {
     } catch(std::exception& e){
         std::cout << e.what();
     }
+
     return 0;
 }
