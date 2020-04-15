@@ -109,7 +109,7 @@ private:
 public:
     Scanner() = default;
     Token getNextToken();
-    std::vector<Token> scan();
+    void init();
 
     // legacy tylko do testow, bedzie usuniete
     Token getNextToken(std::string);
@@ -117,7 +117,9 @@ public:
 //    void setPrams(Configuration configuration);
     char getNextSign();
 
-    void setInput(std::string basicString);
+    void setInput();
+
+    bool isReadingPossible();
 };
 
 

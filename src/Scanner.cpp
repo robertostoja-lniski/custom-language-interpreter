@@ -3,7 +3,6 @@
 //
 
 #include <string>
-#include <sstream>
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -13,7 +12,7 @@ Token Scanner::getNextToken() {
 
     NumAnalysingHelper numAnalysingHelper;
     std::string val;
-    while (true) {
+    while (isReadingPossible()) {
 
         char sign = getNextSign();
         if (isOperatorPrefix(sign)) {
@@ -112,45 +111,26 @@ Token Scanner::getNextToken() {
             val = val.substr(1, val.size());
             return {val, T_STRING};
         }
-
     }
-
 }
 
-std::vector<Token> Scanner::scan() {
+void Scanner::init() {
 
     std::vector<Token> tokens;
     std::string input;
-    std::getline(std::cin, input);
-    input += "$";
-    setInput(input);
-
-    try {
-         while(currentCharIndex < input.size()) {
-            auto nextToken = getNextToken();
-            tokens.emplace_back(nextToken);
-            std::cout << nextToken << std::endl;
-         }
-    }catch(std::exception& e){
-        std::cout << e.what() << std::endl;
-    }
-    return tokens;
-
+    setInput();
 }
 
 bool Scanner::isAddOperator(char c) {
-    std::vector<char> addOperators = {'-', '+', '|'};
-    return std::find(addOperators.begin(), addOperators.end(), c) != addOperators.end();
+    return c == '-' || c == '+' || c == '|';
 }
 
 bool Scanner::isMultOperator(char c) {
-    std::vector<char> multOperators = {'/', '*', '&'};
-    return std::find(multOperators.begin(), multOperators.end(), c) != multOperators.end();
+    return c == '/' || c == '*' || c == '&';
 }
 
 bool Scanner::isBooleanOperatorPrefix(char c) {
-    std::vector<char> operatorPrefixes = {'=', '>', '<'};
-    return std::find(operatorPrefixes.begin(), operatorPrefixes.end(), c) != operatorPrefixes.end();
+    return c == '=' || c == '>' || c == '<';
 }
 
 bool Scanner::isOperatorPrefix(char c) {
@@ -158,15 +138,12 @@ bool Scanner::isOperatorPrefix(char c) {
 }
 
 bool Scanner::isBooleanOperatorSuffix(char c) {
-    std::vector<char> doubleOperatorSuffixes = {'='};
-    return std::find(doubleOperatorSuffixes.begin(), doubleOperatorSuffixes.end(), c) != doubleOperatorSuffixes.end();
+    return c == '=';
 }
 
 bool Scanner::isSpecifier(std::string val) {
-    std::vector<std::string> specifiers = {"int", "unsigned_int", "float", "string", "system_handler"};
-    return std::find(specifiers.begin(), specifiers.end(), val) != specifiers.end();
+    return val == "int" || val == "unsigned_int" || val == "float" || val == "string" || val == "system_handler";
 }
-
 
 bool Scanner::isOneOfNumTerm(char c) {
     return iswspace(c) || isOperatorPrefix(c) || isBracketOrParenthesis(c) || c == '$' || c == '"';
@@ -289,8 +266,10 @@ char Scanner::getNextSign() {
     return input[currentCharIndex++];
 }
 
-void Scanner::setInput(std::string basicString) {
-    this->input = basicString;
+void Scanner::setInput() {
+    std::getline(std::cin, input);
+    input += "$";
+    this->input = input;
 }
 
 Token Scanner::getNextToken(std::string input) {
@@ -298,6 +277,10 @@ Token Scanner::getNextToken(std::string input) {
     this->input = input;
     this->currentCharIndex = 0;
     return getNextToken();
+}
+
+bool Scanner::isReadingPossible() {
+    return true;
 }
 
 bool operator==(const Token &lhs, const Token &rhs) {
