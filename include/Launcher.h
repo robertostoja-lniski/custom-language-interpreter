@@ -91,9 +91,12 @@ public:
     }
 
     void run() {
-         scanner.init();
-         auto token = scanner.getNextToken();
-         std::cout << token << std::endl;
+
+         int i = 100;
+         while(i--){
+             scanner.getNextToken();
+             scanner.readToken();
+         }
     }
 };
 
