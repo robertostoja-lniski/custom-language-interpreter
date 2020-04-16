@@ -4,11 +4,9 @@
 
 #include <string>
 #include <iostream>
-#include <vector>
-#include <algorithm>
 #include "../include/Scanner.h"
 
-Token Scanner::getNextToken() {
+void Scanner::getNextToken() {
 
     NumAnalysingHelper numAnalysingHelper;
     std::string val;
@@ -26,8 +24,8 @@ Token Scanner::getNextToken() {
                 sign = getNextSign();
             }
 
-            auto type = getOperatorType(val);
-            return {val, type};
+             token = getOperatorType(val);
+             return;
 
         } else if (isdigit(sign)) {
 
@@ -63,7 +61,8 @@ Token Scanner::getNextToken() {
                         throw std::runtime_error("No decimal part in real number");
                     }
 
-                    return {val, T_REAL_NUM};
+                    token = std::make_unique<FloatToken>(val);
+                    return;
 
                 } else if (!isdigit(sign)) {
                     throw std::runtime_error("Forbidden sign in integer number");
@@ -73,7 +72,8 @@ Token Scanner::getNextToken() {
                 sign = getNextSign();
             }
 
-            return {val, T_INT_NUM};
+            token = std::make_unique<IntToken>(val);
+            return;
 
         } else if (isalpha(sign) || sign == '_') {
 
@@ -86,11 +86,12 @@ Token Scanner::getNextToken() {
                 sign = getNextSign();
             }
 
-            auto type = getValueType(val);
-            return {val, type};
+            token = getValueType(val);
+            return;
 
         } else if (sign == '$') {
-            return {"$", T_END};
+            token = std::make_unique<SpecialToken>(val);
+            return;
 
         } else if (iswspace(sign)) {
             continue;
@@ -98,8 +99,8 @@ Token Scanner::getNextToken() {
         } else if (isBracketOrParenthesis(sign) || sign == ',' || sign == ':') {
 
             val += sign;
-            auto type = getSpecialSignType(val[0]);
-            return {val, type};
+            token = getSpecialSignType(val[0]);
+            return;
 
         } else if (sign == '"') {
 
@@ -109,16 +110,9 @@ Token Scanner::getNextToken() {
             }
 
             val = val.substr(1, val.size());
-            return {val, T_STRING};
+            token = std::make_unique<StringToken>(val);
         }
     }
-}
-
-void Scanner::init() {
-
-    std::vector<Token> tokens;
-    std::string input;
-    setInput();
 }
 
 bool Scanner::isAddOperator(char c) {
@@ -157,62 +151,52 @@ bool Scanner::isAllowedForName(char c) {
     return isdigit(c) || isalpha(c) || c == '_';
 }
 
-
-Type Scanner::getValueType(std::string val) {
+std::unique_ptr<Token> Scanner::getValueType(std::string val) {
 
     if(isSpecifier(val)) {
-        return T_SPECIFIER;
+        return std::make_unique<SpecifierToken>(val);
     }
-    if(val == "while") {
-        return T_WHILE;
+    if(val == "while" || val == "if") {
+        return std::make_unique<ExpressionToken>(val);
     }
-    if(val == "if") {
-        return T_IF;
-    }
-    if(val == "exit") {
-        return T_EXIT;
-    }
-    if(val == "do") {
-        return T_DO;
-    }
-    if(val == "done") {
-        return T_DONE;
+    if(val == "do" || val == "done") {
+        return std::make_unique<BlockToken>(val);
     }
 
-    return T_USER_DEFINED_NAME;
+    return std::make_unique<UserDefinedNameToken>(val);
 }
 
 bool Scanner::isOneOfOperatorTerm(char c) {
     return c == ' ' || isdigit(c) || isalpha(c) || c == '$' || isBracketOrParenthesis(c);
 }
 
-Type Scanner::getOperatorType(std::string val) {
+std::unique_ptr<Token> Scanner::getOperatorType(std::string val) {
 
     if(val.size() == 1) {
 
         char sign = val[0];
 
         if(isAddOperator(sign)) {
-            return T_ADD_OPERATOR;
+            return std::make_unique<AddOperatorToken>(sign);
         }
 
         if(isMultOperator(sign)) {
-            return T_MULT_OPERATOR;
+            return std::make_unique<MultOperatorToken>(sign);
         }
 
         if(sign == '='){
-            return T_ASSIGN_OPERATOR;
+            return std::make_unique<AssignOperatorToken>(sign);
         }
 
         if(isBooleanOperatorPrefix(sign)) {
-            return T_BOOLEAN_OPERATOR;
+            return std::make_unique<BooleanOperatorToken>(val);
         }
     }
     if(val.size() == 2) {
-        return T_BOOLEAN_OPERATOR;
+        return std::make_unique<BooleanOperatorToken>(val);
     }
 
-    return T_NOT_DEFINED_YET;
+    return std::make_unique<UnknownToken>("Not defined yet");
 }
 
 
@@ -220,34 +204,21 @@ bool Scanner::isBracketOrParenthesis(char c) {
     return c == ')' || c == '(' || c == '{' || c == '}';
 }
 
-Type Scanner::getSpecialSignType(char c) {
-    if(c == '(') {
-        return T_OPENING_PARENTHESIS;
+std::unique_ptr<Token> Scanner::getSpecialSignType(char c) {
+
+    if(c == '(' || c == ')') {
+        return std::make_unique<ParenthesisToken>(c);
     }
 
-    if(c == ')'){
-        return T_CLOSING_PARENTHESIS;
+    if(c == ',' || c == ':' || c == '$') {
+        return std::make_unique<SpecialToken>(c);
     }
 
-    if(c == ',') {
-        return T_SEMICON;
+    if(c == '{' || c == '}') {
+        return std::make_unique<BracketToken>(c);
     }
 
-    if(c == ':') {
-        return T_CON;
-    }
-
-    if(c == '{') {
-        return T_OPENING_BRACKET;
-    }
-
-    if(c == '}') {
-        return T_CLOSING_BRACKET;
-    }
-
-    if(c == '$') {
-        return T_END;
-    }
+    return std::make_unique<SpecialToken>("unknown");
 }
 
 
@@ -263,34 +234,28 @@ bool Scanner::isOperator(std::string val) {
 }
 
 char Scanner::getNextSign() {
-    return input[currentCharIndex++];
-}
-
-void Scanner::setInput() {
-    std::getline(std::cin, input);
-    input += "$";
-    this->input = input;
-}
-
-Token Scanner::getNextToken(std::string input) {
-
-    this->input = input;
-    this->currentCharIndex = 0;
-    return getNextToken();
+    sourceInterface->getNextSign();
+    return sourceInterface->sign;
 }
 
 bool Scanner::isReadingPossible() {
     return true;
 }
 
+void Scanner::readToken() {
+    std::cout << *token << std::endl;
+}
+
 bool operator==(const Token &lhs, const Token &rhs) {
-    return lhs.val == rhs.val && lhs.type == rhs.type;
+    return lhs.value == rhs.value && typeid(rhs) == typeid(lhs);
 }
 
 bool operator!=(const Token &lhs, const Token &rhs) {
     return !(lhs == rhs);
 }
 
-std::ostream &operator<<(std::ostream &out, const Token &t) {
-    return out << t.val << " " << t.type ;
+std::ostream &operator<<(std::ostream &out, const Token& t) {
+
+    std::string type;
+    return out << t.value;
 }

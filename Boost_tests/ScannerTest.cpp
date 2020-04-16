@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_IF)
     Scanner scanner;
     std::string input = "if" + term;
     Token expectedToken("if", T_IF);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHILE)
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHILE)
     Scanner scanner;
     std::string input = "while" + term;
     Token expectedToken("while", T_WHILE);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DO)
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DO)
     Scanner scanner;
     std::string input = "do" + term;
     Token expectedToken("do", T_DO);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DONE)
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DONE)
     Scanner scanner;
     std::string input = "done" + term;
     Token expectedToken("done", T_DONE);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT)
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT)
     Scanner scanner;
     std::string input = "int" + term;
     Token expectedToken("int", T_SPECIFIER);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_UNSIGNED_INT)
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_UNSIGNED_INT)
     Scanner scanner;
     std::string input = "unsigned_int" + term;
     Token expectedToken("unsigned_int", T_SPECIFIER);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_FLOAT)
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_FLOAT)
     Scanner scanner;
     std::string input = "float" + term;
     Token expectedToken("float", T_SPECIFIER);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_STRING)
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_STRING)
     Scanner scanner;
     std::string input = "string" + term;
     Token expectedToken("string", T_SPECIFIER);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SYSTEM_HANDLER)
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SYSTEM_HANDLER)
     Scanner scanner;
     std::string input = "system_handler" + term;
     Token expectedToken("system_handler", T_SPECIFIER);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_1)
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_1)
     Scanner scanner;
     std::string input = "system _ handler" + term;
     Token expectedToken("system", T_USER_DEFINED_NAME);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_2)
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_2)
     Scanner scanner;
     std::string input = "          system" + term;
     Token expectedToken("system", T_USER_DEFINED_NAME);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_3)
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_3)
     Scanner scanner;
     std::string input = "          s y s t e m" + term;
     Token expectedToken("s", T_USER_DEFINED_NAME);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_4)
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_4)
     Scanner scanner;
     std::string input = "system            " + term;
     Token expectedToken("system", T_USER_DEFINED_NAME);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_MULT)
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_MULT)
     Scanner scanner;
     std::string input = "*" + term;
     Token expectedToken("*", T_MULT_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DIV)
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DIV)
     Scanner scanner;
     std::string input = "/" + term;
     Token expectedToken("/", T_MULT_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_AND)
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_AND)
     Scanner scanner;
     std::string input = "+" + term;
     Token expectedToken("+", T_ADD_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SUB)
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SUB)
     Scanner scanner;
     std::string input = "-" + term;
     Token expectedToken("-", T_ADD_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OR)
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OR)
     Scanner scanner;
     std::string input = "|" + term;
     Token expectedToken("|", T_ADD_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_1)
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_1)
     Scanner scanner;
     std::string input = "<" + term;
     Token expectedToken("<", T_BOOLEAN_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_2)
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_2)
     Scanner scanner;
     std::string input = "<=" + term;
     Token expectedToken("<=", T_BOOLEAN_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_3)
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_3)
     Scanner scanner;
     std::string input = ">" + term;
     Token expectedToken(">", T_BOOLEAN_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_4)
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_4)
     Scanner scanner;
     std::string input = ">=" + term;
     Token expectedToken(">=", T_BOOLEAN_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_5)
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_5)
     Scanner scanner;
     std::string input = "==" + term;
     Token expectedToken("==", T_BOOLEAN_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_ASSIGN)
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_ASSIGN)
     Scanner scanner;
     std::string input = "=" + term;
     Token expectedToken("=", T_ASSIGN_OPERATOR);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_1)
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_1)
     Scanner scanner;
     std::string input = "0" + term;
     Token expectedToken("0", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_2)
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_2)
     Scanner scanner;
     std::string input = "123124135&" + term;
     Token expectedToken("123124135", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_3)
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_3)
     Scanner scanner;
     std::string input = "3232**" + term;
     Token expectedToken("3232", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_4)
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_4)
     Scanner scanner;
     std::string input = "11111111111111111111111111111111" + term;
     Token expectedToken("11111111111111111111111111111111", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_5)
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_5)
     Scanner scanner;
     std::string input = "111111111111111111 11111111111111" + term;
     Token expectedToken("111111111111111111", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_6)
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_6)
     Scanner scanner;
     std::string input = "111111111111111111 abc" + term;
     Token expectedToken("111111111111111111", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_7)
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_7)
     Scanner scanner;
     std::string input = "      9&&&&" + term;
     Token expectedToken("9", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_8)
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_8)
     Scanner scanner;
     std::string input = "8 8 8 8 8 8 8" + term;
     Token expectedToken("8", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_1)
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_1)
     Scanner scanner;
     std::string input = "0.0" + term;
     Token expectedToken("0.0", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_2)
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_2)
     Scanner scanner;
     std::string input = "0.00" + term;
     Token expectedToken("0.00", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_3)
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_3)
     Scanner scanner;
     std::string input = "       0.01" + term;
     Token expectedToken("0.01", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_4)
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_4)
     Scanner scanner;
     std::string input = "0.005" + term;
     Token expectedToken("0.005", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_5)
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_5)
     Scanner scanner;
     std::string input = "123.123" + term;
     Token expectedToken("123.123", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_6)
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_6)
     Scanner scanner;
     std::string input = "999999.999999 9999" + term;
     Token expectedToken("999999.999999", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_7)
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_7)
     Scanner scanner;
     std::string input = "     999999.999999 9999" + term;
     Token expectedToken("999999.999999", T_REAL_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_8)
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_8)
     Scanner scanner;
     std::string input = "     999999     .       999999 9999" + term;
     Token expectedToken("999999", T_INT_NUM);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_1)
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_1)
     Scanner scanner;
     std::string input = "\"a\"" + term;
     Token expectedToken("a", T_STRING);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_2)
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_2)
     Scanner scanner;
     std::string input = "\" a \"" + term;
     Token expectedToken(" a ", T_STRING);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_3)
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_3)
     Scanner scanner;
     std::string input = "\" a b c \"" + term;
     Token expectedToken(" a b c ", T_STRING);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_4)
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_4)
     Scanner scanner;
     std::string input = "\"&|+_*/\"" + term;
     Token expectedToken("&|+_*/", T_STRING);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_5)
@@ -370,7 +370,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_5)
     Scanner scanner;
     std::string input = "\"unsigned_int\"" + term;
     Token expectedToken("unsigned_int", T_STRING);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_PARENTHESIS)
@@ -378,7 +378,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_PARENTHESIS)
     Scanner scanner;
     std::string input = "(" + term;
     Token expectedToken("(", T_OPENING_PARENTHESIS);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CLOSE_PARENTHESIS)
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CLOSE_PARENTHESIS)
     Scanner scanner;
     std::string input = ")" + term;
     Token expectedToken(")", T_CLOSING_PARENTHESIS);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_BRACKET)
@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_BRACKET)
     Scanner scanner;
     std::string input = "{" + term;
     Token expectedToken("{", T_OPENING_BRACKET);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CLOSE_BRACKET)
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CLOSE_BRACKET)
     Scanner scanner;
     std::string input = "}" + term;
     Token expectedToken("}", T_CLOSING_BRACKET);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CON)
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CON)
     Scanner scanner;
     std::string input = ":" + term;
     Token expectedToken(":", T_CON);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SEMICON)
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SEMICON)
     Scanner scanner;
     std::string input = "," + term;
     Token expectedToken(",", T_SEMICON);
-    Token receivedToken = scanner.getNextToken(input);
+scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
 BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_NAME_1)
