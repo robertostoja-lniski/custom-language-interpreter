@@ -4,961 +4,1901 @@
 #include <iostream>
 #include "../include/Scanner.h"
 #include "../src/Scanner.cpp"
-std::string term = "$";
-
-void tokenPrint(std::vector<Token> tokens) {
-
-    for(auto token : tokens) {
-        std::cout << token << std::endl;
-    }
-}
-
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_IF)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_0)
 {
-    Scanner scanner;
-    std::string input = "if" + term;
-    Token expectedToken("if", T_IF);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHILE)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_1)
 {
-    Scanner scanner;
-    std::string input = "while" + term;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "a__" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("a__", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_2)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "adadsa312321" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("adadsa312321", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_3)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd*" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_4)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd&" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_5)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd|" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_6)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd$" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_7)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd:" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_8)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "dasdasdasd." << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("dasdasdasd", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_9)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "inta" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("inta", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_10)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "unsigned_inta" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("unsigned_inta", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_11)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "floata" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("floata", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_12)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "stringa" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("stringa", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_13)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "system_handlera" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("system_handlera", T_USER_DEFINED_NAME);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_14)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "while()" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
     Token expectedToken("while", T_WHILE);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DO)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_15)
 {
-    Scanner scanner;
-    std::string input = "do" + term;
-    Token expectedToken("do", T_DO);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "while" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("while", T_WHILE);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DONE)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_16)
 {
-    Scanner scanner;
-    std::string input = "done" + term;
-    Token expectedToken("done", T_DONE);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "while*" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("while", T_WHILE);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_17)
 {
-    Scanner scanner;
-    std::string input = "int" + term;
-    Token expectedToken("int", T_SPECIFIER);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "while|" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("while", T_WHILE);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_UNSIGNED_INT)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_18)
 {
-    Scanner scanner;
-    std::string input = "unsigned_int" + term;
-    Token expectedToken("unsigned_int", T_SPECIFIER);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "if(" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("if", T_IF);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_FLOAT)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_19)
 {
-    Scanner scanner;
-    std::string input = "float" + term;
-    Token expectedToken("float", T_SPECIFIER);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "if" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("if", T_IF);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_STRING)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_20)
 {
-    Scanner scanner;
-    std::string input = "string" + term;
-    Token expectedToken("string", T_SPECIFIER);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "exit" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("exit", T_EXIT);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SYSTEM_HANDLER)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_21)
 {
-    Scanner scanner;
-    std::string input = "system_handler" + term;
-    Token expectedToken("system_handler", T_SPECIFIER);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_1)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_22)
 {
-    Scanner scanner;
-    std::string input = "system _ handler" + term;
-    Token expectedToken("system", T_USER_DEFINED_NAME);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "0.3213" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("0.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_23)
 {
-    Scanner scanner;
-    std::string input = "          system" + term;
-    Token expectedToken("system", T_USER_DEFINED_NAME);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.0003213" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.0003213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_3)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_24)
 {
-    Scanner scanner;
-    std::string input = "          s y s t e m" + term;
-    Token expectedToken("s", T_USER_DEFINED_NAME);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WHITESPACE_REMOVING_4)
-{
-    Scanner scanner;
-    std::string input = "system            " + term;
-    Token expectedToken("system", T_USER_DEFINED_NAME);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_MULT)
-{
-    Scanner scanner;
-    std::string input = "*" + term;
-    Token expectedToken("*", T_MULT_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_DIV)
-{
-    Scanner scanner;
-    std::string input = "/" + term;
-    Token expectedToken("/", T_MULT_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_AND)
-{
-    Scanner scanner;
-    std::string input = "+" + term;
-    Token expectedToken("+", T_ADD_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SUB)
-{
-    Scanner scanner;
-    std::string input = "-" + term;
-    Token expectedToken("-", T_ADD_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OR)
-{
-    Scanner scanner;
-    std::string input = "|" + term;
-    Token expectedToken("|", T_ADD_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_1)
-{
-    Scanner scanner;
-    std::string input = "<" + term;
-    Token expectedToken("<", T_BOOLEAN_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_2)
-{
-    Scanner scanner;
-    std::string input = "<=" + term;
-    Token expectedToken("<=", T_BOOLEAN_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_3)
-{
-    Scanner scanner;
-    std::string input = ">" + term;
-    Token expectedToken(">", T_BOOLEAN_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_4)
-{
-    Scanner scanner;
-    std::string input = ">=" + term;
-    Token expectedToken(">=", T_BOOLEAN_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_BOOLEAN_5)
-{
-    Scanner scanner;
-    std::string input = "==" + term;
-    Token expectedToken("==", T_BOOLEAN_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_ASSIGN)
-{
-    Scanner scanner;
-    std::string input = "=" + term;
-    Token expectedToken("=", T_ASSIGN_OPERATOR);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_1)
-{
-    Scanner scanner;
-    std::string input = "0" + term;
-    Token expectedToken("0", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_2)
-{
-    Scanner scanner;
-    std::string input = "123124135&" + term;
-    Token expectedToken("123124135", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_3)
-{
-    Scanner scanner;
-    std::string input = "3232**" + term;
-    Token expectedToken("3232", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_4)
-{
-    Scanner scanner;
-    std::string input = "11111111111111111111111111111111" + term;
-    Token expectedToken("11111111111111111111111111111111", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_5)
-{
-    Scanner scanner;
-    std::string input = "111111111111111111 11111111111111" + term;
-    Token expectedToken("111111111111111111", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_6)
-{
-    Scanner scanner;
-    std::string input = "111111111111111111 abc" + term;
-    Token expectedToken("111111111111111111", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_7)
-{
-    Scanner scanner;
-    std::string input = "      9&&&&" + term;
-    Token expectedToken("9", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_INT_NUM_8)
-{
-    Scanner scanner;
-    std::string input = "8 8 8 8 8 8 8" + term;
-    Token expectedToken("8", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
-    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
-}
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_1)
-{
-    Scanner scanner;
-    std::string input = "0.0" + term;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "0.0" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
     Token expectedToken("0.0", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_25)
 {
-    Scanner scanner;
-    std::string input = "0.00" + term;
-    Token expectedToken("0.00", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213-" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_3)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_26)
 {
-    Scanner scanner;
-    std::string input = "       0.01" + term;
-    Token expectedToken("0.01", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213+" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_4)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_27)
 {
-    Scanner scanner;
-    std::string input = "0.005" + term;
-    Token expectedToken("0.005", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213*" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_5)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_28)
 {
-    Scanner scanner;
-    std::string input = "123.123" + term;
-    Token expectedToken("123.123", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213/" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_6)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_29)
 {
-    Scanner scanner;
-    std::string input = "999999.999999 9999" + term;
-    Token expectedToken("999999.999999", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213|" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_7)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_30)
 {
-    Scanner scanner;
-    std::string input = "     999999.999999 9999" + term;
-    Token expectedToken("999999.999999", T_REAL_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213&" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_REAL_NUM_8)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_31)
 {
-    Scanner scanner;
-    std::string input = "     999999     .       999999 9999" + term;
-    Token expectedToken("999999", T_INT_NUM);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "123.3213a" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("123.3213", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_1)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_32)
 {
-    Scanner scanner;
-    std::string input = "\"a\"" + term;
-    Token expectedToken("a", T_STRING);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_33)
 {
-    Scanner scanner;
-    std::string input = "\" a \"" + term;
-    Token expectedToken(" a ", T_STRING);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123-" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_3)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_34)
 {
-    Scanner scanner;
-    std::string input = "\" a b c \"" + term;
-    Token expectedToken(" a b c ", T_STRING);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123+" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_4)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_35)
 {
-    Scanner scanner;
-    std::string input = "\"&|+_*/\"" + term;
-    Token expectedToken("&|+_*/", T_STRING);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123*" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SIGN_5)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_36)
 {
-    Scanner scanner;
-    std::string input = "\"unsigned_int\"" + term;
-    Token expectedToken("unsigned_int", T_STRING);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123()" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_PARENTHESIS)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_37)
 {
-    Scanner scanner;
-    std::string input = "(" + term;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123:" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_38)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "3123." << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("3123.", T_REAL_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_39)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "0" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("0", T_INT_NUM);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_40)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "do" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("do", T_DO);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_41)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "done" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("done", T_DONE);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_42)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+a" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_43)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+_" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_44)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "++" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_45)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_46)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+==" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_47)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+>" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_48)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+<" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_49)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+123" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_50)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+int" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_51)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+0.0" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_52)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "+.." << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("+", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_53)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-a" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_54)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-_" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_55)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-+" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_56)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_57)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-+==" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_58)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "->" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_59)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-<" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_60)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-123" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_61)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-int" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_62)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-0.0" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_63)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "-.." << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("-", T_ADD_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_64)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "*0.0" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("*", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_65)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "*a" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("*", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_66)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "*_" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("*", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_67)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "*6" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("*", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_68)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "*>" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("*", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_69)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "*<" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("*", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_70)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/0.0" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_71)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/a" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_72)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/_" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_73)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/6" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_74)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/>" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_75)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/<" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_MULT_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_76)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "==" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("==", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_77)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ">=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(">=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_78)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "<=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("<=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_79)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "==a__" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("==", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_80)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "==eqweq" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("==", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_81)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ">=eqweq" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(">=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_82)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "<=0.002" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("<=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_83)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "==int" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("==", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_84)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "<=*" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("<=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_85)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ">=/" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(">=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_86)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "==--" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("==", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_87)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "<==" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("<=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_88)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "<=<=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("<=", T_BOOLEAN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_89)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("=", T_ASSIGN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_90)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "=-" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("=", T_ASSIGN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_91)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "=+" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("=", T_ASSIGN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_92)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "=rre" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("=", T_ASSIGN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_93)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "=123.123" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("=", T_ASSIGN_OPERATOR);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_94)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "int" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("int", T_SPECIFIER);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_95)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "unsigned_int" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("unsigned_int", T_SPECIFIER);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_96)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "string" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("string", T_SPECIFIER);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_97)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "system_handler" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("system_handler", T_SPECIFIER);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_98)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "float" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("float", T_SPECIFIER);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_99)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "(" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
     Token expectedToken("(", T_OPENING_PARENTHESIS);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CLOSE_PARENTHESIS)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_100)
 {
-    Scanner scanner;
-    std::string input = ")" + term;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "(a" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_101)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "()" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_102)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "(=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_103)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "(*" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_104)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "(==" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_105)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "(3123.33" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_106)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "($" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken("(", T_OPENING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_107)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ")" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
     Token expectedToken(")", T_CLOSING_PARENTHESIS);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_OPEN_BRACKET)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_108)
 {
-    Scanner scanner;
-    std::string input = "{" + term;
-    Token expectedToken("{", T_OPENING_BRACKET);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ")a__" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(")", T_CLOSING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CLOSE_BRACKET)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_109)
 {
-    Scanner scanner;
-    std::string input = "}" + term;
-    Token expectedToken("}", T_CLOSING_BRACKET);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "))" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(")", T_CLOSING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_CON)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_110)
 {
-    Scanner scanner;
-    std::string input = ":" + term;
-    Token expectedToken(":", T_CON);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "){}" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(")", T_CLOSING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_SEMICON)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_111)
 {
-    Scanner scanner;
-    std::string input = "," + term;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ")eqwe" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(")", T_CLOSING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_112)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ")<=" << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
+    Token expectedToken(")", T_CLOSING_PARENTHESIS);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
+}
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_113)
+{
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "," << "$";
+    outfile.close();
+
+    Scanner scanner("tmp.txt");
     Token expectedToken(",", T_SEMICON);
-scanner.setDataToParse(input);Token receivedToken = scanner.getNextToken();
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
     BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_NAME_1)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_114)
 {
-    Scanner scanner;
-    std::string input = "asdasd%" + term;
-    std::string expectedMsg = "Error in reading name";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ".eqwe" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(".", T_SEMICON);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_NAME_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_115)
 {
-    Scanner scanner;
-    std::string input = "asdasd#&" + term;
-    std::string expectedMsg = "Error in reading name";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ".0003" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(".", T_SEMICON);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_1)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_116)
 {
-    Scanner scanner;
-    std::string input = "10." + term;
-    std::string expectedMsg = "No decimal part in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ":" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(":", T_CON);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_117)
 {
-    Scanner scanner;
-    std::string input = "10." + term;
-    std::string expectedMsg = "No decimal part in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ":eqwe" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(":", T_CON);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_3)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_118)
 {
-    Scanner scanner;
-    std::string input = "0." + term;
-    std::string expectedMsg = "No decimal part in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ":dd" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(":", T_CON);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_4)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_119)
 {
-    Scanner scanner;
-    std::string input = "0." + term;
-    std::string expectedMsg = "No decimal part in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ":ww" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(":", T_CON);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_5)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_120)
 {
-    Scanner scanner;
-    std::string input = "10.00000#" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "{" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("{", T_OPENING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_6)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_121)
 {
-    Scanner scanner;
-    std::string input = "1123.33@" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "{do" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("{", T_OPENING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_7)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_122)
 {
-    Scanner scanner;
-    std::string input = "9809.809!" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "{done" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("{", T_OPENING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_8)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_123)
 {
-    Scanner scanner;
-    std::string input = "99999.A" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "{." << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("{", T_OPENING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_9)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_124)
 {
-    Scanner scanner;
-    std::string input = "998888.Z" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "{qweqw" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("{", T_OPENING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_10)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_125)
 {
-    Scanner scanner;
-    std::string input = "0.3123a" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "{}" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("{", T_OPENING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_11)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_126)
 {
-    Scanner scanner;
-    std::string input = "0.3123z" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_12)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_127)
 {
-    Scanner scanner;
-    std::string input = "0.3123_" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}eqwe" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_13)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_128)
 {
-    Scanner scanner;
-    std::string input = "0.3123:" + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}22" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_14)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_129)
 {
-    Scanner scanner;
-    std::string input = "0.3123321312." + term;
-    std::string expectedMsg = "Forbidden sign in real number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}$" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_15)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_130)
 {
-    Scanner scanner;
-    std::string input = "000" + term;
-    std::string expectedMsg = "Too many zeros in prefix";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}$" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_REAL_NUM_16)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_131)
 {
-    Scanner scanner;
-    std::string input = "000." + term;
-    std::string expectedMsg = "Too many zeros in prefix";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}%" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_INT_NUM_1)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_132)
 {
-    Scanner scanner;
-    std::string input = "12a" + term;
-    std::string expectedMsg = "Forbidden sign in integer number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "}&" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("}", T_CLOSING_BRACKET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_INT_NUM_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_133)
 {
-    Scanner scanner;
-    std::string input = "12#" + term;
-    std::string expectedMsg = "Forbidden sign in integer number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "$" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("$", T_END);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_INT_NUM_3)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_134)
 {
-    Scanner scanner;
-    std::string input = "12312321321~" + term;
-    std::string expectedMsg = "Forbidden sign in integer number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "$$$" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("$", T_END);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_INT_NUM_4)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_135)
 {
-    Scanner scanner;
-    std::string input = "12[" + term;
-    std::string expectedMsg = "Forbidden sign in integer number";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "$afetrerer" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("$", T_END);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_1)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_136)
 {
-    Scanner scanner;
-    std::string input = ">*" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "$." << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("$", T_END);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_2)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_137)
 {
-    Scanner scanner;
-    std::string input = "<*" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "^" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("^", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_3)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_138)
 {
-    Scanner scanner;
-    std::string input = "=*" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "%" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("%", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_4)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_139)
 {
-    Scanner scanner;
-    std::string input = "<<" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "#" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("#", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_5)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_140)
 {
-    Scanner scanner;
-    std::string input = ">>" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "@" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("@", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_6)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_141)
 {
-    Scanner scanner;
-    std::string input = "<>" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "!" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("!", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_7)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_142)
 {
-    Scanner scanner;
-    std::string input = "><" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "~" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("~", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_8)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_143)
 {
-    Scanner scanner;
-    std::string input = "<>" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "`" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("`", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_9)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_144)
 {
-    Scanner scanner;
-    std::string input = "=<" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << "/" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken("/", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-BOOST_AUTO_TEST_CASE(SINGLE_TOKEN_WRONG_OPERATOR_10)
+BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_145)
 {
-    Scanner scanner;
-    std::string input = "=>" + term;
-    std::string expectedMsg = "Forbidden sign in reading operator";
-    std::string actualMsg;
+    std::ofstream outfile;
+    outfile.open("tmp.txt", std::ofstream::out | std::ofstream::trunc);
+    outfile << ";" << "$";
+    outfile.close();
 
-    try{
-        scanner.getNextToken(input);
-    } catch(std::exception& e) {
-        actualMsg = e.what();
-    }
-
-    BOOST_CHECK_EQUAL(expectedMsg, actualMsg);
+    Scanner scanner("tmp.txt");
+    Token expectedToken(";", T_NOT_DEFINED_YET);
+    scanner.getNextToken();
+    auto receivedToken = scanner.getTokenValue(); 
+    BOOST_CHECK_EQUAL(expectedToken, receivedToken);
 }
-
-//BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_1)
-//{
-//    Scanner scanner;
-//    std::string input = "int a";
-//    std::vector<Token> expectedTokens = {{"int", T_SPECIFIER}, {"a", T_USER_DEFINED_NAME}, {"$", T_END}};
-//    std::vector<Token> actualTokens = scanner.testScan(input);
-//
-//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-//}
-//
-//BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_2) {
-//    Scanner scanner;
-//    std::string input = "system_handler a = 500";
-//    std::vector<Token> expectedTokens = {{"system_handler", T_SPECIFIER},
-//                                         {"a",              T_USER_DEFINED_NAME},
-//                                         {"=",              T_ASSIGN_OPERATOR},
-//                                         {"500",            T_INT_NUM},
-//                                         {"$",              T_END}};
-//    std::vector<Token> actualTokens = scanner.testScan(input);
-//
-//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(),
-//                                  actualTokens.end());
-//}
-//BOOST_AUTO_TEST_CASE(MANY_TOKENS_DECLARATION_3)
-//{
-//    Scanner scanner;
-//    std::string input = "system_handler a = my_var";
-//    std::vector<Token> expectedTokens = {{"system_handler", T_SPECIFIER}, {"a", T_USER_DEFINED_NAME},
-//                                         {"=", T_ASSIGN_OPERATOR}, {"my_var", T_USER_DEFINED_NAME}, {"$", T_END}};
-//    std::vector<Token> actualTokens = scanner.testScan(input);
-//
-//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-//}
-//BOOST_AUTO_TEST_CASE(MANY_TOKENS_COMPLEX_EXPR_1)
-//{
-//    Scanner scanner;
-//    std::string input = "if(abc == 5        ) do w = 1.00005 done";
-//    std::vector<Token> expectedTokens = {{"if", T_IF}, {"(", T_OPENING_PARENTHESIS}, {"abc" , T_USER_DEFINED_NAME},
-//                                         {"==", T_BOOLEAN_OPERATOR}, {"5", T_INT_NUM}, {")", T_CLOSING_PARENTHESIS},
-//                                         {"do", T_DO}, {"w", T_USER_DEFINED_NAME}, {"=", T_ASSIGN_OPERATOR},
-//                                         {"1.00005", T_REAL_NUM}, {"done", T_DONE}, {"$", T_END}};
-//    std::vector<Token> actualTokens = scanner.testScan(input);
-//
-//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-//}
-//BOOST_AUTO_TEST_CASE(MANY_TOKENS_COMPLEX_EXPR_2)
-//{
-//    Scanner scanner;
-//    std::string input = "name * 5  & ( a + e22222 )*(12312 - 111.3333   * 123) | a";
-//    std::vector<Token> expectedTokens = {{"name", T_USER_DEFINED_NAME}, {"*", T_MULT_OPERATOR}, {"5", T_INT_NUM},
-//                                         {"&", T_MULT_OPERATOR},{"(", T_OPENING_PARENTHESIS}, {"a", T_USER_DEFINED_NAME},
-//                                         {"+", T_ADD_OPERATOR},{"e22222", T_USER_DEFINED_NAME}, {")", T_CLOSING_PARENTHESIS},
-//                                         {"*", T_MULT_OPERATOR},{"(", T_OPENING_PARENTHESIS}, {"12312", T_INT_NUM},
-//                                         {"-", T_ADD_OPERATOR},{"111.3333", T_REAL_NUM}, {"*", T_MULT_OPERATOR},
-//                                         {"123", T_INT_NUM},{")", T_CLOSING_PARENTHESIS},{"|", T_ADD_OPERATOR},
-//                                         {"a", T_USER_DEFINED_NAME}, {"$", T_END}};
-//    std::vector<Token> actualTokens = scanner.testScan(input);
-//
-//    BOOST_CHECK_EQUAL_COLLECTIONS(expectedTokens.begin(), expectedTokens.end(), actualTokens.begin(), actualTokens.end());
-//}
