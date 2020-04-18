@@ -92,7 +92,7 @@ public:
 
     void run() {
 
-         int i = 100;
+         int i = 20;
          while(i--){
              scanner.getNextToken();
              scanner.readToken();
