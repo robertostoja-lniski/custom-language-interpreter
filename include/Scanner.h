@@ -59,145 +59,54 @@ struct TerminalInterface : public SourceInterface {
     void getNextSign() {
     }
 };
+
+enum Type {
+
+    ANY = 0,
+    T_USER_DEFINED_NAME = 1,
+    T_WHILE = 2,
+    T_IF = 3,
+    T_EXIT = 4,
+    T_REAL_NUM = 5,
+    T_INT_NUM = 6,
+    T_DO = 7,
+    T_DONE = 8,
+    T_ADD_OPERATOR = 9,
+    T_MULT_OPERATOR = 10,
+    T_BOOLEAN_OPERATOR = 11,
+    T_ASSIGN_OPERATOR = 12,
+    T_SPECIFIER = 13,
+    T_OPENING_PARENTHESIS = 14,
+    T_CLOSING_PARENTHESIS = 15,
+    T_SEMICON = 16,
+    T_CON = 17,
+    T_OPENING_BRACKET = 18,
+    T_CLOSING_BRACKET = 19,
+    T_END = 20,
+    T_NOT_DEFINED_YET = 21,
+    T_STRING = 22,
+
+};
+
 class Token {
 
-protected:
+private:
     std::string value;
-    Position position;
+    Type type;
+//    Position position;
 
 public:
     Token() = default;
+    Token(std::string value, Type type) : value(value), type(type) {}
+    Token(char sign, Type type) : type(type) {
+        value = sign;
+    }
 
+    std::string getValue() { return value; }
+    Type getType() { return type; }
     friend bool operator==(const Token& lhs, const Token& rhs);
     friend bool operator!=(const Token& lhs, const Token& rhs);
     friend std::ostream& operator<<(std::ostream& out, const Token& t);
-};
-
-class UserDefinedNameToken : public Token {
-public:
-    UserDefinedNameToken(std::string arg) {
-        value = arg;
-    }
-};
-class IntToken : public Token {
-public:
-    IntToken(std::string digits) {
-        value = digits;
-    }
-};
-class FloatToken : public Token {
-public:
-    FloatToken(std::string arg) {
-        value = arg;
-    }
-};
-class ExpressionToken : public Token {
-public:
-    ExpressionToken(std::string type) {
-        value = type;
-    }
-};
-class BlockToken : public Token {
-public:
-    BlockToken(std::string type) {
-        value = type;
-    }
-};
-class AddOperatorToken : public Token {
-public:
-    AddOperatorToken(std::string op) {
-        value = op;
-    }
-    AddOperatorToken(char op) {
-        value = op;
-    }
-};
-class MultOperatorToken : public Token {
-public:
-    MultOperatorToken(std::string op) {
-        value = op;
-    }
-    MultOperatorToken(char op) {
-        value = op;
-    }
-};
-class AssignOperatorToken : public Token {
-public:
-    AssignOperatorToken() {
-        value = "=";
-    }
-    AssignOperatorToken(char sign) {
-        value = sign;
-    }
-};
-class BooleanOperatorToken : public Token {
-public:
-    BooleanOperatorToken(std::string op) {
-        value = op;
-    }
-};
-class SpecifierToken : public Token {
-public:
-    SpecifierToken(std::string specifier) {
-        value = specifier;
-    }
-};
-class ParenthesisToken : public Token {
-public:
-    ParenthesisToken(std::string prn) {
-        value = prn;
-    }
-    ParenthesisToken(char prn) {
-        value = prn;
-    }
-};
-class InterpunctionToken : public Token {
-public:
-    InterpunctionToken(std::string interpunction) {
-        value = interpunction;
-    }
-    InterpunctionToken(char interpunction) {
-        value = interpunction;
-    }
-};
-class StringToken : public Token {
-public:
-    StringToken(std::string string) {
-        value = string;
-    }
-};
-class BracketToken : public Token {
-public:
-    BracketToken(std::string bracket) {
-        value = bracket;
-    }
-    BracketToken(char bracket) {
-        value = bracket;
-    }
-};
-class SpecialToken : public Token {
-public:
-    SpecialToken(std::string special) {
-        value = special;
-    }
-    SpecialToken(char special) {
-        value = special;
-    }
-};
-class UnknownToken : public Token {
-public:
-    UnknownToken(std::string val) {
-        value = val;
-    }
-};
-
-struct NumAnalysingHelper {
-
-    std::string integralPart;
-    bool hasCon {false};
-    bool hasDecimalPart {false};
-    bool hasLeadingZero{false};
-
 };
 
 class Scanner {
@@ -206,39 +115,36 @@ private:
 
     std::unique_ptr<SourceInterface> sourceInterface;
     std::unique_ptr<Token> token;
+    char sign;
 
     bool isOperatorPrefix(char c);
     bool isAddOperator(char c);
     bool isMultOperator(char c);
 
     bool isBooleanOperatorPrefix(char c);
-    bool isBooleanOperatorSuffix(char c);
     bool isBracketOrParenthesis(char c);
 
-    bool isOperator(std::string val);
-    bool isAllowedForName(char c);
-
-    bool isOneOfNameTerm(char c);
     bool isOneOfNumTerm(char c);
-    bool isOneOfOperatorTerm(char c);
-
     bool isSpecifier(std::string val);
 
     std::unique_ptr<Token> getValueType(std::string val);
-    std::unique_ptr<Token> getOperatorType(std::string val);
     std::unique_ptr<Token> getSpecialSignType(char c);
 
 public:
     Scanner() {
         sourceInterface = std::make_unique<FileInterface>();
+        getNextSign();
     }
-
+    Scanner(std::string path) {
+        sourceInterface = std::make_unique<FileInterface>(path);
+        getNextSign();
+    }
     void getNextToken();
     void readToken();
     // not implemented yet
 //  void setPrams(Configuration configuration);
     char getNextSign();
-    bool isReadingPossible();
+    Token getTokenValue();
 };
 
 
