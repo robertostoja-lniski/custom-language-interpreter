@@ -74,9 +74,6 @@ std::unique_ptr<Token> Scanner::getSpecialSignType(char c) {
     if(c == ':') {
         return std::make_unique<Token>(c, T_CON, position);
     }
-    if(c == '$') {
-        return std::make_unique<Token>(c, T_END, position);
-    }
     if(c == '{') {
         return std::make_unique<Token>(c, T_OPENING_BRACKET, position);
     }
@@ -120,13 +117,18 @@ std::string Scanner::appendValWhileIsDigit(std::string val) {
 
 bool Scanner::tryToBuildSimpleToken() {
     std::string val;
-    if(sign == '*' || sign == '/' || sign == '|') {
+    if(sign == EOF) {
+        val += sign;
+        finalizeGeneratingToken(val, T_EOF);
+        exit(0);
+    }
+    if(sign == '*' || sign == '/' || sign == '&') {
         val += sign;
         finalizeGeneratingToken(val, T_MULT_OPERATOR);
         return true;
     }
 
-    if( sign == '+' || sign == '-' || sign == '$'){
+    if( sign == '+' || sign == '-' || sign == '|'){
         val += sign;
         finalizeGeneratingToken(val, T_ADD_OPERATOR);
         return true;
@@ -153,14 +155,13 @@ bool Scanner::tryToBuildSimpleToken() {
         }
     } else if (isBracketOrParenthesis(sign) || sign == ',' || sign == ':') {
 
-        val += sign;
-        token = getSpecialSignType(val[0]);
+        token = getSpecialSignType(sign);
         getNextSign();
         return true;
 
     }  else if (sign == '$') {
         finalizeGeneratingToken(sign, T_END);
-        return true;
+        exit(0);
     }
 
     return false;
@@ -238,6 +239,24 @@ bool Scanner::tryToBuildNotDefinedToken() {
     finalizeGeneratingToken(sign, T_NOT_DEFINED_YET);
     return true;
 }
+
+Scanner::Scanner(Configuration configuration) {
+
+    this->isVerbose = configuration.isVerbose;
+
+    if(!configuration.inputPath.empty()) {
+        sourceInterface = std::make_unique<FileInterface>(configuration.inputPath);
+    } else {
+        sourceInterface = std::make_unique<TerminalInterface>();
+    }
+
+    if(!configuration.outputPath.empty()) {
+        //TODO raports and analyses will be added in final project step.
+    }
+
+    getNextSign();
+}
+
 
 bool operator==(const Token &lhs, const Token &rhs) {
     return lhs.value == rhs.value && typeid(rhs) == typeid(lhs);
