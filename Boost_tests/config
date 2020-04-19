@@ -6,7 +6,6 @@ dasdasdasd&  dasdasdasd  T_USER_DEFINED_NAME
 dasdasdasd|  dasdasdasd  T_USER_DEFINED_NAME
 dasdasdasd$  dasdasdasd  T_USER_DEFINED_NAME
 dasdasdasd:  dasdasdasd  T_USER_DEFINED_NAME
-dasdasdasd.  dasdasdasd  T_USER_DEFINED_NAME
 inta  inta  T_USER_DEFINED_NAME
 unsigned_inta  unsigned_inta  T_USER_DEFINED_NAME
 floata  floata  T_USER_DEFINED_NAME
@@ -34,9 +33,7 @@ exit     exit           T_EXIT
 3123-            3123            T_INT_NUM
 3123+            3123            T_INT_NUM
 3123*            3123            T_INT_NUM
-3123()            3123            T_INT_NUM
 3123:            3123            T_INT_NUM
-3123.            3123.            T_REAL_NUM
 0            0            T_INT_NUM
 do  do  T_DO
 done    done    T_DONE

@@ -2181,7 +2181,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_1)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("dasdasdasd", T_USER_DEFINED_NAME);
-    Token expectedToken2("&", T_MULT_OPERATOR);
+    Token expectedToken2("&", T_BOOLEAN_AND);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
@@ -2201,7 +2201,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_2)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("dasdasdasd", T_USER_DEFINED_NAME);
-    Token expectedToken2("|", T_ADD_OPERATOR);
+    Token expectedToken2("|", T_BOOLEAN_OR);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
@@ -2301,7 +2301,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_7)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("while", T_WHILE);
-    Token expectedToken2("|", T_ADD_OPERATOR);
+    Token expectedToken2("|", T_BOOLEAN_OR);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
@@ -2421,7 +2421,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_13)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("123.3213", T_REAL_NUM);
-    Token expectedToken2("|", T_ADD_OPERATOR);
+    Token expectedToken2("|", T_BOOLEAN_OR);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
@@ -2441,7 +2441,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_14)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("123.3213", T_REAL_NUM);
-    Token expectedToken2("&", T_MULT_OPERATOR);
+    Token expectedToken2("&", T_BOOLEAN_AND);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
@@ -3521,7 +3521,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_68)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("string", T_SPECIFIER);
-    Token expectedToken2("&", T_MULT_OPERATOR);
+    Token expectedToken2("&", T_BOOLEAN_AND);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
@@ -4041,7 +4041,7 @@ BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_MULTI_NON_UNIT_94)
     configuration.inputPath = "tmp.txt";
     Scanner scanner(configuration);
     Token expectedToken1("}", T_CLOSING_BRACKET);
-    Token expectedToken2("&", T_MULT_OPERATOR);
+    Token expectedToken2("&", T_BOOLEAN_AND);
     scanner.getNextToken();
     auto receivedToken1 = scanner.getTokenValue();
     scanner.getNextToken();
