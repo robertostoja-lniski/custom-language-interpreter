@@ -35,25 +35,25 @@ std::unique_ptr<Token> Scanner::createTokenFromValue(std::string val) {
     }
     return std::make_unique<Token>(val, T_USER_DEFINED_NAME, position);
 }
-std::unique_ptr<Token> Scanner::createSpecialSignToken(char c) {
+std::unique_ptr<Token> Scanner::createSpecialSignToken(std::string val) {
     off64_t position = sourceInterface->position;
-    if(c == '(') {
-        return std::make_unique<Token>(c, T_OPENING_PARENTHESIS, position);
+    if(val == "(") {
+        return std::make_unique<Token>(val, T_OPENING_PARENTHESIS, position);
     }
-    if(c == ')') {
-        return std::make_unique<Token>(c, T_CLOSING_PARENTHESIS, position);
+    if(val == ")") {
+        return std::make_unique<Token>(val, T_CLOSING_PARENTHESIS, position);
     }
-    if(c == ',') {
-        return std::make_unique<Token>(c, T_SEMICON, position);
+    if(val == ",") {
+        return std::make_unique<Token>(val, T_SEMICON, position);
     }
-    if(c == ':') {
-        return std::make_unique<Token>(c, T_CON, position);
+    if(val == ":") {
+        return std::make_unique<Token>(val, T_CON, position);
     }
-    if(c == '{') {
-        return std::make_unique<Token>(c, T_OPENING_BRACKET, position);
+    if(val == "{") {
+        return std::make_unique<Token>(val, T_OPENING_BRACKET, position);
     }
-    if(c == '}') {
-        return std::make_unique<Token>(c, T_CLOSING_BRACKET, position);
+    if(val == "}") {
+        return std::make_unique<Token>(val, T_CLOSING_BRACKET, position);
     }
 }
 char Scanner::getNextSign() {
@@ -66,67 +66,64 @@ void Scanner::readToken() {
 Token Scanner::getTokenValue() {
     return {token->getValue(), token->getType(), token->getPosition()};
 }
-void Scanner::finalizeGeneratingToken(std::string val, Type type) {
-    off64_t position = sourceInterface->position;
-    token = std::make_unique<Token>(val, type, position);
-}
-void Scanner::finalizeGeneratingToken(char c, Type type) {
-    off64_t position = sourceInterface->position;
-    token = std::make_unique<Token>(c, type, position);
-}
 std::string Scanner::appendValWhileIsDigit(std::string val) {
     do {
-        val+=sign;
-        getNextSign();
+        val = appendVal(val);
     } while(isdigit(sign));
     return val;
 }
 bool Scanner::tryToBuildSimpleToken() {
     std::string val;
+
     if(sign == EOF) {
-        val += sign;
-        finalizeGeneratingToken(val, T_EOF);
-        getNextSign();
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_EOF, sourceInterface->position);
         throw std::runtime_error("End of file reached");
     }
-    if(sign == '*' || sign == '/' || sign == '&') {
-        val += sign;
-        finalizeGeneratingToken(val, T_MULT_OPERATOR);
-        getNextSign();
+    if(sign == '*' || sign == '/') {
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_MULT_OPERATOR, sourceInterface->position);
         return true;
     }
-    if( sign == '+' || sign == '-' || sign == '|'){
-        val += sign;
-        finalizeGeneratingToken(val, T_ADD_OPERATOR);
-        getNextSign();
+    if(sign == '&') {
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_BOOLEAN_AND, sourceInterface->position);
+        return true;
+    }
+    if(sign == '+' || sign == '-'){
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_ADD_OPERATOR, sourceInterface->position);
+        return true;
+    }
+    if(sign == '|') {
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_BOOLEAN_OR, sourceInterface->position);
         return true;
     }
     // assign or boolean prefix
     if(sign == '=' || sign == '>' || sign == '<') {
-        val += sign;
-        getNextSign();
-
+        val = appendVal(val);
         if(sign == '=') {
-            val += sign;
-            finalizeGeneratingToken(val, T_BOOLEAN_OPERATOR);
-            getNextSign();
+            val = appendVal(val);
+            token = std::make_unique<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position);
             return true;
         } else {
             if(val == "=") {
-                finalizeGeneratingToken(val, T_ASSIGN_OPERATOR);
+                token = std::make_unique<Token>(val, T_ASSIGN_OPERATOR, sourceInterface->position);
                 return true;
             } else {
-                finalizeGeneratingToken(val, T_BOOLEAN_OPERATOR);
+                token = std::make_unique<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position);
                 return true;
             }
         }
     } else if (sign == ')' || sign == '(' || sign == '{' || sign == '}' || sign == ',' || sign == ':') {
-        token = createSpecialSignToken(sign);
-        getNextSign();
+        val = appendVal(val);
+        token = createSpecialSignToken(val);
         return true;
 
     }  else if (sign == '$') {
-        finalizeGeneratingToken(sign, T_END);
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_END, sourceInterface->position);
         return true;
     }
     return false;
@@ -140,17 +137,14 @@ bool Scanner::tryToBuildNumToken() {
             val = appendValWhileIsDigit(val);
         } else {
             // single zero prefix
-            val+=sign;
-            getNextSign();
+            val = appendVal(val);
         }
         // try to generate sufix
         if(sign == '.') {
-            val+=sign;
-            getNextSign();
-
+            val = appendVal(val);
             if(isdigit(sign)) {
                 val = appendValWhileIsDigit(val);
-                finalizeGeneratingToken(val, T_REAL_NUM);
+                token = std::make_unique<Token>(val, T_REAL_NUM, sourceInterface->position);
                 return true;
             } else {
                 throw std::runtime_error("No suffix in real num!");
@@ -162,7 +156,7 @@ bool Scanner::tryToBuildNumToken() {
         // if cannot generate sufix it is int
         // we do not get next sign, because the sign that was not
         // a digit, it has to be interpreted (it can be * or : or etc.)
-        finalizeGeneratingToken(val, T_INT_NUM);
+        token = std::make_unique<Token>(val, T_INT_NUM, sourceInterface->position);
         return true;
     }
     return false;
@@ -172,8 +166,7 @@ bool Scanner::tryToBuildAlphaTokens() {
 
     if (isalpha(sign) || sign == '_') {
         do {
-            val += sign;
-            getNextSign();
+            val = appendVal(val);
         } while(isalpha(sign) || sign == '_' || isdigit(sign));
 
         if(sign == '.') {
@@ -185,11 +178,11 @@ bool Scanner::tryToBuildAlphaTokens() {
     } else if (sign == '"') {
 
         do {
-            val += sign;
-            getNextSign();
+            val = appendVal(val);
         } while (sign != '"');
         // " " are not stored
-        finalizeGeneratingToken(val.substr(1, val.size()), T_STRING);
+        val = val.substr(1, val.size());
+        token = std::make_unique<Token>(sign, T_STRING, sourceInterface->position);
         getNextSign();
         return true;
     }
@@ -201,7 +194,7 @@ void Scanner::removeWhiteSigns() {
     }
 }
 bool Scanner::tryToBuildNotDefinedToken() {
-    finalizeGeneratingToken(sign, T_NOT_DEFINED_YET);
+    token = std::make_unique<Token>(sign, T_NOT_DEFINED_YET, sourceInterface->position);
     getNextSign();
     return true;
 }
@@ -217,6 +210,9 @@ Scanner::Scanner(Configuration configuration) {
     }
     getNextSign();
 }
-bool Scanner::isEndTokenFound() {
-    return token && token->getType() == T_END;
+
+std::string Scanner::appendVal(std::string val) {
+    val += sign;
+    getNextSign();
+    return val;
 }
