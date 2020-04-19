@@ -9,20 +9,16 @@
 void Scanner::getNextToken() {
 
     removeWhiteSigns();
-
     try {
         if(tryToBuildSimpleToken()) {
             return;
         }
-
         if(tryToBuildNumToken()){
             return;
         }
-
         if(tryToBuildAlphaTokens()) {
             return;
         }
-
         if(tryToBuildNotDefinedToken()) {
             return;
         }
@@ -30,7 +26,6 @@ void Scanner::getNextToken() {
         std::cout << e.what();
         exit(1);
     }
-
 }
 
 bool Scanner::isSpecifier(std::string val) {
@@ -39,23 +34,25 @@ bool Scanner::isSpecifier(std::string val) {
 
 std::unique_ptr<Token> Scanner::getValueType(std::string val) {
 
+    off64_t position = sourceInterface->position;
+
     if(isSpecifier(val)) {
-        return std::make_unique<Token>(val, T_SPECIFIER);
+        return std::make_unique<Token>(val, T_SPECIFIER, position);
     }
     if(val == "while") {
-        return std::make_unique<Token>(val, T_WHILE);
+        return std::make_unique<Token>(val, T_WHILE, position);
     }
     if(val == "if") {
-        return std::make_unique<Token>(val, T_IF);
+        return std::make_unique<Token>(val, T_IF, position);
     }
     if(val == "do") {
-        return std::make_unique<Token>(val, T_DO);
+        return std::make_unique<Token>(val, T_DO, position);
     }
     if(val == "done") {
-        return std::make_unique<Token>(val, T_DONE);
+        return std::make_unique<Token>(val, T_DONE, position);
     }
 
-    return std::make_unique<Token>(val, T_USER_DEFINED_NAME);
+    return std::make_unique<Token>(val, T_USER_DEFINED_NAME, position);
 }
 
 bool Scanner::isBracketOrParenthesis(char c) {
@@ -64,26 +61,27 @@ bool Scanner::isBracketOrParenthesis(char c) {
 
 std::unique_ptr<Token> Scanner::getSpecialSignType(char c) {
 
+    off64_t position = sourceInterface->position;
     if(c == '(') {
-        return std::make_unique<Token>(c, T_OPENING_PARENTHESIS);
+        return std::make_unique<Token>(c, T_OPENING_PARENTHESIS, position);
     }
     if(c == ')') {
-        return std::make_unique<Token>(c, T_CLOSING_PARENTHESIS);
+        return std::make_unique<Token>(c, T_CLOSING_PARENTHESIS, position);
     }
     if(c == ',') {
-        return std::make_unique<Token>(c, T_SEMICON);
+        return std::make_unique<Token>(c, T_SEMICON, position);
     }
     if(c == ':') {
-        return std::make_unique<Token>(c, T_CON);
+        return std::make_unique<Token>(c, T_CON, position);
     }
     if(c == '$') {
-        return std::make_unique<Token>(c, T_END);
+        return std::make_unique<Token>(c, T_END, position);
     }
     if(c == '{') {
-        return std::make_unique<Token>(c, T_OPENING_BRACKET);
+        return std::make_unique<Token>(c, T_OPENING_BRACKET, position);
     }
     if(c == '}') {
-        return std::make_unique<Token>(c, T_CLOSING_BRACKET);
+        return std::make_unique<Token>(c, T_CLOSING_BRACKET, position);
     }
 }
 
@@ -97,16 +95,18 @@ void Scanner::readToken() {
 }
 
 Token Scanner::getTokenValue() {
-    return {token->getValue(), token->getType()};
+    return {token->getValue(), token->getType(), token->getPosition()};
 }
 
 void Scanner::finalizeGeneratingToken(std::string val, Type type) {
-    token = std::make_unique<Token>(val, type);
+    off64_t position = sourceInterface->position;
+    token = std::make_unique<Token>(val, type, position);
     getNextSign();
 }
 
 void Scanner::finalizeGeneratingToken(char c, Type type) {
-    token = std::make_unique<Token>(c, type);
+    off64_t position = sourceInterface->position;
+    token = std::make_unique<Token>(c, type, position);
     getNextSign();
 }
 
@@ -248,6 +248,6 @@ bool operator!=(const Token &lhs, const Token &rhs) {
 }
 
 std::ostream &operator<<(std::ostream &out, const Token& t) {
-    return out << t.value << " " << t.type;
+    return out << t.value << " " << t.type << " " << t.position;
 }
 

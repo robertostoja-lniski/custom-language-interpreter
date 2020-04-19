@@ -9,21 +9,12 @@
 #include <iostream>
 #include <fstream>
 
-struct Position {
-    size_t column {0};
-    size_t row {1};
-
-    Position() = default;
-};
-
 struct SourceInterface {
 
-    std::unique_ptr<Position> position;
+    off64_t position {0};
     char sign;
     virtual void getNextSign() = 0;
-    SourceInterface() {
-        position = std::make_unique<Position>();
-    }
+    SourceInterface() = default;
 };
 struct FileInterface : public SourceInterface {
 
@@ -48,7 +39,7 @@ struct FileInterface : public SourceInterface {
         char c;
         is->get(c);
         sign = c;
-        position->column++;
+        position++;
     }
 };
 struct TerminalInterface : public SourceInterface {
@@ -93,17 +84,20 @@ class Token {
 private:
     std::string value;
     Type type;
-//    Position position;
+    off64_t position{0};
 
 public:
     Token() = default;
-    Token(std::string value, Type type) : value(value), type(type) {}
-    Token(char sign, Type type) : type(type) {
+    // position is not necessary, since we can have the same tokens with different positions
+    Token(std::string value, Type type, off64_t position = 0) : value(value), type(type), position(position) {}
+    Token(char sign, Type type, off64_t position = 0) : type(type), position(position) {
         value = sign;
     }
 
     std::string getValue() { return value; }
     Type getType() { return type; }
+    off64_t getPosition() { return position; }
+
     friend bool operator==(const Token& lhs, const Token& rhs);
     friend bool operator!=(const Token& lhs, const Token& rhs);
     friend std::ostream& operator<<(std::ostream& out, const Token& t);
@@ -143,6 +137,7 @@ public:
         getNextSign();
     }
     void getNextToken();
+    // simple printing tokens
     void readToken();
 
     char getNextSign();
