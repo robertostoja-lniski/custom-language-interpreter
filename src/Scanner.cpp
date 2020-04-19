@@ -8,7 +8,12 @@
 
 void Scanner::getNextToken() {
 
-    //terminator of token is $$
+    // terminator token is $ T_END
+    // if end exit parser
+    if(token && token->getType() == T_END) {
+        exit(0);
+    }
+
     removeWhiteSigns();
     try {
         if(tryToBuildSimpleToken()) {
@@ -99,13 +104,11 @@ Token Scanner::getTokenValue() {
 void Scanner::finalizeGeneratingToken(std::string val, Type type) {
     off64_t position = sourceInterface->position;
     token = std::make_unique<Token>(val, type, position);
-    getNextSign();
 }
 
 void Scanner::finalizeGeneratingToken(char c, Type type) {
     off64_t position = sourceInterface->position;
     token = std::make_unique<Token>(c, type, position);
-    getNextSign();
 }
 
 std::string Scanner::appendValWhileIsDigit(std::string val) {
@@ -121,17 +124,20 @@ bool Scanner::tryToBuildSimpleToken() {
     if(sign == EOF) {
         val += sign;
         finalizeGeneratingToken(val, T_EOF);
+        getNextSign();
         exit(0);
     }
     if(sign == '*' || sign == '/' || sign == '&') {
         val += sign;
         finalizeGeneratingToken(val, T_MULT_OPERATOR);
+        getNextSign();
         return true;
     }
 
     if( sign == '+' || sign == '-' || sign == '|'){
         val += sign;
         finalizeGeneratingToken(val, T_ADD_OPERATOR);
+        getNextSign();
         return true;
     }
 
@@ -145,12 +151,16 @@ bool Scanner::tryToBuildSimpleToken() {
 
             val += sign;
             finalizeGeneratingToken(val, T_BOOLEAN_OPERATOR);
+            getNextSign();
             return true;
 
         } else {
 
             if(val == "=") {
                 finalizeGeneratingToken(val, T_ASSIGN_OPERATOR);
+                return true;
+            } else {
+                finalizeGeneratingToken(val, T_BOOLEAN_OPERATOR);
                 return true;
             }
         }
@@ -162,13 +172,14 @@ bool Scanner::tryToBuildSimpleToken() {
 
     }  else if (sign == '$') {
         finalizeGeneratingToken(sign, T_END);
-        exit(0);
+        return true;
     }
 
     return false;
 }
 
 bool Scanner::tryToBuildNumToken() {
+
     std::string val;
     if (isdigit(sign)) {
         // assume that it is real num
@@ -188,13 +199,19 @@ bool Scanner::tryToBuildNumToken() {
             if(isdigit(sign)) {
                 val = appendValWhileIsDigit(val);
                 finalizeGeneratingToken(val, T_REAL_NUM);
+                // we do not get next sign, because the sign that was not
+                // a digit, it has to be interpreted (it can be * or : or etc.)
                 return true;
             } else {
                 throw std::runtime_error("No suffix in real num!");
             }
         }
-
+        if(isalpha(sign) || sign == '(' || sign == ')') {
+            throw std::runtime_error("Forbidden sign in num!");
+        }
         // if cannot generate sufix it is int
+        // we do not get next sign, because the sign that was not
+        // a digit, it has to be interpreted (it can be * or : or etc.)
         finalizeGeneratingToken(val, T_INT_NUM);
         return true;
 
@@ -206,14 +223,15 @@ bool Scanner::tryToBuildAlphaTokens() {
     std::string val;
 
     if (isalpha(sign) || sign == '_') {
-
         do {
             val += sign;
             getNextSign();
         } while(isalpha(sign) || sign == '_' || isdigit(sign));
 
+        if(sign == '.') {
+            throw std::runtime_error("Forbidden sign in name!");
+        }
         token = getValueType(val);
-        getNextSign();
         return true;
 
     } else if (sign == '"') {
@@ -238,6 +256,7 @@ void Scanner::removeWhiteSigns() {
 
 bool Scanner::tryToBuildNotDefinedToken() {
     finalizeGeneratingToken(sign, T_NOT_DEFINED_YET);
+    getNextSign();
     return true;
 }
 
