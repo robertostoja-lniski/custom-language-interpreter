@@ -41,9 +41,26 @@ struct FileInterface : public SourceInterface {
 struct TerminalInterface : public SourceInterface {
 
     size_t index {0};
+    bool isAnyCharLeftInLine {false};
+    std::string input;
+
     TerminalInterface() = default;
 
     void getNextSign() {
+
+        if(!isAnyCharLeftInLine) {
+            getline(std::cin, input);
+            index = 0;
+            isAnyCharLeftInLine = true;
+        }
+
+        sign = input[index];
+        position++;
+        index++;
+
+        if(index == input.size()) {
+            isAnyCharLeftInLine = false;
+        }
     }
 };
 
