@@ -1,1 +1,1 @@
-add_executable(TKOM main.cpp Launcher.cpp Scanner.cpp)
+add_executable(TKOM main.cpp Launcher.cpp Scanner.cpp Interfaces.cpp Token.cpp)
