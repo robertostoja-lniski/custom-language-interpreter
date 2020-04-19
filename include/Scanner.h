@@ -22,13 +22,9 @@ private:
     bool isVerbose {false};
 
     void removeWhiteSigns();
-    bool isEndTokenFound();
 
     std::unique_ptr<Token> createTokenFromValue(std::string val);
-    std::unique_ptr<Token> createSpecialSignToken(char c);
-
-    void finalizeGeneratingToken(std::string val, Type type);
-    void finalizeGeneratingToken(char c, Type type);
+    std::unique_ptr<Token> createSpecialSignToken(std::string c);
     std::string appendValWhileIsDigit(std::string);
 
     bool tryToBuildSimpleToken();
@@ -37,7 +33,7 @@ private:
     bool tryToBuildNotDefinedToken();
 
     char getNextSign();
-
+    std::string appendVal(std::string val);
 public:
     Scanner(Configuration configuration);
     void getNextToken();

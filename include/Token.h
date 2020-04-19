@@ -33,6 +33,8 @@ enum Type {
     T_NOT_DEFINED_YET = 21,
     T_STRING = 22,
     T_EOF = 23,
+    T_BOOLEAN_AND = 24,
+    T_BOOLEAN_OR = 24,
 };
 
 class Token {
