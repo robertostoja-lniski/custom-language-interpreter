@@ -277,16 +277,3 @@ Scanner::Scanner(Configuration configuration) {
     getNextSign();
 }
 
-
-bool operator==(const Token &lhs, const Token &rhs) {
-    return lhs.value == rhs.value && typeid(rhs) == typeid(lhs);
-}
-
-bool operator!=(const Token &lhs, const Token &rhs) {
-    return !(lhs == rhs);
-}
-
-std::ostream &operator<<(std::ostream &out, const Token& t) {
-    return out << t.value << " " << t.type << " " << t.position;
-}
-

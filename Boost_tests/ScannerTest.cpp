@@ -4,7 +4,6 @@
 #include <iostream>
 #include "../include/Scanner.h"
 #include "../include/Configuration.h"
-#include "../src/Scanner.cpp"
 BOOST_AUTO_TEST_CASE(AUTO_GENERATED_TEST_0)
 {
     std::ofstream outfile;
