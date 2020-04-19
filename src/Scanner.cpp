@@ -8,6 +8,7 @@
 
 void Scanner::getNextToken() {
 
+    //terminator of token is $$
     removeWhiteSigns();
     try {
         if(tryToBuildSimpleToken()) {
