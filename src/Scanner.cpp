@@ -3,10 +3,7 @@
 #include "../include/Scanner.h"
 
 void Scanner::getNextToken() {
-    // terminator token is $ T_END. if end exit parser
-    if(isEndTokenFound()) {
-        exit(0);
-    }
+
     removeWhiteSigns();
 
     try {
@@ -90,7 +87,7 @@ bool Scanner::tryToBuildSimpleToken() {
         val += sign;
         finalizeGeneratingToken(val, T_EOF);
         getNextSign();
-        exit(0);
+        throw std::runtime_error("End of file reached");
     }
     if(sign == '*' || sign == '/' || sign == '&') {
         val += sign;
@@ -192,7 +189,8 @@ bool Scanner::tryToBuildAlphaTokens() {
             getNextSign();
         } while (sign != '"');
         // " " are not stored
-        finalizeGeneratingToken(val.substr(1, val.size()-1), T_STRING);
+        finalizeGeneratingToken(val.substr(1, val.size()), T_STRING);
+        getNextSign();
         return true;
     }
     return false;

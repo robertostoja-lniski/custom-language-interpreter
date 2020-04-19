@@ -28,9 +28,6 @@ struct FileInterface : public SourceInterface {
 struct TerminalInterface : public SourceInterface {
 
     size_t index {0};
-    bool isAnyCharLeftInLine {false};
-    std::string input;
-
     TerminalInterface() = default;
     void getNextSign();
 };
