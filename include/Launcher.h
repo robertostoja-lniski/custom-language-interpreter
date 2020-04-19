@@ -10,14 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include "Scanner.h"
-
-struct Configuration {
-
-    std::string configPath {""};
-    std::string outputPath {""};
-    bool isVerbose {false};
-
-};
+#include "Configuration.h"
 
 class Launcher {
 
@@ -27,7 +20,7 @@ private:
     std::vector<std::string> filePathFlags = {"-f", "-o"};
     std::vector<std::string> nonFilePathFlags = {"-v"};
 
-    Scanner scanner;
+    std::unique_ptr<Scanner> scanner;
 
     bool isPathFlag(std::string potentialFlag) {
         return std::find(filePathFlags.begin(), filePathFlags.end(), potentialFlag.c_str()) != filePathFlags.end();
@@ -70,7 +63,7 @@ public:
                     if(!isFilePathProper(filePath)) {
                         throw std::runtime_error("Wrong path to config file");
                     }
-                    configuration.configPath = filePath;
+                    configuration.inputPath = filePath;
 
                 } else if(potentialFlag == "-o") {
                     if(!isPathToUpperDirProper(filePath)) {
@@ -92,10 +85,12 @@ public:
 
     void run() {
 
+        scanner = std::make_unique<Scanner>(configuration);
+
          int i = 20;
          while(i--){
-             scanner.getNextToken();
-             scanner.readToken();
+             scanner->getNextToken();
+             scanner->readToken();
          }
     }
 };

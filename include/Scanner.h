@@ -8,6 +8,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include "Configuration.h"
 
 struct SourceInterface {
 
@@ -18,15 +19,10 @@ struct SourceInterface {
 };
 struct FileInterface : public SourceInterface {
 
-    std::string filepath = "/home/robert/Desktop/data.txt";
+    std::string filepath;
     std::unique_ptr<std::ifstream> is;
 
-    FileInterface(std::string path) {
-        is = std::make_unique<std::ifstream>(path);
-        filepath = path;
-    }
-
-    FileInterface() {
+    FileInterface(std::string path) : filepath(path) {
         is = std::make_unique<std::ifstream>(filepath);
     }
 
@@ -76,7 +72,7 @@ enum Type {
     T_END = 20,
     T_NOT_DEFINED_YET = 21,
     T_STRING = 22,
-
+    T_EOF = 23,
 };
 
 class Token {
@@ -110,6 +106,7 @@ private:
     std::unique_ptr<SourceInterface> sourceInterface;
     std::unique_ptr<Token> token;
     char sign;
+    bool isVerbose {false};
 
     bool isBracketOrParenthesis(char c);
     bool isSpecifier(std::string val);
@@ -128,18 +125,10 @@ private:
     bool tryToBuildNotDefinedToken();
 
 public:
-    Scanner() {
-        sourceInterface = std::make_unique<FileInterface>();
-        getNextSign();
-    }
-    Scanner(std::string path) {
-        sourceInterface = std::make_unique<FileInterface>(path);
-        getNextSign();
-    }
+    Scanner(Configuration configuration);
     void getNextToken();
     // simple printing tokens
     void readToken();
-
     char getNextSign();
     Token getTokenValue();
 };
