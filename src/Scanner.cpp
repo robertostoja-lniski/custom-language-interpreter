@@ -8,159 +8,33 @@
 
 void Scanner::getNextToken() {
 
-    std::string val;
+    removeWhiteSigns();
 
-    while(iswspace(sign)) {
-        getNextSign();
-    }
-
-    if(sign == '*' || sign == '/' || sign == '|') {
-        token = std::make_unique<Token>(sign, T_MULT_OPERATOR);
-        getNextSign();
-        return;
-    }
-
-    if( sign == '+' || sign == '-' || sign == '$'){
-        token = std::make_unique<Token>(sign, T_ADD_OPERATOR);
-        getNextSign();
-        return;
-    }
-
-    // assign or boolean prefix
-    if(sign == '=' || sign == '>' || sign == '<') {
-
-        val += sign;
-        getNextSign();
-
-        if(sign == '=') {
-
-            val += sign;
-            token = std::make_unique<Token>(val, T_BOOLEAN_OPERATOR);
-            getNextSign();
+    try {
+        if(tryToBuildSimpleToken()) {
             return;
-
-        } else {
-
-            if(val == "=") {
-                token = std::make_unique<Token>(val, T_ASSIGN_OPERATOR);
-                getNextSign();
-                return;
-            }
         }
+
+        if(tryToBuildNumToken()){
+            return;
+        }
+
+        if(tryToBuildAlphaTokens()) {
+            return;
+        }
+
+        if(tryToBuildNotDefinedToken()) {
+            return;
+        }
+    } catch(std::exception &e) {
+        std::cout << e.what();
+        exit(1);
     }
 
-    if (isdigit(sign)) {
-
-        if(sign != '0'){
-
-            do {
-                val+=sign;
-                getNextSign();
-            } while(isdigit(sign));
-
-            if(sign == '.') {
-                do {
-                    val+=sign;
-                    getNextSign();
-                } while(isdigit(sign));
-
-                token = std::make_unique<Token>(val, T_REAL_NUM);
-                getNextSign();
-                return;
-
-            } else {
-                // tmp removes .
-                token = std::make_unique<Token>(val, T_INT_NUM);
-                getNextSign();
-                return;
-            }
-        }
-        else
-        {
-            val+=sign;
-            getNextSign();
-
-            if(sign == '.') {
-                do {
-                    val+=sign;
-                    getNextSign();
-                } while(isdigit(sign));
-
-                token = std::make_unique<Token>(val, T_REAL_NUM);
-                getNextSign();
-                return;
-
-            } else {
-                token = std::make_unique<Token>(val, T_INT_NUM);
-                getNextSign();
-                return;
-            }
-        }
-
-    } else if (isalpha(sign) || sign == '_') {
-
-        do {
-            val += sign;
-            getNextSign();
-        } while(isalpha(sign) || sign == '_' || isdigit(sign));
-
-        token = getValueType(val);
-        getNextSign();
-        return;
-
-    } else if (sign == '$') {
-        token = std::make_unique<Token>(val, T_END);
-        getNextSign();
-        return;
-
-    } else if (isBracketOrParenthesis(sign) || sign == ',' || sign == ':') {
-
-        val += sign;
-        token = getSpecialSignType(val[0]);
-        getNextSign();
-        return;
-
-    } else if (sign == '"') {
-
-        do {
-            val += sign;
-            getNextSign();
-        } while (sign != '"');
-
-        val = val.substr(1, val.size()-1);
-        token = std::make_unique<Token>(val, T_STRING);
-        getNextSign();
-        return;
-    }
-
-    token = std::make_unique<Token>(sign, T_NOT_DEFINED_YET);
-    getNextSign();
-    return;
 }
-
-bool Scanner::isAddOperator(char c) {
-    return c == '-' || c == '+' || c == '|';
-}
-
-bool Scanner::isMultOperator(char c) {
-    return c == '/' || c == '*' || c == '&';
-}
-
-bool Scanner::isBooleanOperatorPrefix(char c) {
-    return c == '=' || c == '>' || c == '<';
-}
-
-bool Scanner::isOperatorPrefix(char c) {
-    return isAddOperator(c) || isMultOperator(c) || isBooleanOperatorPrefix(c);
-}
-
 
 bool Scanner::isSpecifier(std::string val) {
     return val == "int" || val == "unsigned_int" || val == "float" || val == "string" || val == "system_handler";
-}
-
-bool Scanner::isOneOfNumTerm(char c) {
-    return iswspace(c) || isOperatorPrefix(c) || isBracketOrParenthesis(c) || c == '$' || c == '"';
 }
 
 std::unique_ptr<Token> Scanner::getValueType(std::string val) {
@@ -224,6 +98,145 @@ void Scanner::readToken() {
 
 Token Scanner::getTokenValue() {
     return {token->getValue(), token->getType()};
+}
+
+void Scanner::finalizeGeneratingToken(std::string val, Type type) {
+    token = std::make_unique<Token>(val, type);
+    getNextSign();
+}
+
+void Scanner::finalizeGeneratingToken(char c, Type type) {
+    token = std::make_unique<Token>(c, type);
+    getNextSign();
+}
+
+std::string Scanner::appendValWhileIsDigit(std::string val) {
+    do {
+        val+=sign;
+        getNextSign();
+    } while(isdigit(sign));
+    return val;
+}
+
+bool Scanner::tryToBuildSimpleToken() {
+    std::string val;
+    if(sign == '*' || sign == '/' || sign == '|') {
+        val += sign;
+        finalizeGeneratingToken(val, T_MULT_OPERATOR);
+        return true;
+    }
+
+    if( sign == '+' || sign == '-' || sign == '$'){
+        val += sign;
+        finalizeGeneratingToken(val, T_ADD_OPERATOR);
+        return true;
+    }
+
+    // assign or boolean prefix
+    if(sign == '=' || sign == '>' || sign == '<') {
+
+        val += sign;
+        getNextSign();
+
+        if(sign == '=') {
+
+            val += sign;
+            finalizeGeneratingToken(val, T_BOOLEAN_OPERATOR);
+            return true;
+
+        } else {
+
+            if(val == "=") {
+                finalizeGeneratingToken(val, T_ASSIGN_OPERATOR);
+                return true;
+            }
+        }
+    } else if (isBracketOrParenthesis(sign) || sign == ',' || sign == ':') {
+
+        val += sign;
+        token = getSpecialSignType(val[0]);
+        getNextSign();
+        return true;
+
+    }  else if (sign == '$') {
+        finalizeGeneratingToken(sign, T_END);
+        return true;
+    }
+
+    return false;
+}
+
+bool Scanner::tryToBuildNumToken() {
+    std::string val;
+    if (isdigit(sign)) {
+        // assume that it is real num
+        // generate possible real num prefixes
+        if(sign != '0'){
+            val = appendValWhileIsDigit(val);
+        } else {
+            // single zero prefix
+            val+=sign;
+            getNextSign();
+        }
+        // try to generate sufix
+        if(sign == '.') {
+            val+=sign;
+            getNextSign();
+
+            if(isdigit(sign)) {
+                val = appendValWhileIsDigit(val);
+                finalizeGeneratingToken(val, T_REAL_NUM);
+                return true;
+            } else {
+                throw std::runtime_error("No suffix in real num!");
+            }
+        }
+
+        // if cannot generate sufix it is int
+        finalizeGeneratingToken(val, T_INT_NUM);
+        return true;
+
+    }
+    return false;
+}
+
+bool Scanner::tryToBuildAlphaTokens() {
+    std::string val;
+
+    if (isalpha(sign) || sign == '_') {
+
+        do {
+            val += sign;
+            getNextSign();
+        } while(isalpha(sign) || sign == '_' || isdigit(sign));
+
+        token = getValueType(val);
+        getNextSign();
+        return true;
+
+    } else if (sign == '"') {
+
+        do {
+            val += sign;
+            getNextSign();
+        } while (sign != '"');
+
+        // " " are not stored
+        finalizeGeneratingToken(val.substr(1, val.size()-1), T_STRING);
+        return true;
+    }
+    return false;
+}
+
+void Scanner::removeWhiteSigns() {
+    while(iswspace(sign)) {
+        getNextSign();
+    }
+}
+
+bool Scanner::tryToBuildNotDefinedToken() {
+    finalizeGeneratingToken(sign, T_NOT_DEFINED_YET);
+    return true;
 }
 
 bool operator==(const Token &lhs, const Token &rhs) {

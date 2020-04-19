@@ -117,18 +117,21 @@ private:
     std::unique_ptr<Token> token;
     char sign;
 
-    bool isOperatorPrefix(char c);
-    bool isAddOperator(char c);
-    bool isMultOperator(char c);
-
-    bool isBooleanOperatorPrefix(char c);
     bool isBracketOrParenthesis(char c);
-
-    bool isOneOfNumTerm(char c);
     bool isSpecifier(std::string val);
 
     std::unique_ptr<Token> getValueType(std::string val);
     std::unique_ptr<Token> getSpecialSignType(char c);
+
+    void finalizeGeneratingToken(std::string val, Type type);
+    void finalizeGeneratingToken(char c, Type type);
+    std::string appendValWhileIsDigit(std::string);
+
+    bool tryToBuildSimpleToken();
+    bool tryToBuildNumToken();
+    bool tryToBuildAlphaTokens();
+    void removeWhiteSigns();
+    bool tryToBuildNotDefinedToken();
 
 public:
     Scanner() {
@@ -141,8 +144,7 @@ public:
     }
     void getNextToken();
     void readToken();
-    // not implemented yet
-//  void setPrams(Configuration configuration);
+
     char getNextSign();
     Token getTokenValue();
 };
