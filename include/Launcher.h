@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include "Scanner.h"
+#include "Parser.h"
 #include "Configuration.h"
 
 class Launcher {
@@ -21,6 +22,7 @@ private:
     std::vector<std::string> nonFilePathFlags = {"-v"};
 
     std::unique_ptr<Scanner> scanner;
+    std::unique_ptr<Parser> parser;
 
     bool isPathFlag(std::string potentialFlag);
     bool isNonPathFile(std::string potentialFlag);

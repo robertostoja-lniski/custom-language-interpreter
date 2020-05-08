@@ -60,10 +60,19 @@ void Launcher::readFlags(int argc, char* argv[]) {
 void Launcher::run() {
 
     scanner = std::make_unique<Scanner>(configuration);
+    parser = std::make_unique<Parser>();
 
     int i = 20;
     while(i--){
         scanner->getNextToken();
         scanner->readToken();
+        auto token = scanner->getTokenValue();
+        if(token.getType() == T_END) {
+            break;
+        }
+        parser->parseToken(token);
     }
+
+    parser->generateTree();
+    parser->analyzeTree();
 }
