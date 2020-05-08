@@ -55,10 +55,20 @@ public:
     std::string getValue() { return value; }
     Type getType() { return type; }
     off64_t getPosition() { return position; }
-
+    bool isOperand() {
+        return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
+                type == T_REAL_NUM || type == T_STRING;
+    }
     friend bool operator==(const Token& lhs, const Token& rhs);
     friend bool operator!=(const Token& lhs, const Token& rhs);
     friend std::ostream& operator<<(std::ostream& out, const Token& t);
+
+    bool isOperator() {
+        return type == T_MULT_OPERATOR || type == T_BOOLEAN_AND || type == T_ADD_OPERATOR ||
+                type == T_BOOLEAN_OPERATOR || type == T_BOOLEAN_OR || type == T_OPENING_PARENTHESIS;
+    };
+
+    bool isClosingParenthesis();
 };
 
 #endif //TKOM_TOKEN_H

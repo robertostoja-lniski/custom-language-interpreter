@@ -16,3 +16,8 @@ std::ostream &operator<<(std::ostream &out, const Token& t) {
     return out << t.value << " " << t.type << " " << t.position;
 }
 
+bool Token::isClosingParenthesis() {
+    return type == T_CLOSING_PARENTHESIS;
+}
+
+
