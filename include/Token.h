@@ -9,7 +9,7 @@
 #include <iostream>
 
 enum Type {
-    ANY = 0,
+    T_ANY = 0,
     T_USER_DEFINED_NAME = 1,
     T_WHILE = 2,
     T_IF = 3,
@@ -34,7 +34,9 @@ enum Type {
     T_STRING = 22,
     T_EOF = 23,
     T_BOOLEAN_AND = 24,
-    T_BOOLEAN_OR = 24,
+    T_BOOLEAN_OR = 25,
+    T_DOT = 26,
+    T_FUNCTION_NAME =27,
 };
 
 class Token {
@@ -51,13 +53,18 @@ public:
     Token(char sign, Type type, off64_t position = 0) : type(type), position(position) {
         value = sign;
     }
-
+    void setType(Type type) {
+        this->type=type;
+    }
     std::string getValue() { return value; }
     Type getType() { return type; }
     off64_t getPosition() { return position; }
     bool isOperand() {
         return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
                 type == T_REAL_NUM || type == T_STRING;
+    }
+    bool canBeAFuntionName() {
+        return type == T_USER_DEFINED_NAME;
     }
     friend bool operator==(const Token& lhs, const Token& rhs);
     friend bool operator!=(const Token& lhs, const Token& rhs);
@@ -69,6 +76,8 @@ public:
     };
 
     bool isClosingParenthesis();
+
+    bool isOpeningParenthesis();
 };
 
 #endif //TKOM_TOKEN_H

@@ -6,7 +6,11 @@
 #define TKOM_VISITOR_H
 
 #include <memory>
+#include <stack>
+#include <queue>
 
+struct VarDeclarationExpression;
+struct TypeSpecifierExpression;
 //lexical expression
 struct VarNameExpression;
 struct RootExpression;
@@ -19,10 +23,15 @@ struct DoubleArgsExpression;
 // numeric operations expressions
 struct AdditionExpression;
 struct SubtractExpression;
+struct BooleanAndExpression;
+struct BooleanOrExpression;
+struct BooleanOperatorExpression;
 struct MultiplyExpression;
 struct DivideExpression;
 // other
 struct AssignExpression;
+struct FunctionArgExpression;
+struct FunctionExpression;
 
 struct Visitor {
     // visit root
@@ -39,22 +48,20 @@ struct Visitor {
     virtual void visit(MultiplyExpression* multiplyExpression) = 0;
     virtual void visit(DivideExpression* divideExpression) = 0;
 
-    //other
+    // other
     virtual void visit(AssignExpression* assignExpression) = 0;
+    virtual void visit(VarDeclarationExpression* varDeclarationExpression) = 0;
+    virtual void visit(TypeSpecifierExpression* typeSpecifierExpression) = 0;
+
+    // boolean
+    virtual void visit(BooleanAndExpression* booleanAndExpression) = 0;
+    virtual void visit(BooleanOrExpression* booleanOrExpression) = 0;
+    virtual void visit(BooleanOperatorExpression* booleanOrExpression) = 0;
+    virtual void visit(FunctionArgExpression* functionArgExpression) = 0;
+    virtual void visit(FunctionExpression* functionExpression) = 0;
 };
 
 struct ExpressionVisitor : Visitor {
-    // numeric and lexical storage
-    static unsigned int num;
-    ExpressionVisitor() {
-        num = 1;
-    }
-
-    void printTabs(unsigned int num) {
-        while(num--) {
-            std::cout << '\t';
-        }
-    }
     void visit(IntExpression* intExpression) override;
     void visit(FloatExpression* floatExpression) override;
     void visit(VarNameExpression* varNameExpression)  override;
@@ -64,6 +71,13 @@ struct ExpressionVisitor : Visitor {
     void visit(DivideExpression* divideExpression) override;
     void visit(AssignExpression* assignExpression) override;
     void visit(RootExpression* rootExpression) override;
+    void visit(VarDeclarationExpression* varDeclarationExpression) override;
+    void visit(TypeSpecifierExpression* typeSpecifierExpression) override;
+    void visit(BooleanAndExpression* booleanAndExpression) override;
+    void visit(BooleanOrExpression* booleanOrExpression) override;
+    void visit(BooleanOperatorExpression* booleanOrExpression) override;
+    void visit(FunctionArgExpression* functionArgExpression) override;
+    void visit(FunctionExpression* functionExpression) override;
 };
 
 struct Expression {
@@ -97,9 +111,29 @@ struct VarNameExpression : Expression {
         visitor->visit(this);
     }
 };
-
+struct TypeSpecifierExpression : Expression {
+    std::string value;
+    TypeSpecifierExpression(std::string value) : value(value) {}
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
 struct DoubleArgsExpression : Expression {
     std::shared_ptr<Expression> left{}, right{};
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
+struct BooleanOperatorExpression : DoubleArgsExpression {
+    std::string value;
+    BooleanOperatorExpression(std::string value) :
+        value(value) {}
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct FunctionExpression : DoubleArgsExpression {
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -107,6 +141,11 @@ struct DoubleArgsExpression : Expression {
 struct AdditionExpression : DoubleArgsExpression {
     std::string operation;
     AdditionExpression(std::string operation) : operation(operation) {}
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct VarDeclarationExpression : DoubleArgsExpression {
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -126,5 +165,30 @@ struct AssignExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
+struct BooleanOrExpression : DoubleArgsExpression {
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct BooleanAndExpression : DoubleArgsExpression {
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct FunctionArgExpression : DoubleArgsExpression {
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
+
+
+//struct FunctionExpression : Expression {
+//    Expression *name;
+//    std::queue<Expression*> args;
+//    void accept(Visitor* visitor) override {
+//        visitor->visit(this);
+//    }
+//};
 
 #endif //TKOM_VISITOR_H

@@ -21,7 +21,7 @@ private:
     std::vector<std::string> filePathFlags = {"-f", "-o"};
     std::vector<std::string> nonFilePathFlags = {"-v"};
 
-    std::unique_ptr<Scanner> scanner;
+    std::shared_ptr<Scanner> scanner;
     std::unique_ptr<Parser> parser;
 
     bool isPathFlag(std::string potentialFlag);
