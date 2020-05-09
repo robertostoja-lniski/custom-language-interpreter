@@ -20,4 +20,7 @@ bool Token::isClosingParenthesis() {
     return type == T_CLOSING_PARENTHESIS;
 }
 
+bool Token::isOpeningParenthesis() {
+    return type == T_OPENING_PARENTHESIS;
+}
 

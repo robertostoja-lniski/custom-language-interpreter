@@ -50,3 +50,54 @@ void ExpressionVisitor::visit(RootExpression *rootExpression) {
     std::cout << "Starting\n";
     rootExpression->next->accept(this);
 }
+
+void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
+    std::cout << "Initialising: ";
+    varDeclarationExpression->left->accept(this);
+    varDeclarationExpression->right->accept(this);
+}
+
+void ExpressionVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
+    std::cout << typeSpecifierExpression->value << '\n';
+}
+
+void ExpressionVisitor::visit(BooleanAndExpression *booleanAndExpression) {
+    std::cout << "Boolean and\n";
+    booleanAndExpression->left->accept(this);
+    booleanAndExpression->right->accept(this);
+}
+
+void ExpressionVisitor::visit(BooleanOrExpression *booleanOrExpression) {
+    std::cout << "Boolean or\n";
+    booleanOrExpression->left->accept(this);
+    booleanOrExpression->right->accept(this);
+}
+
+void ExpressionVisitor::visit(BooleanOperatorExpression *booleanOperatorExpression) {
+    std::cout << "In Boolean: " << booleanOperatorExpression->value;
+    booleanOperatorExpression->left->accept(this);
+    booleanOperatorExpression->right->accept(this);
+}
+
+void ExpressionVisitor::visit(FunctionExpression *functionExpression) {
+    std::cout << "Function with name\n";
+    functionExpression->left->accept(this);
+    if(functionExpression->right) {
+        std::cout << "And args:\n";
+        functionExpression->right->accept(this);
+    } else {
+        std::cout << "Without any args\n";
+    }
+}
+
+void ExpressionVisitor::visit(FunctionArgExpression *functionArgExpression) {
+    std::cout << "Function Arg:\n\t";
+    functionArgExpression->left->accept(this);
+    std::cout << "\t";
+    if(functionArgExpression->right) {
+        functionArgExpression->right->accept(this);
+    } else {
+        std::cout << "End of args.\n";
+    }
+}
+

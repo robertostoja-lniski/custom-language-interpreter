@@ -55,6 +55,9 @@ std::unique_ptr<Token> Scanner::createSpecialSignToken(std::string val) {
     if(val == "}") {
         return std::make_unique<Token>(val, T_CLOSING_BRACKET, position);
     }
+    if(val == ".") {
+        return std::make_unique<Token>(val, T_DOT, position);
+    }
 }
 char Scanner::getNextSign() {
     sourceInterface->getNextSign();
@@ -150,7 +153,7 @@ bool Scanner::tryToBuildNumToken() {
                 throw std::runtime_error("No suffix in real num!");
             }
         }
-        if(isalpha(sign) || sign == '(' || sign == ')') {
+        if(isalpha(sign) || sign == '(' ) {
             throw std::runtime_error("Forbidden sign in num!");
         }
         // if cannot generate sufix it is int
@@ -169,9 +172,9 @@ bool Scanner::tryToBuildAlphaTokens() {
             val = appendVal(val);
         } while(isalpha(sign) || sign == '_' || isdigit(sign));
 
-        if(sign == '.') {
-            throw std::runtime_error("Forbidden sign in name!");
-        }
+//        if(sign == '.') {
+//            throw std::runtime_error("Forbidden sign in name!");
+//        }
         token = createTokenFromValue(val);
         return true;
 
