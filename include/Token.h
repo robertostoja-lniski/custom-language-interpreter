@@ -41,6 +41,7 @@ enum Type {
     T_NEXT_LINE = 29,
     T_FOR = 30,
     T_ELSE = 31,
+    T_DUMMY_ARG = 32,
 };
 
 class Token {

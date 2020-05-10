@@ -53,6 +53,7 @@ private:
     void createIfExpression(Token token);
     void createElseExpression(Token token);
     void createWhileExpression(Token token);
+    void createTypeDeclarationExpression(Token token);
     void createDoExpression(Token token);
     void createDoneExpression(Token token);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
@@ -70,7 +71,7 @@ private:
             {T_ASSIGN_OPERATOR, [&](Token token){createAssignExpression(token);}},
             {T_USER_DEFINED_NAME, [&](Token token){createVarNameExpression(token);}},
             {T_FUNCTION_NAME, [&](Token token){createFunctionCallExpression(token);}},
-            {T_SPECIFIER, [&](Token token){createVarNameExpression(token);}},
+            {T_SPECIFIER, [&](Token token){createTypeDeclarationExpression(token);}},
             {T_NO_ARG_FUNCTION_NAME, [&](Token token){createNoArgFunctionExpression(token);}},
             {T_NEXT_LINE, [&](Token token){createNextLineExpression(token);}},
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
@@ -79,6 +80,7 @@ private:
             {T_FOR, [&](Token token){createForExpression(token);}},
             {T_DO, [&](Token token){createDoExpression(token);}},
             {T_DONE, [&](Token token){createDoneExpression(token);}},
+            {T_DUMMY_ARG, [&](Token token){createVarNameExpression(token);}},
 
     };
 
@@ -111,6 +113,8 @@ public:
     bool tryToBuildFunctionCall(Token token);
 
     bool tryToBuildConditionConstruction(Token token);
+
+    bool tryToBuildDeclaration(Token token);
 };
 
 

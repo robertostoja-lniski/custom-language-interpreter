@@ -12,6 +12,9 @@ void Parser::parseToken(Token tokenToParse) {
     }
     try {
         std::cout << "parsing " <<  tokenToParse << '\n';
+        if(tryToBuildDeclaration(tokenToParse)) {
+            return;
+        }
         if(tryToBuildFunctionCall(tokenToParse)
             || tryToBuildConditionConstruction(tokenToParse)
             || tryToBuildExpression(tokenToParse)) {
@@ -37,8 +40,58 @@ void Parser::createVarNameExpression(Token token) {
     std::string name = token.getValue();
     recentExpressions.push(std::make_shared<VarNameExpression>(name));
 }
-void Parser::createForExpression(Token token) {
+void Parser::createTypeDeclarationExpression(Token token) {
+//    // if no value initialisation
+    if(recentExpressions.size() == 1) {
+        auto specifier = std::make_unique<TypeSpecifierExpression>(token.getValue());
+        specifier->left = recentExpressions.top();
+        recentExpressions.pop();
+        recentExpressions.push(std::move(specifier));
+        return;
+    }
+//
+//    // if single value initialisation
+//    if(recentExpressions.size() == 3) {
+//        auto specifier = std::make_unique<TypeSpecifierExpression>(token.getValue());
+//        auto assignment = recentExpressions.top();
+//        specifier->left = assignment;
+//        recentExpressions.push(std::move(specifier));
+//        return;
+//    }
 
+    // if collection initialisation
+    // f.e int a = 3 4 5
+    std::string name = token.getValue();
+    // handle previous expr
+    auto doubleExpr = recentExpressions.top();
+    recentExpressions.pop();
+
+    auto values = std::dynamic_pointer_cast<DoubleArgsExpression>(doubleExpr);
+    auto initialisationBody = std::make_shared<BodyExpression>();
+    initialisationBody->statements.push_back(values->right);
+    initialisationBody->statements.push_back(values->left);
+
+    while(recentExpressions.size() > 1) {
+        initialisationBody->statements.push_back(recentExpressions.top());
+        recentExpressions.pop();
+    }
+
+    auto specifier = std::make_shared<TypeSpecifierExpression>(token.getValue());
+    // set varname to left
+    specifier->left = recentExpressions.top();
+    recentExpressions.pop();
+    specifier->right = initialisationBody;
+    recentExpressions.push(specifier);
+}
+void Parser::createForExpression(Token token) {
+    auto forExpr = std::make_unique<ForExpression>();
+    auto collection = recentExpressions.top();
+    recentExpressions.pop();
+    auto iter = recentExpressions.top();
+    recentExpressions.pop();
+    forExpr->left = iter;
+    forExpr->collectionName = collection;
+    recentExpressions.push(std::move(forExpr));
 }
 
 void Parser::createElseExpression(Token token) {
@@ -46,11 +99,7 @@ void Parser::createElseExpression(Token token) {
 }
 
 void Parser::createIfExpression(Token token) {
-    //subtle changes between if and while, maybe
-    //will be remove to remote function
-    //but there should be one upper class for while
-    //or maybe while can iherit from If
-    //but is really every while and if?
+
     auto ifExpr = std::make_shared<IfExpression>();
     auto cond = recentExpressions.top();
     recentExpressions.pop();
@@ -122,9 +171,6 @@ void Parser::createFunctionCallExpression(Token token) {
 }
 void Parser::generateTree() {
     auto postfixCopy = converter->getPostfixRepresentation();
-    if(postfixCopy.empty()) {
-        throw std::runtime_error("Tried to build tree from empty postfix");
-    }
     while(!postfixCopy.empty()) {
         auto currentToken = postfixCopy.front();
         transformTokenIntoTreeNode(currentToken);
@@ -160,6 +206,7 @@ void Parser::createSemiconExpression(Token token) {
 
 void Parser::createNoArgFunctionExpression(Token token) {
     std::string name = token.getValue();
+//    if(recentExpressions.size())
     recentExpressions.push(std::make_shared<NoArgFunctionExpression>(name));
 }
 
@@ -213,11 +260,16 @@ void Parser::createDoneExpression(Token token) {
             roots.pop_back();
             auto condExpr = roots.back()->expr;
             auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
+            auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
             if(isElse) {
                 roots.pop_back();
                 auto condExpr = roots.back()->expr;
                 auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
                 condExprAsDoubleArg->elseCondition = condBody;
+            } else if (isDeclaration) {
+                auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
+                auto declarationStatements = std::dynamic_pointer_cast<BodyExpression>(declaration->right);
+                declarationStatements->statements.push_back(condBody);
             } else {
                 auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);
                 condExprAsDoubleArg->right = condBody;
@@ -247,4 +299,63 @@ void Parser::createDoneExpression(Token token) {
     }
     auto condExpr = std::dynamic_pointer_cast<DoubleArgsExpression>(currentExpr);
     condExpr->right = condBody;
+}
+
+bool Parser::tryToBuildDeclaration(Token token) {
+    if(token.getType() == T_SPECIFIER) {
+        auto specifierExpr = std::make_shared<TypeSpecifierExpression>(token.getValue());
+        scanner->getNextToken();
+        scanner->readToken();
+        auto shouldBeIdentToken = scanner->getTokenValue();
+        if(shouldBeIdentToken.getType() != T_USER_DEFINED_NAME) {
+            throw std::runtime_error("Type specifier without ident");
+        }
+
+        // user name
+        specifierExpr->left = std::make_shared<VarNameExpression>(shouldBeIdentToken.getValue());
+
+        // function
+        scanner->getNextToken();
+        scanner->readToken();
+        auto nextToken = scanner->getTokenValue();
+
+        if(nextToken.getType() == T_OPENING_PARENTHESIS) {
+            // store args in right ptr
+            auto argBlock = std::make_shared<BodyExpression>();
+            while(nextToken.getType() != T_CLOSING_PARENTHESIS || nextToken.getType() != T_NEXT_LINE) {
+
+                scanner->getNextToken();
+                scanner->readToken();
+                nextToken = scanner->getTokenValue();
+
+                if(nextToken.getType() == T_CLOSING_PARENTHESIS) {
+                    specifierExpr->right = argBlock;
+                    auto newRoot = std::make_shared<RootExpression>();
+                    newRoot->expr = specifierExpr;
+                    roots.push_back(newRoot);
+                    return true;
+                }
+                if(nextToken.getType() == T_SEMICON) {
+                    continue;
+                }
+
+                auto currentArg = std::make_shared<TypeSpecifierExpression>(nextToken.getValue());
+
+                scanner->getNextToken();
+                scanner->readToken();
+                nextToken = scanner->getTokenValue();
+
+                auto currentArgName = std::make_shared<VarNameExpression>(nextToken.getValue());
+                currentArg->left = currentArgName;
+
+                argBlock->statements.push_back(currentArg);
+            }
+        } else {
+            auto newRoot = std::make_shared<RootExpression>();
+            newRoot->expr = specifierExpr;
+            roots.push_back(newRoot);
+            parseToken(nextToken);
+        }
+    }
+    return false;
 }

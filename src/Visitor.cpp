@@ -60,6 +60,11 @@ void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 
 void ExpressionVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
     std::cout << typeSpecifierExpression->value << '\n';
+    typeSpecifierExpression->left->accept(this);
+    if(typeSpecifierExpression->right) {
+        std::cout << "Collection with values\n";
+        typeSpecifierExpression->right->accept(this);
+    }
 }
 
 void ExpressionVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -114,8 +119,10 @@ void ExpressionVisitor::visit(IfExpression* ifExpression) {
     ifExpression->left->accept(this);
     std::cout << "Block positive\n";
     ifExpression->right->accept(this);
-    std::cout << "Block else\n";
-    ifExpression->elseCondition->accept(this);
+    if(ifExpression->elseCondition) {
+        std::cout << "Block else\n";
+        ifExpression->elseCondition->accept(this);
+    }
 }
 void ExpressionVisitor::visit(ForExpression* forExpression) {
     std::cout << "In for loop\n";
@@ -141,7 +148,7 @@ void ExpressionVisitor::visit(WhileExpression* whileExpression) {
 
 void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
 
-    std::cout << "Inside loop or if body\n";
+    std::cout << "Inside a collection\n";
     for(auto statement : bodyExpression->statements) {
         std::cout << "visiting statement\n";
         statement->accept(this);

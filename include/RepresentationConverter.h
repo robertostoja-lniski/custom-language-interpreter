@@ -4,15 +4,23 @@
 
 #ifndef TKOM_REPRESENTATIONCONVERTER_H
 #define TKOM_REPRESENTATIONCONVERTER_H
-#include "Visitor.h"
 
+#include <map>
+#include <climits>
+#include "Visitor.h"
+#include "Token.h"
 class RepresentationConverter {
 
 private:
     // operators by priority
+    struct Priority {
+        int in;
+        int out;
+    };
+
     std::map<Type, int> prioritiesIn {
 
-            {T_SEMICON, 3},
+            {T_CON,1},
             {T_ASSIGN_OPERATOR,4},
             {T_BOOLEAN_OPERATOR, 5},
             {T_ADD_OPERATOR, 6},
@@ -20,6 +28,7 @@ private:
             {T_BOOLEAN_OR, 8},
             {T_BOOLEAN_AND, 9},
             {T_FUNCTION_NAME, 10},
+            {T_SEMICON, 11},
             {T_FOR, 10},
             {T_IF, 12},
             {T_ELSE, 12},
@@ -32,7 +41,9 @@ private:
 
     std::map<Type, int> prioritiesOut {
 
-            {T_SEMICON, 2},
+            {T_CON, 0},
+            {T_SEMICON, 1},
+            {T_SPECIFIER, 2},
             {T_ASSIGN_OPERATOR,3},
             {T_BOOLEAN_OPERATOR, 4},
             {T_ADD_OPERATOR, 5},
@@ -40,6 +51,7 @@ private:
             {T_BOOLEAN_OR, 7},
             {T_BOOLEAN_AND, 8},
             {T_FUNCTION_NAME, 9},
+            {T_SEMICON, 10},
             {T_FOR,10},
             {T_IF, 11},
             {T_ELSE, 11},
@@ -154,6 +166,12 @@ public:
                 postfixRepresentation.pop_back();
                 handleOperatorToken(*lastExpression);
                 handleOperatorToken(token);
+//                handleOperatorToken({"func guard", T_CON, 0});
+                // tmp fix - dummy args handle no arg function and single arg
+//                generatePostfixRepresentation({",", T_SEMICON, 0});
+//                generatePostfixRepresentation({"dummy", T_DUMMY_ARG, 0});
+//                generatePostfixRepresentation({",", T_SEMICON, 0});
+//                generatePostfixRepresentation({"dummy", T_DUMMY_ARG, 0});
                 return true;
             }
         }
@@ -188,11 +206,14 @@ public:
             return;
         }
 
-        if (token.isOperand()) {
+        if (token.isOperand() || token.getType() == T_DUMMY_ARG) {
             // should be handle etc..
             postfixRepresentation.push_back(std::make_unique<Token>(token));
         } else if (token.isOperator() || token.getValue() == "."
-                || token.getValue() == "," || token.getType() == T_DO ) {
+                || token.getValue() == "," || token.getType() == T_DO
+                || token.getType() == T_OPENING_BRACKET
+                || token.getType() == T_CLOSING_BRACKET
+                || token.getType() == T_CON) {
             handleOperatorToken(token);
         } else if (token.isClosingParenthesis()) {
             handleEmbeddedExpression();
