@@ -36,7 +36,10 @@ enum Type {
     T_BOOLEAN_AND = 24,
     T_BOOLEAN_OR = 25,
     T_DOT = 26,
-    T_FUNCTION_NAME =27,
+    T_FUNCTION_NAME = 27,
+    T_NO_ARG_FUNCTION_NAME = 28,
+    T_NEXT_LINE = 29,
+    T_FOR = 30,
 };
 
 class Token {
@@ -63,9 +66,7 @@ public:
         return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
                 type == T_REAL_NUM || type == T_STRING;
     }
-    bool canBeAFuntionName() {
-        return type == T_USER_DEFINED_NAME;
-    }
+
     friend bool operator==(const Token& lhs, const Token& rhs);
     friend bool operator!=(const Token& lhs, const Token& rhs);
     friend std::ostream& operator<<(std::ostream& out, const Token& t);
@@ -73,7 +74,11 @@ public:
     bool isOperator() {
         return type == T_MULT_OPERATOR || type == T_BOOLEAN_AND || type == T_ADD_OPERATOR ||
                 type == T_BOOLEAN_OPERATOR || type == T_BOOLEAN_OR || type == T_OPENING_PARENTHESIS;
-    };
+    }
+
+    bool isCondition() {
+        return type == T_WHILE || type == T_FOR || type == T_IF;
+    }
 
     bool isClosingParenthesis();
 

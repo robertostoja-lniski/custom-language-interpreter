@@ -7,10 +7,14 @@
 #include <utility>
 
 void Parser::parseToken(Token tokenToParse) {
-
+    if(tokenToParse.getType() == T_NOT_DEFINED_YET) {
+        return;
+    }
     try {
         std::cout << "parsing " <<  tokenToParse << '\n';
-        if(tryToBuildFunctionCall(tokenToParse) || tryToBuildExpression(tokenToParse)) {
+        if(tryToBuildFunctionCall(tokenToParse)
+            || tryToBuildConditionConstruction(tokenToParse)
+            || tryToBuildExpression(tokenToParse)) {
             return;
         }
     } catch(std::exception& e) {
@@ -23,20 +27,48 @@ bool Parser::tryToBuildExpression(Token tokenToParse) {
 }
 void Parser::createIntExpression(Token token) {
     int numericValue = std::stoi(token.getValue());
-    auto expression = std::make_unique<IntExpression>(numericValue);
-    recentExpressions.push(std::move(expression));
+    recentExpressions.push(std::make_shared<IntExpression>(numericValue));
 }
 void Parser::createFloatExpression(Token token) {
     double realValue = std::stod(token.getValue());
-    auto expression = std::make_unique<FloatExpression>(realValue);
-    recentExpressions.push(std::move(expression));
+    recentExpressions.push(std::make_shared<FloatExpression>(realValue));
 }
 void Parser::createVarNameExpression(Token token) {
     std::string name = token.getValue();
-    auto expression = std::make_unique<VarNameExpression>(name);
-    recentExpressions.push(std::move(expression));
+    recentExpressions.push(std::make_shared<VarNameExpression>(name));
 }
-void Parser::addDoubleArgsExpression(std::unique_ptr<DoubleArgsExpression> doubleArgsExpression) {
+void Parser::createForExpression(Token token) {
+
+}
+
+void Parser::createIfExpression(Token token) {
+    //subtle changes between if and while, maybe
+    //will be remove to remote function
+    //but there should be one upper class for while
+    //or maybe while can iherit from If
+    //but is really every while and if?
+    auto ifExpr = std::make_shared<WhileExpression>();
+    auto cond = recentExpressions.top();
+    recentExpressions.pop();
+
+    ifExpr->condition = cond;
+    recentExpressions.size();
+    recentExpressions.push(std::move(ifExpr));
+}
+
+void Parser::createWhileExpression(Token token) {
+    auto whileExpr = std::make_shared<WhileExpression>();
+    auto cond = recentExpressions.top();
+    recentExpressions.pop();
+
+    whileExpr->condition = cond;
+    recentExpressions.size();
+    recentExpressions.push(std::move(whileExpr));
+}
+void Parser::setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression) {
+    if(recentExpressions.size() < 2) {
+        throw std::runtime_error("Not enough args for operation");
+    }
     auto right = recentExpressions.top();
     recentExpressions.pop();
     auto left = recentExpressions.top();
@@ -48,29 +80,28 @@ void Parser::addDoubleArgsExpression(std::unique_ptr<DoubleArgsExpression> doubl
     recentExpressions.push(std::move(doubleArgsExpression));
 }
 void Parser::createAdditionExpression(Token token) {
-      auto expression = std::make_unique<AdditionExpression>(token.getValue());
-      addDoubleArgsExpression(std::move(expression));
+    setDoubleArgsExpr(std::make_shared<AdditionExpression>(token.getValue()));
 }
 void Parser::createMultExpression(Token token) {
-    auto expression = std::make_unique<MultiplyExpression>();
-    addDoubleArgsExpression(std::move(expression));
+    setDoubleArgsExpr(std::make_shared<MultiplyExpression>());
 }
 void Parser::createBooleanOperatorExpression(Token token) {
     auto value = token.getValue();
-    auto expression = std::make_unique<BooleanOperatorExpression>(value);
-    addDoubleArgsExpression(std::move(expression));
+    setDoubleArgsExpr(std::make_shared<BooleanOperatorExpression>(value));
 }
 void Parser::createAssignExpression(Token token) {
-    auto expression = std::make_unique<AssignExpression>();
-    addDoubleArgsExpression(std::move(expression));
+    setDoubleArgsExpr(std::make_unique<AssignExpression>());
 }
 void Parser::createBooleanAndExpression(Token token) {
-    auto expression = std::make_unique<BooleanAndExpression>();
-    addDoubleArgsExpression(std::move(expression));
+    setDoubleArgsExpr(std::make_unique<BooleanAndExpression>());
 }
 void Parser::createBooleanOrExpression(Token token) {
-    auto expression = std::make_unique<BooleanOrExpression>();
-    addDoubleArgsExpression(std::move(expression));
+    setDoubleArgsExpr(std::make_unique<BooleanOrExpression>());
+}
+void Parser::createNextLineExpression(Token token) {
+    if(!recentExpressions.empty()) {
+        assignTreeToRoot();
+    }
 }
 void Parser::createFunctionCallExpression(Token token) {
     auto funcExpr = std::make_unique<FunctionExpression>();
@@ -79,44 +110,72 @@ void Parser::createFunctionCallExpression(Token token) {
     if(recentExpressions.empty()) {
         funcExpr->right = nullptr;
     } else {
-        auto right = recentExpressions.top();
+        auto nextArg = recentExpressions.top();
         recentExpressions.pop();
-        funcExpr->right = right;
+        funcExpr->right = nextArg;
     }
-
     recentExpressions.push(std::move(funcExpr));
 }
 void Parser::generateTree() {
-
     auto postfixCopy = converter->getPostfixRepresentation();
     if(postfixCopy.empty()) {
         throw std::runtime_error("Tried to build tree from empty postfix");
     }
-
     while(!postfixCopy.empty()) {
         auto currentToken = postfixCopy.front();
-        auto func = tokensToNode[currentToken->getType()];
-        func(*currentToken);
-        postfixCopy.pop();
+        transformTokenIntoTreeNode(currentToken);
+        postfixCopy.pop_front();
     }
-    root = std::make_shared<RootExpression>();
-    root->next = recentExpressions.top();
-    recentExpressions.pop();
+    assignTreeToRoot();
 }
-
 void Parser::analyzeTree() {
     ExpressionVisitor expressionVisitor;
-    expressionVisitor.visit(root.get());
+    while(!roots.empty()) {
+        auto currentRoot = roots.front();
+        expressionVisitor.visit(currentRoot.get());
+        roots.pop();
+    }
 }
 
 bool Parser::tryToBuildFunctionCall(Token token) {
     return converter->tryToGenerateFunctionCall(token);
 }
-
 void Parser::createSemiconExpression(Token token) {
-    auto expression = std::make_unique<FunctionArgExpression>();
-    addDoubleArgsExpression(std::move(expression));
+    auto newArgs = std::make_shared<FunctionArgExpression>();
+
+    if(recentExpressions.size() < 2) {
+        throw std::runtime_error("Not enough function args");
+    }
+    newArgs->right = recentExpressions.top();
+    recentExpressions.pop();
+    newArgs->left = recentExpressions.top();
+    recentExpressions.pop();
+
+    recentExpressions.push(newArgs);
 }
+
+void Parser::createNoArgFunctionExpression(Token token) {
+    std::string name = token.getValue();
+    recentExpressions.push(std::make_shared<NoArgFunctionExpression>(name));
+}
+
+void Parser::transformTokenIntoTreeNode(std::shared_ptr<Token> token) {
+    auto tokenType = token->getType();
+    auto handler = tokensToNode[tokenType];
+    handler(*token);
+}
+
+void Parser::assignTreeToRoot() {
+    auto newRoot = std::make_shared<RootExpression>();
+    newRoot->left = recentExpressions.top();
+    roots.push(newRoot);
+    recentExpressions.pop();
+}
+
+bool Parser::tryToBuildConditionConstruction(Token token) {
+    return converter->tryToGenerateCondition(token);
+}
+
 
 
 

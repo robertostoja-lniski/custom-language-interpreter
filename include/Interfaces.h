@@ -20,6 +20,8 @@ struct FileInterface : public SourceInterface {
 
     std::string filepath;
     std::unique_ptr<std::ifstream> is;
+    std::string currentLine;
+    off64_t currentIndex {0};
 
     FileInterface(std::string path);
     ~FileInterface();

@@ -24,6 +24,9 @@ std::unique_ptr<Token> Scanner::createTokenFromValue(std::string val) {
     if(val == "while") {
         return std::make_unique<Token>(val, T_WHILE, position);
     }
+    if(val == "for") {
+        return std::make_unique<Token>(val, T_FOR, position);
+    }
     if(val == "if") {
         return std::make_unique<Token>(val, T_IF, position);
     }
@@ -101,6 +104,11 @@ bool Scanner::tryToBuildSimpleToken() {
     if(sign == '|') {
         val = appendVal(val);
         token = std::make_unique<Token>(val, T_BOOLEAN_OR, sourceInterface->position);
+        return true;
+    }
+    if(sign == '?') {
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_NEXT_LINE, sourceInterface->position);
         return true;
     }
     // assign or boolean prefix
@@ -203,6 +211,7 @@ bool Scanner::tryToBuildNotDefinedToken() {
 }
 Scanner::Scanner(Configuration configuration) {
     this->isVerbose = configuration.isVerbose;
+    configuration.inputPath = "/home/robert/Desktop/data.txt";
     if(!configuration.inputPath.empty()) {
         sourceInterface = std::make_unique<FileInterface>(configuration.inputPath);
     } else {
