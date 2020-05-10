@@ -76,7 +76,8 @@ public:
     bool isOperator() {
         return type == T_MULT_OPERATOR || type == T_BOOLEAN_AND || type == T_ADD_OPERATOR ||
                type == T_BOOLEAN_OPERATOR || type == T_BOOLEAN_OR || type == T_OPENING_PARENTHESIS
-                || type == T_ASSIGN_OPERATOR;
+                || type == T_ASSIGN_OPERATOR || type == T_SEMICON || type == T_DOT || type == T_DO
+                || type == T_CON;
     }
 
     bool isCondition() {
