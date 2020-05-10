@@ -61,7 +61,6 @@ private:
         }
         return true;
     }
-
     bool tryToHandleEmbeddedExpression() {
         if(operators.empty() || token.getType()!=T_CLOSING_PARENTHESIS) {
             return false;
@@ -77,7 +76,6 @@ private:
             }
             return true;
         }
-
         while(operators.top()->getType() != T_OPENING_PARENTHESIS) {
             postfixRepresentation.push_back(operators.top());
             operators.pop();
@@ -89,7 +87,6 @@ private:
         operators.pop();
         return true;
     }
-
     bool tryToHandleEmbeddedDo() {
         if(token.getType() != T_DO) {
             return false;
@@ -105,7 +102,6 @@ private:
         postfixRepresentation.push_back(std::make_shared<Token>(token));
         return true;
     }
-
     bool tryToHandleEmbeddedDone() {
         if(token.getType() != T_DONE) {
             return false;
@@ -118,32 +114,12 @@ private:
         postfixRepresentation.push_back(std::make_shared<Token>(token));
         return true;
     }
-
-
     void finalize() {
         // ugly as hell
         while(!operators.empty()) {
             postfixRepresentation.push_back(operators.top());
             operators.pop();
         }
-    }
-
-public:
-
-
-    void printPostfix() {
-        // should be iterator - to be changed soon
-        auto copiedRepresentation = postfixRepresentation;
-        while(!copiedRepresentation.empty()) {
-            std::cout << copiedRepresentation.front()->getValue() << ' ';
-            copiedRepresentation.pop_front();
-        }
-    }
-    std::deque<std::shared_ptr<Token>> getPostfixRepresentation() {
-
-        finalize();
-        printPostfix();
-        return postfixRepresentation;
     }
     bool tryToGenerateFunctionCall() {
         if(postfixRepresentation.empty()) {
@@ -187,6 +163,20 @@ public:
             return true;
         }
         return false;
+    }
+public:
+    void printPostfix() {
+        // should be iterator - to be changed soon
+        auto copiedRepresentation = postfixRepresentation;
+        while(!copiedRepresentation.empty()) {
+            std::cout << copiedRepresentation.front()->getValue() << ' ';
+            copiedRepresentation.pop_front();
+        }
+    }
+    std::deque<std::shared_ptr<Token>> getPostfixRepresentation() {
+        finalize();
+        printPostfix();
+        return postfixRepresentation;
     }
     bool generatePostfixRepresentation(Token token) {
         this->token = token;
