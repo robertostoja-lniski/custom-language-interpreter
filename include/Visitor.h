@@ -35,6 +35,7 @@ struct MultiplyExpression;
 struct DivideExpression;
 // other
 struct AssignExpression;
+struct DeclarationExpression;
 // functions
 struct FunctionArgExpression;
 struct FunctionExpression;
@@ -151,13 +152,6 @@ struct VarNameExpression : Expression {
         visitor->visit(this);
     }
 };
-struct TypeSpecifierExpression : Expression {
-    std::string value;
-    TypeSpecifierExpression(std::string value) : value(value) {}
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
 struct DoubleArgsExpression : Expression {
     std::shared_ptr<Expression> left{}, right{};
     void accept(Visitor* visitor) override {
@@ -179,7 +173,14 @@ struct IfExpression : DoubleArgsExpression {
 };
 
 struct ForExpression : DoubleArgsExpression {
-    std::shared_ptr<VarNameExpression> collectionName;
+    std::shared_ptr<Expression> collectionName;
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct TypeSpecifierExpression : DoubleArgsExpression {
+    std::string value;
+    TypeSpecifierExpression(std::string value) : value(value) {}
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
