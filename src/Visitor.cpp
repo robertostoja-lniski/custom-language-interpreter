@@ -111,28 +111,41 @@ void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
 void ExpressionVisitor::visit(IfExpression* ifExpression) {
     std::cout << "In if condition\n";
     std::cout << "Condition: ";
-    ifExpression->condition->accept(this);
+    ifExpression->left->accept(this);
     std::cout << "Block";
-    ifExpression->block->accept(this);
+    ifExpression->right->accept(this);
 }
 void ExpressionVisitor::visit(ForExpression* forExpression) {
     std::cout << "In for loop\n";
     std::cout << "iterator: ";
-    forExpression->iteratorName->accept(this);
+    forExpression->left->accept(this);
     std::cout << "collection: ";
     forExpression->collectionName->accept(this);
     std::cout << "block: ";
-    forExpression->block->accept(this);
+    forExpression->right->accept(this);
 }
 void ExpressionVisitor::visit(WhileExpression* whileExpression) {
     std::cout << "In while loop\n";
     std::cout << "Condition:\n";
-    whileExpression->condition->accept(this);
+    whileExpression->left->accept(this);
     std::cout << "Block";
-    if(whileExpression->block) {
-        whileExpression->block->accept(this);
+    if(whileExpression->right) {
+        whileExpression->right->accept(this);
     } else {
         std::cout << " is empty.\n";
     }
 
+}
+
+void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
+
+    std::cout << "Inside loop or if body\n";
+    for(auto statement : bodyExpression->statements) {
+        std::cout << "visiting statement\n";
+        statement->accept(this);
+    }
+}
+
+void ExpressionVisitor::visit(DoExpression *doExpression) {
+    std::cout << "It is do markdown\n";
 }

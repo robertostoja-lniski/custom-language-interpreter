@@ -22,11 +22,15 @@ private:
             {T_FOR, 10},
             {T_IF, 12},
             {T_WHILE, 13},
-            {T_NEXT_LINE, 14},
+            {T_DO, 17},
+            {T_DONE, 18},
+            {T_NEXT_LINE, 19},
             {T_OPENING_PARENTHESIS, 0}
     };
 
     std::map<Type, int> prioritiesOut {
+
+
             {T_NEXT_LINE, 2},
             {T_SEMICON, 3},
             {T_BOOLEAN_OPERATOR, 4},
@@ -38,7 +42,9 @@ private:
             {T_FOR,10},
             {T_IF, 11},
             {T_WHILE, 12},
-            {T_NEXT_LINE, 13},
+            {T_DO, 16},
+            {T_DONE, 17},
+            {T_NEXT_LINE, 18},
             {T_OPENING_PARENTHESIS, INT_MAX}
     };
 
@@ -74,7 +80,6 @@ private:
             if(operators.size() && operators.top()->getType() == T_FUNCTION_NAME) {
                 operators.top()->setType(T_NO_ARG_FUNCTION_NAME);
             }
-
             return;
         }
 
@@ -88,6 +93,28 @@ private:
         }
         operators.pop();
     }
+
+    void handleEmbeddedDo(Token token) {
+        if(operators.empty()) {
+            postfixRepresentation.push_back(std::make_shared<Token>(token));
+            return;
+        }
+
+        auto cond = operators.top();
+        postfixRepresentation.push_back(cond);
+        operators.pop();
+        postfixRepresentation.push_back(std::make_shared<Token>(token));
+    }
+
+    void handleEmbeddedDone(Token token) {
+        while(!operators.empty()) {
+            auto cond = operators.top();
+            postfixRepresentation.push_back(cond);
+            operators.pop();
+        }
+        postfixRepresentation.push_back(std::make_shared<Token>(token));
+    }
+
 
     void finalize() {
         // ugly as hell
@@ -148,11 +175,22 @@ public:
             handleNextLine(token);
             return;
         }
+
+        if(token.getType() == T_DO) {
+            handleEmbeddedDo(token);
+            return;
+        }
+
+        if(token.getType() == T_DONE) {
+            handleEmbeddedDone(token);
+            return;
+        }
+
         if (token.isOperand()) {
             // should be handle etc..
             postfixRepresentation.push_back(std::make_unique<Token>(token));
         } else if (token.isOperator() || token.getValue() == "."
-                || token.getValue() == ",") {
+                || token.getValue() == "," || token.getType() == T_DO) {
             handleOperatorToken(token);
         } else if (token.isClosingParenthesis()) {
             handleEmbeddedExpression();
