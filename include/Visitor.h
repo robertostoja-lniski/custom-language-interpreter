@@ -185,7 +185,8 @@ struct ForExpression : DoubleArgsExpression {
     }
 };
 
-struct RootExpression : DoubleArgsExpression {
+struct RootExpression : Expression {
+    std::shared_ptr<Expression> expr;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

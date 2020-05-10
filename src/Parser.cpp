@@ -172,7 +172,7 @@ void Parser::transformTokenIntoTreeNode(std::shared_ptr<Token> token) {
 void Parser::assignTreeToRoot() {
     while(!recentExpressions.empty()) {
         auto newRoot = std::make_shared<RootExpression>();
-        newRoot->left = recentExpressions.top();
+        newRoot->expr = recentExpressions.top();
         roots.push_back(newRoot);
         recentExpressions.pop();
     }
@@ -203,19 +203,19 @@ void Parser::createDoneExpression(Token token) {
 
     auto condBody = std::make_shared<BodyExpression>();
     if(recentExpressions.empty()) {
-            auto upperRoot = roots.back()->left;
+            auto upperRoot = roots.back()->expr;
             while(!std::dynamic_pointer_cast<DoExpression>(upperRoot)) {
                 condBody->statements.push_front(upperRoot);
                 roots.pop_back();
-                upperRoot = roots.back()->left;
+                upperRoot = roots.back()->expr;
             }
             // pop Do mark
             roots.pop_back();
-            auto condExpr = roots.back()->left;
+            auto condExpr = roots.back()->expr;
             auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
             if(isElse) {
                 roots.pop_back();
-                auto condExpr = roots.back()->left;
+                auto condExpr = roots.back()->expr;
                 auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
                 condExprAsDoubleArg->elseCondition = condBody;
             } else {
