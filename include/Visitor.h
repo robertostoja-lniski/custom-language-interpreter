@@ -40,6 +40,8 @@ struct FunctionExpression;
 struct NoArgFunctionExpression;
 // file organisation
 struct NewLineExpression;
+struct BodyExpression;
+struct DoExpression;
 
 struct Visitor {
     // visit root
@@ -73,6 +75,8 @@ struct Visitor {
 
     // file organisation
     virtual void visit(NewLineExpression* newLineExpression) = 0;
+    virtual void visit(BodyExpression* bodyExpression) = 0;
+    virtual void visit(DoExpression* doExpression) = 0;
 
     //keywords
     virtual void visit(IfExpression* ifExpression) = 0;
@@ -99,13 +103,22 @@ struct ExpressionVisitor : Visitor {
     void visit(FunctionExpression* functionExpression) override;
     void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
     void visit(NewLineExpression* newLineExpression) override;
+    void visit(BodyExpression* bodyExpression) override;
     void visit(IfExpression* ifExpression) override;
     void visit(ForExpression* forExpression) override;
     void visit(WhileExpression* whileExpression) override;
+    void visit(DoExpression* doExpression) override;
 };
 
 struct Expression {
     virtual void accept(Visitor* visitor) = 0;
+};
+
+struct DoExpression : Expression {
+    // simple boundary for done.
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
 };
 struct NoArgFunctionExpression : Expression {
     std::string name;
@@ -150,27 +163,21 @@ struct DoubleArgsExpression : Expression {
     }
 };
 
-struct WhileExpression : Expression {
-    std::shared_ptr<Expression> condition {nullptr};
-    std::shared_ptr<Expression> block {nullptr};
+struct WhileExpression : DoubleArgsExpression {
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
 
-struct IfExpression : Expression {
-    std::shared_ptr<Expression> condition {nullptr};
-    std::shared_ptr<Expression> block {nullptr};
+struct IfExpression : DoubleArgsExpression {
     std::shared_ptr<IfExpression> elseCondition {nullptr};
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
 
-struct ForExpression : Expression {
-    std::shared_ptr<VarNameExpression> iteratorName;
+struct ForExpression : DoubleArgsExpression {
     std::shared_ptr<VarNameExpression> collectionName;
-    std::shared_ptr<VarNameExpression> block;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -178,6 +185,12 @@ struct ForExpression : Expression {
 
 
 struct RootExpression : DoubleArgsExpression {
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct BodyExpression:Expression {
+    std::deque<std::shared_ptr<Expression>> statements;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

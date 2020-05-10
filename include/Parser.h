@@ -24,13 +24,17 @@ private:
     //tmp just for one subtree
     std::unique_ptr<RepresentationConverter> converter;
     // right not used
-    std::queue <std::shared_ptr<RootExpression>> roots;
+    std::deque <std::shared_ptr<RootExpression>> roots;
+    std::stack <std::shared_ptr<BodyExpression>> embeddedBodies;
     std::stack <std::shared_ptr<Expression>> recentExpressions;
     std::queue <Token> functionCall;
     bool isBuildingFunctionStarted {false};
 
     bool tryToBuildExpression(Token token);
     void assignTreeToRoot();
+    void assignTreeToCurrentBody();
+    bool isCondExpression(std::shared_ptr<Expression> expr);
+
     void transformTokenIntoTreeNode(std::shared_ptr<Token> token);
     void createIntExpression(Token token);
     void createFloatExpression(Token token);
@@ -48,7 +52,8 @@ private:
     void createForExpression(Token token);
     void createIfExpression(Token token);
     void createWhileExpression(Token token);
-
+    void createDoExpression(Token token);
+    void createDoneExpression(Token token);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
     std::shared_ptr<Expression> handle(const std::shared_ptr<Expression>& expr);
 
@@ -70,6 +75,8 @@ private:
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},
             {T_FOR, [&](Token token){createForExpression(token);}},
+            {T_DO, [&](Token token){createDoExpression(token);}},
+            {T_DONE, [&](Token token){createDoneExpression(token);}},
     };
 
 

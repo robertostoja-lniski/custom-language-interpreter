@@ -51,7 +51,7 @@ void Parser::createIfExpression(Token token) {
     auto cond = recentExpressions.top();
     recentExpressions.pop();
 
-    ifExpr->condition = cond;
+    ifExpr->left = cond;
     recentExpressions.size();
     recentExpressions.push(std::move(ifExpr));
 }
@@ -61,7 +61,7 @@ void Parser::createWhileExpression(Token token) {
     auto cond = recentExpressions.top();
     recentExpressions.pop();
 
-    whileExpr->condition = cond;
+    whileExpr->left = cond;
     recentExpressions.size();
     recentExpressions.push(std::move(whileExpr));
 }
@@ -99,9 +99,9 @@ void Parser::createBooleanOrExpression(Token token) {
     setDoubleArgsExpr(std::make_unique<BooleanOrExpression>());
 }
 void Parser::createNextLineExpression(Token token) {
-    if(!recentExpressions.empty()) {
-        assignTreeToRoot();
-    }
+    // if if/while/for body is at stack top
+    // do not take it out.
+    assignTreeToRoot();
 }
 void Parser::createFunctionCallExpression(Token token) {
     auto funcExpr = std::make_unique<FunctionExpression>();
@@ -133,7 +133,7 @@ void Parser::analyzeTree() {
     while(!roots.empty()) {
         auto currentRoot = roots.front();
         expressionVisitor.visit(currentRoot.get());
-        roots.pop();
+        roots.pop_back();
     }
 }
 
@@ -166,16 +166,60 @@ void Parser::transformTokenIntoTreeNode(std::shared_ptr<Token> token) {
 }
 
 void Parser::assignTreeToRoot() {
-    auto newRoot = std::make_shared<RootExpression>();
-    newRoot->left = recentExpressions.top();
-    roots.push(newRoot);
+    while(!recentExpressions.empty()) {
+        auto newRoot = std::make_shared<RootExpression>();
+        newRoot->left = recentExpressions.top();
+        roots.push_front(newRoot);
+        recentExpressions.pop();
+    }
+}
+
+void Parser::assignTreeToCurrentBody() {
+    auto currentTree = recentExpressions.top();
+    auto currentBody = embeddedBodies.top();
+    currentBody->statements.push_back(currentTree);
     recentExpressions.pop();
+    embeddedBodies.pop();
 }
 
 bool Parser::tryToBuildConditionConstruction(Token token) {
     return converter->tryToGenerateCondition(token);
 }
 
+void Parser::createDoExpression(Token token) {
+    auto condBody = std::make_shared<DoExpression>();
+    recentExpressions.push(condBody);
+}
+
+bool Parser::isCondExpression(std::shared_ptr<Expression> expr) {
+    auto rawExpr = expr.get();
+    return dynamic_cast<DoExpression *>(rawExpr);
+}
+void Parser::createDoneExpression(Token token) {
+
+    auto condBody = std::make_shared<BodyExpression>();
+    auto currentExpr = recentExpressions.top();
+    if(currentExpr == nullptr) {
+        throw std::runtime_error("Single done.");
+    }
+
+    while(!isCondExpression(currentExpr)) {
+        if(recentExpressions.empty()) {
+            throw std::runtime_error("Done without do.");
+        }
+        condBody->statements.push_back(currentExpr);
+        recentExpressions.pop();
+        currentExpr = recentExpressions.top();
+    }
+    recentExpressions.pop();
+    currentExpr = recentExpressions.top();
+    // now we have to set cond to have right ptr to body
+    if(currentExpr == nullptr) {
+        throw std::runtime_error("Single done.");
+    }
+    auto condExpr = std::dynamic_pointer_cast<DoubleArgsExpression>(currentExpr);
+    condExpr->right = condBody;
+}
 
 
 
