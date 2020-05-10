@@ -112,8 +112,10 @@ void ExpressionVisitor::visit(IfExpression* ifExpression) {
     std::cout << "In if condition\n";
     std::cout << "Condition: ";
     ifExpression->left->accept(this);
-    std::cout << "Block";
+    std::cout << "Block positive\n";
     ifExpression->right->accept(this);
+    std::cout << "Block else\n";
+    ifExpression->elseCondition->accept(this);
 }
 void ExpressionVisitor::visit(ForExpression* forExpression) {
     std::cout << "In for loop\n";
@@ -148,4 +150,8 @@ void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
 
 void ExpressionVisitor::visit(DoExpression *doExpression) {
     std::cout << "It is do markdown\n";
+}
+
+void ExpressionVisitor::visit(ElseExpression *elseExpression) {
+    std::cout << "It is else markdown\n";
 }

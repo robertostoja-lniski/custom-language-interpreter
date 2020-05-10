@@ -41,13 +41,17 @@ void Parser::createForExpression(Token token) {
 
 }
 
+void Parser::createElseExpression(Token token) {
+    recentExpressions.push(std::move(std::make_shared<ElseExpression>()));
+}
+
 void Parser::createIfExpression(Token token) {
     //subtle changes between if and while, maybe
     //will be remove to remote function
     //but there should be one upper class for while
     //or maybe while can iherit from If
     //but is really every while and if?
-    auto ifExpr = std::make_shared<WhileExpression>();
+    auto ifExpr = std::make_shared<IfExpression>();
     auto cond = recentExpressions.top();
     recentExpressions.pop();
 
@@ -169,7 +173,7 @@ void Parser::assignTreeToRoot() {
     while(!recentExpressions.empty()) {
         auto newRoot = std::make_shared<RootExpression>();
         newRoot->left = recentExpressions.top();
-        roots.push_front(newRoot);
+        roots.push_back(newRoot);
         recentExpressions.pop();
     }
 }
@@ -198,6 +202,30 @@ bool Parser::isCondExpression(std::shared_ptr<Expression> expr) {
 void Parser::createDoneExpression(Token token) {
 
     auto condBody = std::make_shared<BodyExpression>();
+    if(recentExpressions.empty()) {
+            auto upperRoot = roots.back()->left;
+            while(!std::dynamic_pointer_cast<DoExpression>(upperRoot)) {
+                condBody->statements.push_front(upperRoot);
+                roots.pop_back();
+                upperRoot = roots.back()->left;
+            }
+            // pop Do mark
+            roots.pop_back();
+            auto condExpr = roots.back()->left;
+            auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
+            if(isElse) {
+                roots.pop_back();
+                auto condExpr = roots.back()->left;
+                auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
+                condExprAsDoubleArg->elseCondition = condBody;
+            } else {
+                auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);
+                condExprAsDoubleArg->right = condBody;
+            }
+
+            return;
+    }
+
     auto currentExpr = recentExpressions.top();
     if(currentExpr == nullptr) {
         throw std::runtime_error("Single done.");
@@ -220,6 +248,3 @@ void Parser::createDoneExpression(Token token) {
     auto condExpr = std::dynamic_pointer_cast<DoubleArgsExpression>(currentExpr);
     condExpr->right = condBody;
 }
-
-
-

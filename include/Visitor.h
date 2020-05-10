@@ -20,6 +20,7 @@ struct FloatExpression;
 
 // Secial words
 struct IfExpression;
+struct ElseExpression;
 struct ForExpression;
 struct WhileExpression;
 
@@ -80,6 +81,7 @@ struct Visitor {
 
     //keywords
     virtual void visit(IfExpression* ifExpression) = 0;
+    virtual void visit(ElseExpression* elseExpression) = 0;
     virtual void visit(ForExpression* forExpression) = 0;
     virtual void visit(WhileExpression* whileExpression) = 0;
 };
@@ -105,6 +107,7 @@ struct ExpressionVisitor : Visitor {
     void visit(NewLineExpression* newLineExpression) override;
     void visit(BodyExpression* bodyExpression) override;
     void visit(IfExpression* ifExpression) override;
+    void visit(ElseExpression* elseExpression) override;
     void visit(ForExpression* forExpression) override;
     void visit(WhileExpression* whileExpression) override;
     void visit(DoExpression* doExpression) override;
@@ -113,7 +116,6 @@ struct ExpressionVisitor : Visitor {
 struct Expression {
     virtual void accept(Visitor* visitor) = 0;
 };
-
 struct DoExpression : Expression {
     // simple boundary for done.
     void accept(Visitor* visitor) override {
@@ -170,7 +172,7 @@ struct WhileExpression : DoubleArgsExpression {
 };
 
 struct IfExpression : DoubleArgsExpression {
-    std::shared_ptr<IfExpression> elseCondition {nullptr};
+    std::shared_ptr<BodyExpression> elseCondition {nullptr};
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -183,7 +185,6 @@ struct ForExpression : DoubleArgsExpression {
     }
 };
 
-
 struct RootExpression : DoubleArgsExpression {
     void accept(Visitor* visitor) override {
         visitor->visit(this);
@@ -191,6 +192,11 @@ struct RootExpression : DoubleArgsExpression {
 };
 struct BodyExpression:Expression {
     std::deque<std::shared_ptr<Expression>> statements;
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct ElseExpression : Expression {
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

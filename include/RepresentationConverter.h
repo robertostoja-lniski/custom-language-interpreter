@@ -12,7 +12,8 @@ private:
     // operators by priority
     std::map<Type, int> prioritiesIn {
 
-            {T_SEMICON, 4},
+            {T_SEMICON, 3},
+            {T_ASSIGN_OPERATOR,4},
             {T_BOOLEAN_OPERATOR, 5},
             {T_ADD_OPERATOR, 6},
             {T_MULT_OPERATOR, 7},
@@ -21,6 +22,7 @@ private:
             {T_FUNCTION_NAME, 10},
             {T_FOR, 10},
             {T_IF, 12},
+            {T_ELSE, 12},
             {T_WHILE, 13},
             {T_DO, 17},
             {T_DONE, 18},
@@ -30,9 +32,8 @@ private:
 
     std::map<Type, int> prioritiesOut {
 
-
-            {T_NEXT_LINE, 2},
-            {T_SEMICON, 3},
+            {T_SEMICON, 2},
+            {T_ASSIGN_OPERATOR,3},
             {T_BOOLEAN_OPERATOR, 4},
             {T_ADD_OPERATOR, 5},
             {T_MULT_OPERATOR, 6},
@@ -41,6 +42,7 @@ private:
             {T_FUNCTION_NAME, 9},
             {T_FOR,10},
             {T_IF, 11},
+            {T_ELSE, 11},
             {T_WHILE, 12},
             {T_DO, 16},
             {T_DONE, 17},
@@ -190,7 +192,7 @@ public:
             // should be handle etc..
             postfixRepresentation.push_back(std::make_unique<Token>(token));
         } else if (token.isOperator() || token.getValue() == "."
-                || token.getValue() == "," || token.getType() == T_DO) {
+                || token.getValue() == "," || token.getType() == T_DO ) {
             handleOperatorToken(token);
         } else if (token.isClosingParenthesis()) {
             handleEmbeddedExpression();
