@@ -48,7 +48,7 @@ void ExpressionVisitor::visit(DivideExpression *divideExpression) {
 
 void ExpressionVisitor::visit(RootExpression *rootExpression) {
     std::cout << "Starting\n";
-    rootExpression->left->accept(this);
+    rootExpression->expr->accept(this);
 //    rootExpression->right->accept(this);
 }
 
