@@ -35,49 +35,6 @@ void Parser::createVarNameExpression(Token token) {
     std::string name = token.getValue();
     recentExpressions.push(std::make_shared<VarNameExpression>(name));
 }
-void Parser::createTypeDeclarationExpression(Token token) {
-//    // if no value initialisation
-    if(recentExpressions.size() == 1) {
-        auto specifier = std::make_unique<TypeSpecifierExpression>(token.getValue());
-        specifier->left = recentExpressions.top();
-        recentExpressions.pop();
-        recentExpressions.push(std::move(specifier));
-        return;
-    }
-//
-//    // if single value initialisation
-//    if(recentExpressions.size() == 3) {
-//        auto specifier = std::make_unique<TypeSpecifierExpression>(token.getValue());
-//        auto assignment = recentExpressions.top();
-//        specifier->left = assignment;
-//        recentExpressions.push(std::move(specifier));
-//        return;
-//    }
-
-    // if collection initialisation
-    // f.e int a = 3 4 5
-    std::string name = token.getValue();
-    // handle previous expr
-    auto doubleExpr = recentExpressions.top();
-    recentExpressions.pop();
-
-    auto values = std::dynamic_pointer_cast<DoubleArgsExpression>(doubleExpr);
-    auto initialisationBody = std::make_shared<BodyExpression>();
-    initialisationBody->statements.push_back(values->right);
-    initialisationBody->statements.push_back(values->left);
-
-    while(recentExpressions.size() > 1) {
-        initialisationBody->statements.push_back(recentExpressions.top());
-        recentExpressions.pop();
-    }
-
-    auto specifier = std::make_shared<TypeSpecifierExpression>(token.getValue());
-    // set varname to left
-    specifier->left = recentExpressions.top();
-    recentExpressions.pop();
-    specifier->right = initialisationBody;
-    recentExpressions.push(specifier);
-}
 void Parser::createForExpression(Token token) {
     auto forExpr = std::make_unique<ForExpression>();
     auto collection = recentExpressions.top();
@@ -234,59 +191,47 @@ bool Parser::isCondExpression(std::shared_ptr<Expression> expr) {
     auto rawExpr = expr.get();
     return dynamic_cast<DoExpression *>(rawExpr);
 }
+
+void Parser::joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody){
+    auto upperRoot = roots.back()->expr;
+    while(!std::dynamic_pointer_cast<DoExpression>(upperRoot)) {
+        condBody->statements.push_front(upperRoot);
+        roots.pop_back();
+        upperRoot = roots.back()->expr;
+    }
+    roots.pop_back();
+}
+void Parser::assignBodyToUpperElse(std::shared_ptr<BodyExpression> condBody) {
+    roots.pop_back();
+    auto condExpr = roots.back()->expr;
+    auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
+    condExprAsDoubleArg->elseCondition = condBody;
+}
+void Parser::assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
+    auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
+    auto declarationStatements = std::dynamic_pointer_cast<BodyExpression>(declaration->right);
+    declarationStatements->statements.push_back(condBody);
+}
+void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
+    auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);
+    condExprAsDoubleArg->right = condBody;
+}
+void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody) {
+    auto condExpr = roots.back()->expr;
+    auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
+    auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
+    if(isElse) {
+        assignBodyToUpperElse(condBody);
+    } else if (isDeclaration) {
+        assignBodyToUpperDeclaration(condBody, condExpr);
+    } else {
+        assignBodyToUpperAnyExpression(condBody, condExpr);
+    }
+}
 void Parser::createDoneExpression(Token token) {
-
     auto condBody = std::make_shared<BodyExpression>();
-    if(recentExpressions.empty()) {
-            auto upperRoot = roots.back()->expr;
-            while(!std::dynamic_pointer_cast<DoExpression>(upperRoot)) {
-                condBody->statements.push_front(upperRoot);
-                roots.pop_back();
-                upperRoot = roots.back()->expr;
-            }
-            // pop Do mark
-            roots.pop_back();
-            auto condExpr = roots.back()->expr;
-            auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
-            auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
-            if(isElse) {
-                roots.pop_back();
-                auto condExpr = roots.back()->expr;
-                auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
-                condExprAsDoubleArg->elseCondition = condBody;
-            } else if (isDeclaration) {
-                auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
-                auto declarationStatements = std::dynamic_pointer_cast<BodyExpression>(declaration->right);
-                declarationStatements->statements.push_back(condBody);
-            } else {
-                auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);
-                condExprAsDoubleArg->right = condBody;
-            }
-
-            return;
-    }
-
-    auto currentExpr = recentExpressions.top();
-    if(currentExpr == nullptr) {
-        throw std::runtime_error("Single done.");
-    }
-
-    while(!isCondExpression(currentExpr)) {
-        if(recentExpressions.empty()) {
-            throw std::runtime_error("Done without do.");
-        }
-        condBody->statements.push_back(currentExpr);
-        recentExpressions.pop();
-        currentExpr = recentExpressions.top();
-    }
-    recentExpressions.pop();
-    currentExpr = recentExpressions.top();
-    // now we have to set cond to have right ptr to body
-    if(currentExpr == nullptr) {
-        throw std::runtime_error("Single done.");
-    }
-    auto condExpr = std::dynamic_pointer_cast<DoubleArgsExpression>(currentExpr);
-    condExpr->right = condBody;
+    joinUpperStatementsUntilDoFound(condBody);
+    assignBodyToUpperExpression(condBody);
 }
 
 bool Parser::tryToBuildDeclaration(Token token) {
