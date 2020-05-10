@@ -12,11 +12,7 @@ void Parser::parseToken(Token tokenToParse) {
     }
     try {
         std::cout << "parsing " <<  tokenToParse << '\n';
-        if(tryToBuildDeclaration(tokenToParse)) {
-            return;
-        }
-        if(tryToBuildFunctionCall(tokenToParse)
-            || tryToBuildConditionConstruction(tokenToParse)
+        if(tryToBuildDeclaration(tokenToParse)
             || tryToBuildExpression(tokenToParse)) {
             return;
         }
@@ -25,8 +21,7 @@ void Parser::parseToken(Token tokenToParse) {
     }
 }
 bool Parser::tryToBuildExpression(Token tokenToParse) {
-    converter->generatePostfixRepresentation(tokenToParse);
-    return true;
+    return converter->generatePostfixRepresentation(tokenToParse);
 }
 void Parser::createIntExpression(Token token) {
     int numericValue = std::stoi(token.getValue());
@@ -187,9 +182,6 @@ void Parser::analyzeTree() {
     }
 }
 
-bool Parser::tryToBuildFunctionCall(Token token) {
-    return converter->tryToGenerateFunctionCall(token);
-}
 void Parser::createSemiconExpression(Token token) {
     auto newArgs = std::make_shared<FunctionArgExpression>();
 
@@ -231,10 +223,6 @@ void Parser::assignTreeToCurrentBody() {
     currentBody->statements.push_back(currentTree);
     recentExpressions.pop();
     embeddedBodies.pop();
-}
-
-bool Parser::tryToBuildConditionConstruction(Token token) {
-    return converter->tryToGenerateCondition(token);
 }
 
 void Parser::createDoExpression(Token token) {

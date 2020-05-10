@@ -110,10 +110,6 @@ public:
         }
     }
 
-    bool tryToBuildFunctionCall(Token token);
-
-    bool tryToBuildConditionConstruction(Token token);
-
     bool tryToBuildDeclaration(Token token);
 };
 
