@@ -17,6 +17,7 @@ private:
         int in;
         int out;
     };
+    Token token;
     std::map<Type, Priority> priorities {
             {T_CON, {1,0}},
             {T_OPENING_PARENTHESIS, {0,INT_MAX}},
@@ -42,11 +43,11 @@ private:
     std::stack <std::shared_ptr<Token>> operators;
     std::deque <std::shared_ptr<Token>> postfixRepresentation;
 
-    bool tryToHandleOperatorToken(Token token) {
-//
-//        if(!token.isCondition() && !token.isOperator()) {
-//            return false;
-//        }
+    bool tryToHandleSpecialToken() {
+
+        if(!token.isCondition() && !token.isOperator() && !token.isFunction()) {
+            return false;
+        }
         auto currentType = token.getType();
 
         if(operators.empty() || priorities[currentType].out > priorities[operators.top()->getType()].in) {
@@ -61,9 +62,9 @@ private:
         return true;
     }
 
-    void handleEmbeddedExpression() {
-        if(operators.empty()) {
-            return;
+    bool tryToHandleEmbeddedExpression() {
+        if(operators.empty() || token.getType()!=T_CLOSING_PARENTHESIS) {
+            return false;
         }
         // should be do while
         // handle no-argument function
@@ -74,7 +75,7 @@ private:
             if(operators.size() && operators.top()->getType() == T_FUNCTION_NAME) {
                 operators.top()->setType(T_NO_ARG_FUNCTION_NAME);
             }
-            return;
+            return true;
         }
 
         while(operators.top()->getType() != T_OPENING_PARENTHESIS) {
@@ -86,9 +87,10 @@ private:
             }
         }
         operators.pop();
+        return true;
     }
 
-    bool tryToHandleEmbeddedDo(Token token) {
+    bool tryToHandleEmbeddedDo() {
         if(token.getType() != T_DO) {
             return false;
         }
@@ -104,7 +106,7 @@ private:
         return true;
     }
 
-    bool tryToHandleEmbeddedDone(Token token) {
+    bool tryToHandleEmbeddedDone() {
         if(token.getType() != T_DONE) {
             return false;
         }
@@ -143,7 +145,7 @@ public:
         printPostfix();
         return postfixRepresentation;
     }
-    bool tryToGenerateFunctionCall(Token token) {
+    bool tryToGenerateFunctionCall() {
         if(postfixRepresentation.empty()) {
             return false;
         }
@@ -152,23 +154,26 @@ public:
             if(lastExpression && lastExpression->getType() == T_USER_DEFINED_NAME) {
                 lastExpression->setType(T_FUNCTION_NAME);
                 postfixRepresentation.pop_back();
-                tryToHandleOperatorToken(*lastExpression);
-                tryToHandleOperatorToken(token);
+                auto currentToken = token;
+                token = *lastExpression;
+                tryToHandleSpecialToken();
+                token = currentToken;
+                tryToHandleSpecialToken();
 
                 return true;
             }
         }
         return false;
     }
-    bool tryToGenerateCondition(Token token) {
+    bool tryToGenerateCondition() {
         // treat conditions as operators
         if(token.isCondition()) {
-            tryToHandleOperatorToken(token);
+            tryToHandleSpecialToken();
             return true;
         }
         return false;
     }
-    bool tryToHandleNextLine(Token token) {
+    bool tryToHandleNextLine() {
         if(token.getType() != T_NEXT_LINE) {
             return false;
         }
@@ -176,23 +181,17 @@ public:
         postfixRepresentation.push_back(std::make_unique<Token>(token));
         return true;
     }
-    bool tryToHandleOperand(Token token) {
+    bool tryToHandleOperand() {
         if (token.isOperand()) {
             postfixRepresentation.push_back(std::make_unique<Token>(token));
             return true;
         }
         return false;
     }
-    void generatePostfixRepresentation(Token token) {
-
-        if(tryToHandleNextLine(token) || tryToHandleEmbeddedDo(token) || tryToHandleEmbeddedDone(token)
-            || tryToHandleOperand(token)) {
-            return;
-        } else if(token.isOperator()) {
-            tryToHandleOperatorToken(token);
-        } else if (token.isClosingParenthesis()) {
-            handleEmbeddedExpression();
-        }
+    bool generatePostfixRepresentation(Token token) {
+        this->token = token;
+        return tryToGenerateFunctionCall() || tryToGenerateCondition() || tryToHandleNextLine() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone()
+            || tryToHandleOperand() || tryToHandleSpecialToken() || tryToHandleEmbeddedExpression();
     }
 };
 

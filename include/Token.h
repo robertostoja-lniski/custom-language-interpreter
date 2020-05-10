@@ -84,6 +84,9 @@ public:
         return type == T_WHILE || type == T_FOR || type == T_IF || type == T_ELSE;
     }
 
+    bool isFunction() {
+        return type == T_FUNCTION_NAME;
+    }
     bool isClosingParenthesis();
 
     bool isOpeningParenthesis();
