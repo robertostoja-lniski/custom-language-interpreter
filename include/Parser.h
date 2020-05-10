@@ -51,6 +51,7 @@ private:
     void createNextLineExpression(Token token);
     void createForExpression(Token token);
     void createIfExpression(Token token);
+    void createElseExpression(Token token);
     void createWhileExpression(Token token);
     void createDoExpression(Token token);
     void createDoneExpression(Token token);
@@ -74,9 +75,11 @@ private:
             {T_NEXT_LINE, [&](Token token){createNextLineExpression(token);}},
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},
+            {T_ELSE, [&](Token token){createElseExpression(token);}},
             {T_FOR, [&](Token token){createForExpression(token);}},
             {T_DO, [&](Token token){createDoExpression(token);}},
             {T_DONE, [&](Token token){createDoneExpression(token);}},
+
     };
 
 

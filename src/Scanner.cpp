@@ -33,6 +33,9 @@ std::unique_ptr<Token> Scanner::createTokenFromValue(std::string val) {
     if(val == "do") {
         return std::make_unique<Token>(val, T_DO, position);
     }
+    if(val == "else") {
+        return std::make_unique<Token>(val, T_ELSE, position);
+    }
     if(val == "done") {
         return std::make_unique<Token>(val, T_DONE, position);
     }

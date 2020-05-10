@@ -40,6 +40,7 @@ enum Type {
     T_NO_ARG_FUNCTION_NAME = 28,
     T_NEXT_LINE = 29,
     T_FOR = 30,
+    T_ELSE = 31,
 };
 
 class Token {
@@ -73,11 +74,12 @@ public:
 
     bool isOperator() {
         return type == T_MULT_OPERATOR || type == T_BOOLEAN_AND || type == T_ADD_OPERATOR ||
-                type == T_BOOLEAN_OPERATOR || type == T_BOOLEAN_OR || type == T_OPENING_PARENTHESIS;
+               type == T_BOOLEAN_OPERATOR || type == T_BOOLEAN_OR || type == T_OPENING_PARENTHESIS
+                || type == T_ASSIGN_OPERATOR;
     }
 
     bool isCondition() {
-        return type == T_WHILE || type == T_FOR || type == T_IF;
+        return type == T_WHILE || type == T_FOR || type == T_IF || type == T_ELSE;
     }
 
     bool isClosingParenthesis();
