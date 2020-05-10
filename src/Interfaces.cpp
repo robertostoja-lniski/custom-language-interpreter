@@ -15,10 +15,20 @@ FileInterface::~FileInterface() {
     is->close();
 }
 void FileInterface::getNextSign() {
-        char c;
-        is->get(c);
-        sign = c;
+        if(currentIndex == currentLine.size()) {
+            if(!currentLine.empty()) {
+                sign = '?';
+            }
+            currentLine.clear();
+            std::getline(*is, currentLine);
+            currentIndex = 0;
+            return;
+        }
+
+        sign = currentLine[currentIndex];
+
         position++;
+        currentIndex++;
 }
 void TerminalInterface::getNextSign() {
 

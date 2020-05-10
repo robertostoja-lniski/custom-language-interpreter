@@ -32,6 +32,7 @@ private:
     bool tryToBuildAlphaTokens();
     bool tryToBuildNotDefinedToken();
 
+
     char getNextSign();
     std::string appendVal(std::string val);
 public:

@@ -48,7 +48,8 @@ void ExpressionVisitor::visit(DivideExpression *divideExpression) {
 
 void ExpressionVisitor::visit(RootExpression *rootExpression) {
     std::cout << "Starting\n";
-    rootExpression->next->accept(this);
+    rootExpression->left->accept(this);
+//    rootExpression->right->accept(this);
 }
 
 void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
@@ -74,7 +75,7 @@ void ExpressionVisitor::visit(BooleanOrExpression *booleanOrExpression) {
 }
 
 void ExpressionVisitor::visit(BooleanOperatorExpression *booleanOperatorExpression) {
-    std::cout << "In Boolean: " << booleanOperatorExpression->value;
+    std::cout << "In Boolean: " << booleanOperatorExpression->value << '\n';
     booleanOperatorExpression->left->accept(this);
     booleanOperatorExpression->right->accept(this);
 }
@@ -94,10 +95,44 @@ void ExpressionVisitor::visit(FunctionArgExpression *functionArgExpression) {
     std::cout << "Function Arg:\n\t";
     functionArgExpression->left->accept(this);
     std::cout << "\t";
-    if(functionArgExpression->right) {
-        functionArgExpression->right->accept(this);
-    } else {
-        std::cout << "End of args.\n";
-    }
+    functionArgExpression->right->accept(this);
 }
 
+void ExpressionVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
+    std::cout << "Function with no args:\n";
+    std::cout << noArgFunctionExpression->name <<"\n";
+}
+
+void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
+    std::cout << "Analysing next line\n";
+    newLineExpression->left->accept(this);
+//    newLineExpression->right->accept(this);
+}
+void ExpressionVisitor::visit(IfExpression* ifExpression) {
+    std::cout << "In if condition\n";
+    std::cout << "Condition: ";
+    ifExpression->condition->accept(this);
+    std::cout << "Block";
+    ifExpression->block->accept(this);
+}
+void ExpressionVisitor::visit(ForExpression* forExpression) {
+    std::cout << "In for loop\n";
+    std::cout << "iterator: ";
+    forExpression->iteratorName->accept(this);
+    std::cout << "collection: ";
+    forExpression->collectionName->accept(this);
+    std::cout << "block: ";
+    forExpression->block->accept(this);
+}
+void ExpressionVisitor::visit(WhileExpression* whileExpression) {
+    std::cout << "In while loop\n";
+    std::cout << "Condition:\n";
+    whileExpression->condition->accept(this);
+    std::cout << "Block";
+    if(whileExpression->block) {
+        whileExpression->block->accept(this);
+    } else {
+        std::cout << " is empty.\n";
+    }
+
+}
