@@ -85,7 +85,7 @@ public:
     }
 
     bool isFunction() {
-        return type == T_FUNCTION_NAME;
+        return type == T_FUNCTION_NAME || type == T_NO_ARG_FUNCTION_NAME;
     }
     bool isClosingParenthesis();
 

@@ -90,7 +90,7 @@ public:
     void parseToken(Token tokenToParse);
     Parser(std::shared_ptr<Scanner> scanner){
         this->scanner = scanner;
-        converter = std::make_unique<RepresentationConverter>();
+        converter = std::make_unique<RepresentationConverter>(scanner);
         declarationReader = std::make_unique<DeclarationReader>(scanner);
         mainRoot = std::make_unique<FileExpression>();
     };
