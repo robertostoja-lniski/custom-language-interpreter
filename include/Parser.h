@@ -53,6 +53,7 @@ private:
     void createWhileExpression(Token token);
     void createDoExpression(Token token);
     void createDoneExpression(Token token);
+    void createFieldReferenceExpression(Token token);
     void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody);
     void assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody);
     void assignBodyToUpperElse(std::shared_ptr<BodyExpression> condBody);
@@ -82,6 +83,7 @@ private:
             {T_FOR, [&](Token token){createForExpression(token);}},
             {T_DO, [&](Token token){createDoExpression(token);}},
             {T_DONE, [&](Token token){createDoneExpression(token);}},
+            {T_DOT, [&](Token token){createFieldReferenceExpression(token);}},
             {T_DUMMY_ARG, [&](Token token){createVarNameExpression(token);}},
     };
 

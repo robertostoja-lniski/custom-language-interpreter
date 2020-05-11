@@ -170,3 +170,9 @@ void ExpressionVisitor::visit(FileExpression *fileExpression) {
         it->accept(this);
     }
 }
+
+void ExpressionVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
+    std::cout << "Object has field accessed\n";
+    fieldReferenceExpression->left->accept(this);
+    fieldReferenceExpression->right->accept(this);
+}
