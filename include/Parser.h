@@ -23,6 +23,7 @@ class Parser {
 private:
 
     //tmp just for one subtree
+    std::shared_ptr<Scanner> scanner;
     std::unique_ptr<RepresentationConverter> converter;
     std::unique_ptr<DeclarationReader> declarationReader;
     // right not used
@@ -59,6 +60,8 @@ private:
     void assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
 
+    Token getTokenValFromScanner();
+
     std::map<Type, std::function<void(Token)>> tokensToNode {
             {T_INT_NUM, [&](Token token){createIntExpression(token);}},
             {T_REAL_NUM, [&](Token token){createFloatExpression(token);}},
@@ -93,25 +96,7 @@ public:
     };
     void generateTree();
     void analyzeTree();
-    std::shared_ptr<Scanner> scanner;
-    void parseNextToken() {
-        int i = 1000;
-        while (i--) {
-            scanner->getNextToken();
-            scanner->readToken();
-            auto token = scanner->getTokenValue();
-            if (token.getType() == T_END) {
-                return;
-            }
-            if(token.getType() == T_NEXT_LINE) {
-                std::cout << "next line!\n";
-//                continue;
-            }
-            parseToken(token);
-        }
-    }
-
-
+    void parse();
 };
 
 

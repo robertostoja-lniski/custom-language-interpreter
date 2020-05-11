@@ -223,3 +223,20 @@ bool Parser::tryToBuildDeclaration(Token token) {
         addDeclarationsToTree(buildDeclaration);
     }
 }
+
+Token Parser::getTokenValFromScanner() {
+    if(!scanner) {
+        throw std::runtime_error("No scanner pointed");
+    }
+    scanner->getNextToken();
+    scanner->readToken();
+    return scanner->getTokenValue();
+}
+
+void Parser::parse() {
+    auto token = getTokenValFromScanner();
+    while(token.getType() != T_END) {
+        parseToken(token);
+        token = getTokenValFromScanner();
+    }
+}
