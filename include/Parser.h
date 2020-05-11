@@ -13,6 +13,7 @@
 #include <queue>
 #include "boost/lexical_cast.hpp"
 #include "RepresentationConverter.h"
+#include "DeclarationReader.h"
 #include "Visitor.h"
 #include "Scanner.h"
 
@@ -23,19 +24,14 @@ private:
 
     //tmp just for one subtree
     std::unique_ptr<RepresentationConverter> converter;
+    std::unique_ptr<DeclarationReader> declarationReader;
     // right not used
     std::deque <std::shared_ptr<RootExpression>> roots;
-    std::stack <std::shared_ptr<BodyExpression>> embeddedBodies;
     std::stack <std::shared_ptr<Expression>> recentExpressions;
-    std::queue <Token> functionCall;
-    bool isBuildingFunctionStarted {false};
-
-    std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier(Token token);
-    std::shared_ptr<BodyExpression> getParamsAsManyDeclarations(Token token);
+    void addDeclarationsToTree(std::shared_ptr<RootExpression> declaration);
     bool tryToBuildExpression(Token token);
+    bool tryToBuildDeclaration(Token token);
     void assignTreeToRoot();
-    Token getTokenValFromScanner();
-    bool isCondExpression(std::shared_ptr<Expression> expr);
     void transformTokenIntoTreeNode(std::shared_ptr<Token> token);
     void createIntExpression(Token token);
     void createFloatExpression(Token token);
@@ -62,7 +58,6 @@ private:
     void assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
-    std::shared_ptr<Expression> handle(const std::shared_ptr<Expression>& expr);
 
     std::map<Type, std::function<void(Token)>> tokensToNode {
             {T_INT_NUM, [&](Token token){createIntExpression(token);}},
@@ -90,8 +85,10 @@ private:
 
 public:
     void parseToken(Token tokenToParse);
-    Parser() {
+    Parser(std::shared_ptr<Scanner> scanner){
+        this->scanner = scanner;
         converter = std::make_unique<RepresentationConverter>();
+        declarationReader = std::make_unique<DeclarationReader>(scanner);
     };
     void generateTree();
     void analyzeTree();
@@ -113,7 +110,7 @@ public:
         }
     }
 
-    bool tryToBuildDeclaration(Token token);
+
 };
 
 

@@ -60,7 +60,7 @@ void Launcher::readFlags(int argc, char* argv[]) {
 void Launcher::run() {
 
     scanner = std::make_shared<Scanner>(configuration);
-    parser = std::make_unique<Parser>();
+    parser = std::make_unique<Parser>(scanner);
 
 //    int i = 20;
 //    while(i--){
