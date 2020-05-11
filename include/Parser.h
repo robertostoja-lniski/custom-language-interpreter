@@ -30,11 +30,12 @@ private:
     std::queue <Token> functionCall;
     bool isBuildingFunctionStarted {false};
 
+    std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier(Token token);
+    std::shared_ptr<BodyExpression> getParamsAsManyDeclarations(Token token);
     bool tryToBuildExpression(Token token);
     void assignTreeToRoot();
-    void assignTreeToCurrentBody();
+    Token getTokenValFromScanner();
     bool isCondExpression(std::shared_ptr<Expression> expr);
-
     void transformTokenIntoTreeNode(std::shared_ptr<Token> token);
     void createIntExpression(Token token);
     void createFloatExpression(Token token);
