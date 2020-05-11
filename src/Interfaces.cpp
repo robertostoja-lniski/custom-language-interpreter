@@ -9,7 +9,12 @@
 #include <fstream>
 
 FileInterface::FileInterface(std::string path) : filepath(std::move(path)) {
+    // appends end sign
+    std::fstream uidlFile(filepath, std::fstream::in | std::fstream::out | std::fstream::app);
+    uidlFile << "$";
+    uidlFile.close();
     is = std::make_unique<std::ifstream>(filepath);
+
 }
 FileInterface::~FileInterface() {
     is->close();
