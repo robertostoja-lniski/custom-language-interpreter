@@ -44,10 +44,12 @@ struct NoArgFunctionExpression;
 struct NewLineExpression;
 struct BodyExpression;
 struct DoExpression;
+struct FileExpression;
 
 struct Visitor {
     // visit root
     virtual void visit(RootExpression* rootExpression) = 0;
+    virtual void visit(FileExpression* fileExpression) = 0;
 
     // numeric and lexical storage
     virtual void visit(IntExpression* intExpression) = 0;
@@ -85,6 +87,7 @@ struct Visitor {
     virtual void visit(ElseExpression* elseExpression) = 0;
     virtual void visit(ForExpression* forExpression) = 0;
     virtual void visit(WhileExpression* whileExpression) = 0;
+
 };
 
 struct ExpressionVisitor : Visitor {
@@ -112,6 +115,7 @@ struct ExpressionVisitor : Visitor {
     void visit(ForExpression* forExpression) override;
     void visit(WhileExpression* whileExpression) override;
     void visit(DoExpression* doExpression) override;
+    void visit(FileExpression* fileExpression) override;
 };
 
 struct Expression {
@@ -119,6 +123,12 @@ struct Expression {
 };
 struct DoExpression : Expression {
     // simple boundary for done.
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct FileExpression : Expression {
+    std::deque <std::shared_ptr<RootExpression>> roots;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

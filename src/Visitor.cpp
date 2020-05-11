@@ -162,3 +162,10 @@ void ExpressionVisitor::visit(DoExpression *doExpression) {
 void ExpressionVisitor::visit(ElseExpression *elseExpression) {
     std::cout << "It is else markdown\n";
 }
+
+void ExpressionVisitor::visit(FileExpression *fileExpression) {
+    std::cout << "Visiting file\n";
+    for(auto it : fileExpression->roots) {
+        it->accept(this);
+    }
+}
