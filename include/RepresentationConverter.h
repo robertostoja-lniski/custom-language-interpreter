@@ -9,6 +9,7 @@
 #include <climits>
 #include "Visitor.h"
 #include "Token.h"
+#include "Scanner.h"
 class RepresentationConverter {
 
 private:
@@ -17,6 +18,15 @@ private:
         int in;
         int out;
     };
+    std::shared_ptr<Scanner> scanner;
+    Token getTokenValFromScanner() {
+        if(!scanner) {
+            throw std::runtime_error("No scanner pointed");
+        }
+        scanner->getNextToken();
+        scanner->readToken();
+        return scanner->getTokenValue();
+    }
     Token token;
     std::map<Type, Priority> priorities {
             {T_CON, {1,0}},
@@ -30,6 +40,7 @@ private:
             {T_ADD_OPERATOR, {8,7}},
             {T_MULT_OPERATOR, {9,8}},
             {T_FUNCTION_NAME, {10,9}},
+            {T_NO_ARG_FUNCTION_NAME, {10,9}},
             {T_SEMICON, {11,10}},
             {T_FOR,{12,11}},
             {T_IF, {13,12}},
@@ -64,17 +75,6 @@ private:
     bool tryToHandleEmbeddedExpression() {
         if(operators.empty() || token.getType()!=T_CLOSING_PARENTHESIS) {
             return false;
-        }
-        // should be do while
-        // handle no-argument function
-        if(operators.top()->getType() == T_OPENING_PARENTHESIS) {
-            operators.pop();
-            // check if it as no argument funtion
-            // if so it can be treated as user defined name
-            if(operators.size() && operators.top()->getType() == T_FUNCTION_NAME) {
-                operators.top()->setType(T_NO_ARG_FUNCTION_NAME);
-            }
-            return true;
         }
         while(operators.top()->getType() != T_OPENING_PARENTHESIS) {
             postfixRepresentation.push_back(operators.top());
@@ -121,26 +121,7 @@ private:
             operators.pop();
         }
     }
-    bool tryToGenerateFunctionCall() {
-        if(postfixRepresentation.empty()) {
-            return false;
-        }
-        if(token.getType() == T_OPENING_PARENTHESIS) {
-            auto lastExpression = postfixRepresentation.back();
-            if(lastExpression && lastExpression->getType() == T_USER_DEFINED_NAME) {
-                lastExpression->setType(T_FUNCTION_NAME);
-                postfixRepresentation.pop_back();
-                auto currentToken = token;
-                token = *lastExpression;
-                tryToHandleSpecialToken();
-                token = currentToken;
-                tryToHandleSpecialToken();
 
-                return true;
-            }
-        }
-        return false;
-    }
     bool tryToGenerateCondition() {
         // treat conditions as operators
         if(token.isCondition()) {
@@ -159,12 +140,47 @@ private:
     }
     bool tryToHandleOperand() {
         if (token.isOperand()) {
+            // maybe it is a function name
+            if(token.getType() == T_USER_DEFINED_NAME) {
+                // check if next is (
+                auto firstTokenForward = getTokenValFromScanner();
+                if(firstTokenForward.getType() == T_OPENING_PARENTHESIS) {
+
+                    // now maybe it is non arg function
+                    auto secondTokenForward = getTokenValFromScanner();
+                    if(secondTokenForward.getType() == T_CLOSING_PARENTHESIS) {
+                        token.setType(T_NO_ARG_FUNCTION_NAME);
+                        postfixRepresentation.push_back(std::make_unique<Token>(token));
+                        // if it is no arg, we do not have to add ( and ) to operators
+                        // they will be removed by the algorithm
+                        return true;
+                    } else {
+                        token.setType(T_FUNCTION_NAME);
+                        // if not we have to handle in a row: token -> firstForward -> secondForward
+                        operators.push(std::make_unique<Token>(token));
+                        operators.push(std::make_unique<Token>(firstTokenForward));
+                        // add , to pass information about argument num
+                        Token argInfoToken = {",", T_SEMICON, 0};
+                        operators.push(std::make_unique<Token>(argInfoToken));
+                        return generatePostfixRepresentation(secondTokenForward);
+                    }
+
+                }
+                // if not, a first handle token
+                postfixRepresentation.push_back(std::make_unique<Token>(token));
+                // then analyze first forward
+                return generatePostfixRepresentation(firstTokenForward);
+            }
+            // it is a simple operand
             postfixRepresentation.push_back(std::make_unique<Token>(token));
-            return true;
         }
+
         return false;
     }
 public:
+    RepresentationConverter(std::shared_ptr<Scanner> scanner) {
+        this->scanner = scanner;
+    }
     void printPostfix() {
         // should be iterator - to be changed soon
         auto copiedRepresentation = postfixRepresentation;
@@ -180,7 +196,7 @@ public:
     }
     bool generatePostfixRepresentation(Token token) {
         this->token = token;
-        return tryToGenerateFunctionCall() || tryToGenerateCondition() || tryToHandleNextLine() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone()
+        return tryToGenerateCondition() || tryToHandleNextLine() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone()
             || tryToHandleOperand() || tryToHandleSpecialToken() || tryToHandleEmbeddedExpression();
     }
 };
