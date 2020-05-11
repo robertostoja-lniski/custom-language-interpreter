@@ -135,13 +135,20 @@ void Parser::analyzeTree() {
 void Parser::createSemiconExpression(Token token) {
     auto newArgs = std::make_shared<FunctionArgExpression>();
 
-    if(recentExpressions.size() < 2) {
-        throw std::runtime_error("Not enough function args");
+    if(!recentExpressions.empty()) {
+        newArgs->left = recentExpressions.top();
+        recentExpressions.pop();
+        // maybe few arguments can be joined
+
+        if(!recentExpressions.empty()) {
+            auto previousExpr = recentExpressions.top();
+            auto isFuncArgExpr = std::dynamic_pointer_cast<FunctionArgExpression>(previousExpr);
+            if(isFuncArgExpr) {
+                newArgs->right = previousExpr;
+                recentExpressions.pop();
+            }
+        }
     }
-    newArgs->right = recentExpressions.top();
-    recentExpressions.pop();
-    newArgs->left = recentExpressions.top();
-    recentExpressions.pop();
 
     recentExpressions.push(newArgs);
 }

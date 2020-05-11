@@ -100,7 +100,8 @@ void ExpressionVisitor::visit(FunctionArgExpression *functionArgExpression) {
     std::cout << "Function Arg:\n\t";
     functionArgExpression->left->accept(this);
     std::cout << "\t";
-    functionArgExpression->right->accept(this);
+    if(functionArgExpression->right)
+        functionArgExpression->right->accept(this);
 }
 
 void ExpressionVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
