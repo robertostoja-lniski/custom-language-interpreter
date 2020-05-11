@@ -105,21 +105,17 @@ void Parser::createBooleanOrExpression(Token token) {
     setDoubleArgsExpr(std::make_unique<BooleanOrExpression>());
 }
 void Parser::createNextLineExpression(Token token) {
-    // if if/while/for body is at stack top
-    // do not take it out.
     assignTreeToRoot();
 }
 void Parser::createFunctionCallExpression(Token token) {
     auto funcExpr = std::make_unique<FunctionExpression>();
+    // get function name
     funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
 
-    if(recentExpressions.empty()) {
-        funcExpr->right = nullptr;
-    } else {
-        auto nextArg = recentExpressions.top();
-        recentExpressions.pop();
-        funcExpr->right = nextArg;
-    }
+    auto nextArg = recentExpressions.top();
+    recentExpressions.pop();
+    funcExpr->right = nextArg;
+
     recentExpressions.push(std::move(funcExpr));
 }
 void Parser::generateTree() {
@@ -133,11 +129,7 @@ void Parser::generateTree() {
 }
 void Parser::analyzeTree() {
     ExpressionVisitor expressionVisitor;
-    while(!roots.empty()) {
-        auto currentRoot = roots.front();
-        expressionVisitor.visit(currentRoot.get());
-        roots.pop_front();
-    }
+    expressionVisitor.visit(mainRoot.get());
 }
 
 void Parser::createSemiconExpression(Token token) {
@@ -169,7 +161,7 @@ void Parser::assignTreeToRoot() {
     while(!recentExpressions.empty()) {
         auto newRoot = std::make_shared<RootExpression>();
         newRoot->expr = recentExpressions.top();
-        roots.push_back(newRoot);
+        mainRoot->roots.push_back(newRoot);
         recentExpressions.pop();
     }
 }
@@ -180,17 +172,17 @@ void Parser::createDoExpression(Token token) {
 }
 
 void Parser::joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody){
-    auto upperRoot = roots.back()->expr;
+    auto upperRoot = mainRoot->roots.back()->expr;
     while(!std::dynamic_pointer_cast<DoExpression>(upperRoot)) {
         condBody->statements.push_front(upperRoot);
-        roots.pop_back();
-        upperRoot = roots.back()->expr;
+        mainRoot->roots.pop_back();
+        upperRoot = mainRoot->roots.back()->expr;
     }
-    roots.pop_back();
+    mainRoot->roots.pop_back();
 }
 void Parser::assignBodyToUpperElse(std::shared_ptr<BodyExpression> condBody) {
-    roots.pop_back();
-    auto condExpr = roots.back()->expr;
+    mainRoot->roots.pop_back();
+    auto condExpr = mainRoot->roots.back()->expr;
     auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
     condExprAsDoubleArg->elseCondition = condBody;
 }
@@ -204,7 +196,7 @@ void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> cond
     condExprAsDoubleArg->right = condBody;
 }
 void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody) {
-    auto condExpr = roots.back()->expr;
+    auto condExpr = mainRoot->roots.back()->expr;
     auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
     auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
     if(isElse) {
@@ -222,7 +214,7 @@ void Parser::createDoneExpression(Token token) {
 }
 
 void Parser::addDeclarationsToTree(std::shared_ptr<RootExpression> declaration) {
-    roots.push_back(std::move(declaration));
+    mainRoot->roots.push_back(std::move(declaration));
 }
 
 bool Parser::tryToBuildDeclaration(Token token) {

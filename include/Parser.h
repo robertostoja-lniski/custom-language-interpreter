@@ -26,7 +26,7 @@ private:
     std::unique_ptr<RepresentationConverter> converter;
     std::unique_ptr<DeclarationReader> declarationReader;
     // right not used
-    std::deque <std::shared_ptr<RootExpression>> roots;
+    std::unique_ptr<FileExpression> mainRoot;
     std::stack <std::shared_ptr<Expression>> recentExpressions;
     void addDeclarationsToTree(std::shared_ptr<RootExpression> declaration);
     bool tryToBuildExpression(Token token);
@@ -89,6 +89,7 @@ public:
         this->scanner = scanner;
         converter = std::make_unique<RepresentationConverter>();
         declarationReader = std::make_unique<DeclarationReader>(scanner);
+        mainRoot = std::make_unique<FileExpression>();
     };
     void generateTree();
     void analyzeTree();
