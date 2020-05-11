@@ -62,7 +62,7 @@ void Launcher::run() {
     scanner = std::make_shared<Scanner>(configuration);
     parser = std::make_unique<Parser>(scanner);
 
-    parser->parseNextToken();
+    parser->parse();
     parser->generateTree();
     parser->analyzeTree();
 }
