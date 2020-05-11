@@ -62,17 +62,6 @@ void Launcher::run() {
     scanner = std::make_shared<Scanner>(configuration);
     parser = std::make_unique<Parser>(scanner);
 
-//    int i = 20;
-//    while(i--){
-//        scanner->getNextToken();
-//        scanner->readToken();
-//        auto token = scanner->getTokenValue();
-//        if(token.getType() == T_END) {
-//            break;
-//        }
-//        parser->parseToken(token);
-//    }
-    parser->scanner = scanner;
     parser->parseNextToken();
     parser->generateTree();
     parser->analyzeTree();
