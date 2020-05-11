@@ -99,6 +99,11 @@ bool Scanner::tryToBuildSimpleToken() {
         token = std::make_unique<Token>(val, T_BOOLEAN_AND, sourceInterface->position);
         return true;
     }
+    if(sign == '.') {
+        val = appendVal(val);
+        token = std::make_unique<Token>(val, T_DOT, sourceInterface->position);
+        return true;
+    }
     if(sign == '+' || sign == '-'){
         val = appendVal(val);
         token = std::make_unique<Token>(val, T_ADD_OPERATOR, sourceInterface->position);

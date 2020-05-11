@@ -9,6 +9,7 @@
 #include <stack>
 #include <queue>
 
+struct FieldReferenceExpression;
 struct VarDeclarationExpression;
 struct TypeSpecifierExpression;
 // lexical expression
@@ -63,6 +64,7 @@ struct Visitor {
     virtual void visit(DivideExpression* divideExpression) = 0;
 
     // other
+    virtual void visit(FieldReferenceExpression* fieldReferenceExpression) = 0;
     virtual void visit(AssignExpression* assignExpression) = 0;
     virtual void visit(VarDeclarationExpression* varDeclarationExpression) = 0;
     virtual void visit(TypeSpecifierExpression* typeSpecifierExpression) = 0;
@@ -116,6 +118,7 @@ struct ExpressionVisitor : Visitor {
     void visit(WhileExpression* whileExpression) override;
     void visit(DoExpression* doExpression) override;
     void visit(FileExpression* fileExpression) override;
+    void visit(FieldReferenceExpression* fieldReferenceExpression) override;
 };
 
 struct Expression {
@@ -277,5 +280,9 @@ struct FunctionArgExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-
+struct FieldReferenceExpression : DoubleArgsExpression {
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
 #endif //TKOM_VISITOR_H

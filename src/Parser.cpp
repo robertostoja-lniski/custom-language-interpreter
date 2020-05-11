@@ -149,7 +149,6 @@ void Parser::createSemiconExpression(Token token) {
             }
         }
     }
-
     recentExpressions.push(newArgs);
 }
 
@@ -246,4 +245,8 @@ void Parser::parse() {
         parseToken(token);
         token = getTokenValFromScanner();
     }
+}
+
+void Parser::createFieldReferenceExpression(Token token) {
+    setDoubleArgsExpr(std::make_unique<FieldReferenceExpression>());
 }

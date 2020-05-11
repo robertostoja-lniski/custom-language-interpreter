@@ -32,6 +32,7 @@ private:
             {T_CON, {1,0}},
             {T_OPENING_PARENTHESIS, {0,INT_MAX}},
             {T_SEMICON, {2,1}},
+            {T_DOT, {2,1}},
             {T_SPECIFIER, {3,2}},
             {T_BOOLEAN_OR, {4,3}},
             {T_BOOLEAN_AND, {5,4}},
