@@ -5,37 +5,99 @@
 #include "../include/Parser.h"
 
 #include <utility>
+//void Parser::parseProgram() {
+//    token = getTokenValFromScanner();
+//    std::shared_ptr<RootExpression> decl;
+//    std::shared_ptr<RootExpression> statement;
+//    while(decl = tryToBuildDeclaration()) {
+//        if(decl) {
+//            addDeclarationsToTree(decl);
+//        }
+//    }
+//}
 
+bool Parser::tryToBuildDeclarationLegacy() {
+    auto buildDeclaration = tryToBuildDeclaration();
+    if(buildDeclaration) {
+        addDeclarationsToTree(buildDeclaration);
+    }
+}
 void Parser::parseToken(Token tokenToParse) {
     if(tokenToParse.getType() == T_NOT_DEFINED_YET) {
         return;
     }
     try {
         std::cout << "parsing " <<  tokenToParse << '\n';
-        if(tryToBuildDeclaration(tokenToParse)
-            || tryToBuildExpression(tokenToParse)) {
+        if(tryToBuildDeclarationLegacy()
+           || tryToBuildExpression(tokenToParse)) {
             return;
         }
     } catch(std::exception& e) {
         std::cerr << "Error in syntax\n";
     }
 }
-bool Parser::tryToBuildExpression(Token tokenToParse) {
-    return converter->generatePostfixRepresentation(tokenToParse);
+std::shared_ptr<RootExpression> Parser::tryToBuildDeclaration() {
+    if(token.getType() == T_SPECIFIER) {
+        auto specifierExpr = getExpressionWithAssignedSpecifier();
+        auto token = getTokenValFromScanner();
+
+        if(token.getType() == T_OPENING_PARENTHESIS) {
+            auto body = getParamsAsManyDeclarations();
+            specifierExpr->right = body;
+        }
+        auto newRoot = std::make_shared<RootExpression>();
+        newRoot->expr = specifierExpr;
+        return newRoot;
+    }
+    return nullptr;
 }
-void Parser::createIntExpression(Token token) {
+
+std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecifier() {
+    auto specifierExpr = std::make_shared<TypeSpecifierExpression>(token.getValue());
+    auto shouldBeIdentToken = getTokenValFromScanner();
+    if(shouldBeIdentToken.getType() != T_USER_DEFINED_NAME || shouldBeIdentToken.getValue() == "$") {
+        throw std::runtime_error("Type specifier without ident");
+    }
+    specifierExpr->left = std::make_shared<VarNameExpression>(shouldBeIdentToken.getValue());
+    return specifierExpr;
+}
+std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
+    auto argBlock = std::make_shared<BodyExpression>();
+    while(token.getType() != T_CLOSING_PARENTHESIS) {
+
+        token = getTokenValFromScanner();
+        if(token.getType() == T_CLOSING_PARENTHESIS) {
+            return argBlock;
+        }
+        if(token.getType() == T_SEMICON) {
+            continue;
+        }
+
+        auto currentArg = std::make_shared<TypeSpecifierExpression>(token.getValue());
+        token = getTokenValFromScanner();
+        auto currentArgName = std::make_shared<VarNameExpression>(token.getValue());
+
+        currentArg->left = currentArgName;
+        argBlock->statements.push_back(currentArg);
+    }
+    return nullptr;
+}
+bool Parser::tryToBuildExpression(Token token) {
+    return converter->generatePostfixRepresentation(token);
+}
+void Parser::createIntExpression() {
     int numericValue = std::stoi(token.getValue());
     recentExpressions.push(std::make_shared<IntExpression>(numericValue));
 }
-void Parser::createFloatExpression(Token token) {
+void Parser::createFloatExpression() {
     double realValue = std::stod(token.getValue());
     recentExpressions.push(std::make_shared<FloatExpression>(realValue));
 }
-void Parser::createVarNameExpression(Token token) {
+void Parser::createVarNameExpression() {
     std::string name = token.getValue();
     recentExpressions.push(std::make_shared<VarNameExpression>(name));
 }
-void Parser::createForExpression(Token token) {
+void Parser::createForExpression() {
     auto forExpr = std::make_unique<ForExpression>();
 
     auto collection = recentExpressions.top();
@@ -48,11 +110,11 @@ void Parser::createForExpression(Token token) {
     recentExpressions.push(std::move(forExpr));
 }
 
-void Parser::createElseExpression(Token token) {
+void Parser::createElseExpression() {
     recentExpressions.push(std::move(std::make_shared<ElseExpression>()));
 }
 
-void Parser::createIfExpression(Token token) {
+void Parser::createIfExpression() {
     auto ifExpr = std::make_shared<IfExpression>();
     auto cond = recentExpressions.top();
     recentExpressions.pop();
@@ -62,7 +124,7 @@ void Parser::createIfExpression(Token token) {
     recentExpressions.push(std::move(ifExpr));
 }
 
-void Parser::createWhileExpression(Token token) {
+void Parser::createWhileExpression() {
     auto whileExpr = std::make_shared<WhileExpression>();
     auto cond = recentExpressions.top();
     recentExpressions.pop();
@@ -85,29 +147,29 @@ void Parser::setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsE
 
     recentExpressions.push(std::move(doubleArgsExpression));
 }
-void Parser::createAdditionExpression(Token token) {
+void Parser::createAdditionExpression() {
     setDoubleArgsExpr(std::make_shared<AdditionExpression>(token.getValue()));
 }
-void Parser::createMultExpression(Token token) {
+void Parser::createMultExpression() {
     setDoubleArgsExpr(std::make_shared<MultiplyExpression>());
 }
-void Parser::createBooleanOperatorExpression(Token token) {
+void Parser::createBooleanOperatorExpression() {
     auto value = token.getValue();
     setDoubleArgsExpr(std::make_shared<BooleanOperatorExpression>(value));
 }
-void Parser::createAssignExpression(Token token) {
+void Parser::createAssignExpression() {
     setDoubleArgsExpr(std::make_unique<AssignExpression>());
 }
-void Parser::createBooleanAndExpression(Token token) {
+void Parser::createBooleanAndExpression() {
     setDoubleArgsExpr(std::make_unique<BooleanAndExpression>());
 }
-void Parser::createBooleanOrExpression(Token token) {
+void Parser::createBooleanOrExpression() {
     setDoubleArgsExpr(std::make_unique<BooleanOrExpression>());
 }
-void Parser::createNextLineExpression(Token token) {
+void Parser::createNextLineExpression() {
     assignTreeToRoot();
 }
-void Parser::createFunctionCallExpression(Token token) {
+void Parser::createFunctionCallExpression() {
     auto funcExpr = std::make_unique<FunctionExpression>();
     // get function name
     funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
@@ -132,7 +194,7 @@ void Parser::analyzeTree() {
     expressionVisitor.visit(mainRoot.get());
 }
 
-void Parser::createSemiconExpression(Token token) {
+void Parser::createSemiconExpression() {
     auto newArgs = std::make_shared<FunctionArgExpression>();
 
     if(!recentExpressions.empty()) {
@@ -152,15 +214,16 @@ void Parser::createSemiconExpression(Token token) {
     recentExpressions.push(newArgs);
 }
 
-void Parser::createNoArgFunctionExpression(Token token) {
+void Parser::createNoArgFunctionExpression() {
     std::string name = token.getValue();
     recentExpressions.push(std::make_shared<NoArgFunctionExpression>(name));
 }
 
-void Parser::transformTokenIntoTreeNode(std::shared_ptr<Token> token) {
-    auto tokenType = token->getType();
+void Parser::transformTokenIntoTreeNode(std::shared_ptr<Token> postfixToken) {
+    token = *postfixToken;
+    auto tokenType = postfixToken->getType();
     auto handler = tokensToNode[tokenType];
-    handler(*token);
+    handler();
 }
 
 void Parser::assignTreeToRoot() {
@@ -172,7 +235,7 @@ void Parser::assignTreeToRoot() {
     }
 }
 
-void Parser::createDoExpression(Token token) {
+void Parser::createDoExpression() {
     auto condBody = std::make_shared<DoExpression>();
     recentExpressions.push(condBody);
 }
@@ -213,7 +276,7 @@ void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBod
         assignBodyToUpperAnyExpression(condBody, condExpr);
     }
 }
-void Parser::createDoneExpression(Token token) {
+void Parser::createDoneExpression() {
     auto condBody = std::make_shared<BodyExpression>();
     joinUpperStatementsUntilDoFound(condBody);
     assignBodyToUpperExpression(condBody);
@@ -221,13 +284,6 @@ void Parser::createDoneExpression(Token token) {
 
 void Parser::addDeclarationsToTree(std::shared_ptr<RootExpression> declaration) {
     mainRoot->roots.push_back(std::move(declaration));
-}
-
-bool Parser::tryToBuildDeclaration(Token token) {
-    auto buildDeclaration = declarationReader->tryToBuildDeclaration(token);
-    if(buildDeclaration) {
-        addDeclarationsToTree(buildDeclaration);
-    }
 }
 
 Token Parser::getTokenValFromScanner() {
@@ -247,6 +303,6 @@ void Parser::parse() {
     }
 }
 
-void Parser::createFieldReferenceExpression(Token token) {
+void Parser::createFieldReferenceExpression() {
     setDoubleArgsExpr(std::make_unique<FieldReferenceExpression>());
 }
