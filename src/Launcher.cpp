@@ -63,6 +63,5 @@ void Launcher::run() {
     parser = std::make_unique<Parser>(scanner);
 
     parser->parse();
-    parser->generateTree();
     parser->analyzeTree();
 }
