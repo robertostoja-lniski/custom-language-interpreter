@@ -5,11 +5,44 @@
 #include "../include/Parser.h"
 
 #include <utility>
+void Parser::parse() {
+    token = getTokenValFromScanner();
+    std::shared_ptr<RootExpression> decl;
+    std::shared_ptr<RootExpression> statement;
+
+    if(token.getType() == T_END) {
+        return;
+    }
+    while((decl = tryToBuildDeclaration()) != nullptr) {
+        if(decl) {
+            addDeclarationsToTree(decl);
+        }
+    }
+    if(tryToBuildExpression(this->token)) {
+
+    }
+    parse();
+
+}
+//void Parser::parseToken(Token tokenToParse) {
+//    if(tokenToParse.getType() == T_NOT_DEFINED_YET) {
+//        return;
+//    }
+//    try {
+//        std::cout << "parsing " <<  tokenToParse << '\n';
+//        if(tryToBuildDeclarationLegacy()
+//           || tryToBuildExpression(tokenToParse)) {
+//            return;
+//        }
+//    } catch(std::exception& e) {
+//        std::cerr << "Error in syntax\n";
+//    }
+//}
 //void Parser::parseProgram() {
 //    token = getTokenValFromScanner();
 //    std::shared_ptr<RootExpression> decl;
 //    std::shared_ptr<RootExpression> statement;
-//    while(decl = tryToBuildDeclaration()) {
+//    while(decl = tryToBuildDeclaration() ) {
 //        if(decl) {
 //            addDeclarationsToTree(decl);
 //        }
@@ -22,24 +55,14 @@ bool Parser::tryToBuildDeclarationLegacy() {
         addDeclarationsToTree(buildDeclaration);
     }
 }
-void Parser::parseToken(Token tokenToParse) {
-    if(tokenToParse.getType() == T_NOT_DEFINED_YET) {
-        return;
-    }
-    try {
-        std::cout << "parsing " <<  tokenToParse << '\n';
-        if(tryToBuildDeclarationLegacy()
-           || tryToBuildExpression(tokenToParse)) {
-            return;
-        }
-    } catch(std::exception& e) {
-        std::cerr << "Error in syntax\n";
-    }
-}
+
 std::shared_ptr<RootExpression> Parser::tryToBuildDeclaration() {
     if(token.getType() == T_SPECIFIER) {
         auto specifierExpr = getExpressionWithAssignedSpecifier();
-        auto token = getTokenValFromScanner();
+        token = getTokenValFromScanner();
+        if(token.getType() == T_END || token.getType() == T_NEXT_LINE) {
+            return nullptr;
+        }
 
         if(token.getType() == T_OPENING_PARENTHESIS) {
             auto body = getParamsAsManyDeclarations();
@@ -67,6 +90,7 @@ std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
 
         token = getTokenValFromScanner();
         if(token.getType() == T_CLOSING_PARENTHESIS) {
+            token = getTokenValFromScanner();
             return argBlock;
         }
         if(token.getType() == T_SEMICON) {
@@ -82,8 +106,8 @@ std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
     }
     return nullptr;
 }
-bool Parser::tryToBuildExpression(Token token) {
-    return converter->generatePostfixRepresentation(token);
+bool Parser::tryToBuildExpression(Token infixToken) {
+    return converter->generatePostfixRepresentation(infixToken);
 }
 void Parser::createIntExpression() {
     int numericValue = std::stoi(token.getValue());
@@ -293,14 +317,6 @@ Token Parser::getTokenValFromScanner() {
     scanner->getNextToken();
     scanner->readToken();
     return scanner->getTokenValue();
-}
-
-void Parser::parse() {
-    auto token = getTokenValFromScanner();
-    while(token.getType() != T_END) {
-        parseToken(token);
-        token = getTokenValFromScanner();
-    }
 }
 
 void Parser::createFieldReferenceExpression() {
