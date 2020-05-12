@@ -18,36 +18,12 @@ void Parser::parse() {
             addDeclarationsToTree(decl);
         }
     }
-    if(tryToBuildExpression(this->token)) {
+    if(generatePostfixRepresentation(token)) {
 
     }
     parse();
 
 }
-//void Parser::parseToken(Token tokenToParse) {
-//    if(tokenToParse.getType() == T_NOT_DEFINED_YET) {
-//        return;
-//    }
-//    try {
-//        std::cout << "parsing " <<  tokenToParse << '\n';
-//        if(tryToBuildDeclarationLegacy()
-//           || tryToBuildExpression(tokenToParse)) {
-//            return;
-//        }
-//    } catch(std::exception& e) {
-//        std::cerr << "Error in syntax\n";
-//    }
-//}
-//void Parser::parseProgram() {
-//    token = getTokenValFromScanner();
-//    std::shared_ptr<RootExpression> decl;
-//    std::shared_ptr<RootExpression> statement;
-//    while(decl = tryToBuildDeclaration() ) {
-//        if(decl) {
-//            addDeclarationsToTree(decl);
-//        }
-//    }
-//}
 
 bool Parser::tryToBuildDeclarationLegacy() {
     auto buildDeclaration = tryToBuildDeclaration();
@@ -106,9 +82,7 @@ std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
     }
     return nullptr;
 }
-bool Parser::tryToBuildExpression(Token infixToken) {
-    return converter->generatePostfixRepresentation(infixToken);
-}
+
 void Parser::createIntExpression() {
     int numericValue = std::stoi(token.getValue());
     recentExpressions.push(std::make_shared<IntExpression>(numericValue));
@@ -205,11 +179,10 @@ void Parser::createFunctionCallExpression() {
     recentExpressions.push(std::move(funcExpr));
 }
 void Parser::generateTree() {
-    auto postfixCopy = converter->getPostfixRepresentation();
-    while(!postfixCopy.empty()) {
-        auto currentToken = postfixCopy.front();
+    while(!postfixRepresentation.empty()) {
+        auto currentToken = postfixRepresentation.front();
         transformTokenIntoTreeNode(currentToken);
-        postfixCopy.pop_front();
+        postfixRepresentation.pop_front();
     }
     assignTreeToRoot();
 }
@@ -321,4 +294,142 @@ Token Parser::getTokenValFromScanner() {
 
 void Parser::createFieldReferenceExpression() {
     setDoubleArgsExpr(std::make_unique<FieldReferenceExpression>());
+}
+
+bool Parser::tryToHandleSpecialToken() {
+
+    if(!token.isCondition() && !token.isOperator() && !token.isFunction()) {
+        return false;
+    }
+    auto currentType = token.getType();
+
+    if(operators.empty() || priorities[currentType].out > priorities[operators.top()->getType()].in) {
+        operators.push(std::make_shared<Token>(token));
+    } else {
+        while(!operators.empty() && priorities[currentType].out < priorities[operators.top()->getType()].in) {
+            postfixRepresentation.push_back(operators.top());
+            operators.pop();
+        }
+        operators.push(std::make_shared<Token>(token));
+    }
+    return true;
+}
+bool Parser::tryToHandleEmbeddedExpression() {
+    if(operators.empty() || token.getType()!=T_CLOSING_PARENTHESIS) {
+        return false;
+    }
+    while(operators.top()->getType() != T_OPENING_PARENTHESIS) {
+        postfixRepresentation.push_back(operators.top());
+        operators.pop();
+
+        if(operators.empty()) {
+            throw std::runtime_error("Cannot find opening parenthesis");
+        }
+    }
+    operators.pop();
+    return true;
+}
+bool Parser::tryToHandleEmbeddedDo() {
+    if(token.getType() != T_DO) {
+        return false;
+    }
+    if(operators.empty()) {
+        postfixRepresentation.push_back(std::make_shared<Token>(token));
+        return true;
+    }
+
+    auto cond = operators.top();
+    postfixRepresentation.push_back(cond);
+    operators.pop();
+    postfixRepresentation.push_back(std::make_shared<Token>(token));
+    return true;
+}
+bool Parser::tryToHandleEmbeddedDone() {
+    if(token.getType() != T_DONE) {
+        return false;
+    }
+    while(!operators.empty()) {
+        auto cond = operators.top();
+        postfixRepresentation.push_back(cond);
+        operators.pop();
+    }
+    postfixRepresentation.push_back(std::make_shared<Token>(token));
+    return true;
+}
+void Parser::finalize() {
+    // ugly as hell
+    while(!operators.empty()) {
+        postfixRepresentation.push_back(operators.top());
+        operators.pop();
+    }
+}
+
+bool Parser::tryToGenerateCondition() {
+    // treat conditions as operators
+    if(token.isCondition()) {
+        tryToHandleSpecialToken();
+        return true;
+    }
+    return false;
+}
+bool Parser::tryToHandleNextLine() {
+    if(token.getType() != T_NEXT_LINE) {
+        return false;
+    }
+    finalize();
+    postfixRepresentation.push_back(std::make_unique<Token>(token));
+    return true;
+}
+bool Parser::tryToHandleOperand() {
+    if (token.isOperand()) {
+        // maybe it is a function name
+        if(token.getType() == T_USER_DEFINED_NAME) {
+            // check if next is (
+            auto firstTokenForward = getTokenValFromScanner();
+            if(firstTokenForward.getType() == T_OPENING_PARENTHESIS) {
+
+                // now maybe it is non arg function
+                auto secondTokenForward = getTokenValFromScanner();
+                if(secondTokenForward.getType() == T_CLOSING_PARENTHESIS) {
+                    token.setType(T_NO_ARG_FUNCTION_NAME);
+                    postfixRepresentation.push_back(std::make_unique<Token>(token));
+                    // if it is no arg, we do not have to add ( and ) to operators
+                    // they will be removed by the algorithm
+                    return true;
+                } else {
+                    token.setType(T_FUNCTION_NAME);
+                    // if not we have to handle in a row: token -> firstForward -> secondForward
+                    operators.push(std::make_unique<Token>(token));
+                    operators.push(std::make_unique<Token>(firstTokenForward));
+                    // add , to pass information about argument num
+                    Token argInfoToken = {",", T_SEMICON, 0};
+                    operators.push(std::make_unique<Token>(argInfoToken));
+                    return generatePostfixRepresentation(secondTokenForward);
+                }
+
+            }
+            // if not, a first handle token
+            postfixRepresentation.push_back(std::make_unique<Token>(token));
+            // then analyze first forward
+            return generatePostfixRepresentation(firstTokenForward);
+        }
+        // it is a simple operand
+        postfixRepresentation.push_back(std::make_unique<Token>(token));
+    }
+
+    return false;
+}
+
+void Parser::printPostfix() {
+    // should be iterator - to be changed soon
+    auto copiedRepresentation = postfixRepresentation;
+    while(!copiedRepresentation.empty()) {
+        std::cout << copiedRepresentation.front()->getValue() << ' ';
+        copiedRepresentation.pop_front();
+    }
+}
+bool Parser::generatePostfixRepresentation(Token token) {
+    this->token = token;
+    return tryToGenerateCondition() || tryToHandleNextLine() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone()
+           || tryToHandleOperand() || tryToHandleSpecialToken() || tryToHandleEmbeddedExpression();
 }
