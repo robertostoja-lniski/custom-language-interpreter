@@ -12,8 +12,6 @@
 #include <functional>
 #include <queue>
 #include "boost/lexical_cast.hpp"
-#include "RepresentationConverter.h"
-#include "DeclarationReader.h"
 #include "Visitor.h"
 #include "Scanner.h"
 
@@ -24,7 +22,6 @@ private:
 
     //tmp just for one subtree
     std::shared_ptr<Scanner> scanner;
-    std::unique_ptr<RepresentationConverter> converter;
     // right not used
     std::unique_ptr<FileExpression> mainRoot;
     std::stack <std::shared_ptr<Expression>> recentExpressions;
@@ -91,12 +88,54 @@ private:
             {T_DUMMY_ARG, [&](){createVarNameExpression();}},
     };
 
+    // operators by priority
+    struct Priority {
+        int in;
+        int out;
+    };
+
+    std::map<Type, Priority> priorities {
+            {T_CON, {1,0}},
+            {T_OPENING_PARENTHESIS, {0,INT_MAX}},
+            {T_SEMICON, {2,1}},
+            {T_DOT, {2,1}},
+            {T_SPECIFIER, {3,2}},
+            {T_BOOLEAN_OR, {4,3}},
+            {T_BOOLEAN_AND, {5,4}},
+            {T_ASSIGN_OPERATOR,{6,5}},
+            {T_BOOLEAN_OPERATOR, {7,6}},
+            {T_ADD_OPERATOR, {8,7}},
+            {T_MULT_OPERATOR, {9,8}},
+            {T_FUNCTION_NAME, {10,9}},
+            {T_NO_ARG_FUNCTION_NAME, {10,9}},
+            {T_SEMICON, {11,10}},
+            {T_FOR,{12,11}},
+            {T_IF, {13,12}},
+            {T_ELSE, {14,13}},
+            {T_WHILE, {15,14}},
+            {T_DO, {16,15}},
+            {T_DONE, {17,16}},
+            {T_NEXT_LINE, {18,17}},
+    };
+
+    std::stack <std::shared_ptr<Token>> operators;
+    std::deque <std::shared_ptr<Token>> postfixRepresentation;
+
+    void finalize();
+    bool tryToHandleSpecialToken();
+    bool tryToHandleEmbeddedExpression();
+    bool tryToHandleEmbeddedDo();
+    bool tryToHandleEmbeddedDone();
+    bool tryToGenerateCondition();
+    bool tryToHandleNextLine();
+    bool tryToHandleOperand();
+    void printPostfix();
+    std::deque<std::shared_ptr<Token>> getPostfixRepresentation();
+    bool generatePostfixRepresentation(Token token);
 
 public:
-    void parseToken(Token tokenToParse);
     Parser(std::shared_ptr<Scanner> scanner){
         this->scanner = scanner;
-        converter = std::make_unique<RepresentationConverter>(scanner);
         mainRoot = std::make_unique<FileExpression>();
     };
     void generateTree();
