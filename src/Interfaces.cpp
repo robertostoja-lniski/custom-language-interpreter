@@ -20,26 +20,26 @@ FileInterface::~FileInterface() {
     is->close();
 }
 void FileInterface::getNextSign() {
-        if(currentIndex == currentLine.size()) {
+
+        if(positionInFile.column == currentLine.size()) {
             if(!currentLine.empty()) {
                 sign = '?';
+                positionInFile.row++;
             }
             currentLine.clear();
             std::getline(*is, currentLine);
-            currentIndex = 0;
+            positionInFile.column = 0;
         }
 
-        sign = currentLine[currentIndex];
-
-        position++;
-        currentIndex++;
+        sign = currentLine[positionInFile.column];
+        positionInFile.column++;
 }
 void TerminalInterface::getNextSign() {
 
         char c;
         std::cin.get(c);
         sign = c;
-        position++;
+        position.column++;
         index++;
 }
 
