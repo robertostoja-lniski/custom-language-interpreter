@@ -34,7 +34,13 @@ private:
     bool tryToBuildAlphaTokens();
     bool tryToBuildNotDefinedToken();
     bool tryToBuildAssignmentOrBooleanToken();
+    bool tryToBuildGreaterOrLessBoolean();
+    bool tryToBuildAssignOrCompare();
     bool tryToBuildSpecialSignToken();
+    std::string returnIntegerPrefixIfBuildPossible();
+    bool tryToBuildRealNumWithGivenPrefix(std::string);
+    bool tryToBuildNonQuotedSign();
+    bool tryToBuildQuotedSign();
 
     std::map<std::string, std::function<void(std::string value)>> complexTokensHandlers {
             {"int", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SPECIFIER, position));}},
