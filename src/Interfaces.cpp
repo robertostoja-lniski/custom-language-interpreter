@@ -27,7 +27,6 @@ void FileInterface::getNextSign() {
             currentLine.clear();
             std::getline(*is, currentLine);
             currentIndex = 0;
-            return;
         }
 
         sign = currentLine[currentIndex];
