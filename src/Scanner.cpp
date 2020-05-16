@@ -16,30 +16,13 @@ void Scanner::getNextToken() {
         exit(1);
     }
 }
-std::shared_ptr<Token> Scanner::createTokenFromValue(std::string val) {
-    off64_t position = sourceInterface->position;
-    if(val == "int" || val == "unsigned_int" || val == "float" || val == "string" || val == "system_handler") {
-        return std::make_shared<Token>(val, T_SPECIFIER, position);
+void Scanner::createTokenFromValue(std::string val) {
+    if(complexTokensHandlers.find(val) == complexTokensHandlers.end()) {
+        tokens.push(std::make_shared<Token>(std::move(val), T_USER_DEFINED_NAME));
+        return;
     }
-    if(val == "while") {
-        return std::make_shared<Token>(val, T_WHILE, position);
-    }
-    if(val == "for") {
-        return std::make_shared<Token>(val, T_FOR, position);
-    }
-    if(val == "if") {
-        return std::make_shared<Token>(val, T_IF, position);
-    }
-    if(val == "do") {
-        return std::make_shared<Token>(val, T_DO, position);
-    }
-    if(val == "else") {
-        return std::make_shared<Token>(val, T_ELSE, position);
-    }
-    if(val == "done") {
-        return std::make_shared<Token>(val, T_DONE, position);
-    }
-    return std::make_shared<Token>(val, T_USER_DEFINED_NAME, position);
+    auto complexTokenHandler = complexTokensHandlers[val];
+    complexTokenHandler(val);
 }
 std::shared_ptr<Token> Scanner::createSpecialSignToken(std::string val) {
     off64_t position = sourceInterface->position;
@@ -196,10 +179,7 @@ bool Scanner::tryToBuildAlphaTokens() {
             val = appendVal(val);
         } while(isalpha(sign) || sign == '_' || isdigit(sign));
 
-//        if(sign == '.') {
-//            throw std::runtime_error("Forbidden sign in name!");
-//        }
-        tokens.push(createTokenFromValue(val));
+        createTokenFromValue(val);
         return true;
 
     } else if (sign == '"') {
@@ -227,7 +207,10 @@ bool Scanner::tryToBuildNotDefinedToken() {
 }
 Scanner::Scanner(Configuration configuration) {
     this->isVerbose = configuration.isVerbose;
-    configuration.inputPath = "/home/robert/Desktop/data.txt";
+    if(configuration.inputPath != "tmp.txt") {
+        configuration.inputPath = "/home/robert/Desktop/data.txt";
+    }
+
     if(!configuration.inputPath.empty()) {
         sourceInterface = std::make_unique<FileInterface>(configuration.inputPath);
     } else {
@@ -242,5 +225,6 @@ Scanner::Scanner(Configuration configuration) {
 std::string Scanner::appendVal(std::string val) {
     val += sign;
     getNextSign();
+    off64_t position = sourceInterface->position;
     return val;
 }
