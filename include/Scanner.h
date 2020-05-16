@@ -76,7 +76,8 @@ private:
     };
 
     char getNextSign();
-    std::string appendVal(std::string val);
+    char getSignAndReadNext();
+
 public:
     Scanner(Configuration configuration);
     void getNextToken();

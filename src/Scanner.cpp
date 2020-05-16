@@ -3,9 +3,7 @@
 #include "../include/Scanner.h"
 
 void Scanner::getNextToken() {
-
     removeWhiteSigns();
-
     try {
         if(tryToBuildAssignmentOrBooleanToken() || tryToBuildSpecialSignToken() || tryToBuildNumToken()
             || tryToBuildAlphaTokens() || tryToBuildNotDefinedToken()) {
@@ -44,7 +42,7 @@ Token Scanner::getTokenValue() {
 }
 std::string Scanner::appendValWhileIsDigit(std::string val) {
     do {
-        val = appendVal(val);
+        val += getSignAndReadNext();
     } while(isdigit(sign));
     return val;
 }
@@ -54,9 +52,9 @@ bool Scanner::tryToBuildAssignmentOrBooleanToken() {
 bool Scanner::tryToBuildGreaterOrLessBoolean() {
     if(sign == '<' || sign == '>') {
         std::string val;
-        val = appendVal(val);
+        val += getSignAndReadNext();
         if(sign == '=') {
-            val = appendVal(val);
+            val += getSignAndReadNext();
         }
         tokens.push(std::make_shared<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position));
         return true;
@@ -67,9 +65,9 @@ bool Scanner::tryToBuildGreaterOrLessBoolean() {
 bool Scanner::tryToBuildAssignOrCompare() {
     if(sign == '=') {
         std::string val;
-        val = appendVal(val);
+        val += getSignAndReadNext();
         if(sign == '=') {
-            val = appendVal(val);
+            val += getSignAndReadNext();
             tokens.push(std::make_shared<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position));
             return true;
         }
@@ -104,14 +102,14 @@ std::string Scanner::returnIntegerPrefixIfBuildPossible() {
     if(sign != '0'){
         val = appendValWhileIsDigit(val);
     } else {
-        val = appendVal(val);
+        val += getSignAndReadNext();
     }
     return val;
 }
 
 bool Scanner::tryToBuildRealNumWithGivenPrefix(std::string val) {
     if(sign == '.') {
-        val = appendVal(val);
+        val += getSignAndReadNext();
         if(isdigit(sign)) {
             val = appendValWhileIsDigit(val);
             tokens.push(std::make_unique<Token>(val, T_REAL_NUM, sourceInterface->position));
@@ -128,7 +126,7 @@ bool Scanner::tryToBuildNonQuotedSign() {
     if (isalpha(sign) || sign == '_') {
         std::string val;
         do {
-            val = appendVal(val);
+            val += getSignAndReadNext();
         } while(isalpha(sign) || sign == '_' || isdigit(sign));
 
         createTokenFromValue(val);
@@ -140,13 +138,13 @@ bool Scanner::tryToBuildQuotedSign() {
      if (sign == '"') {
          std::string val;
         do {
-            val = appendVal(val);
+            val += getSignAndReadNext();
             if(sign == '\\') {
-                val = appendVal(val);
+                val += getSignAndReadNext();
             }
         } while (sign != '"');
         // " " are not stored
-        val = appendVal(val);
+         val += getSignAndReadNext();
         tokens.push(std::make_unique<Token>(val, T_STRING, sourceInterface->position));
         return true;
     }
@@ -183,8 +181,6 @@ Scanner::Scanner(Configuration configuration) {
     this->sign = getNextSign();
 }
 
-std::string Scanner::appendVal(std::string val) {
-    val += sign;
-    this->sign = getNextSign();
-    return val;
+char Scanner::getSignAndReadNext() {
+    return std::exchange(sign, getNextSign());
 }
