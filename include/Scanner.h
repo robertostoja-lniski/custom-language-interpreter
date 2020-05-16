@@ -21,6 +21,7 @@ private:
 
     std::unique_ptr<SourceInterface> sourceInterface;
     std::queue<std::shared_ptr<Token>> tokens;
+    off64_t position;
     char sign;
     bool isVerbose {false};
 
@@ -34,7 +35,8 @@ private:
     bool tryToBuildNumToken();
     bool tryToBuildAlphaTokens();
     bool tryToBuildNotDefinedToken();
-    void createToken(std::string value, Type type);
+    bool tryToBuildAssignmentOrBooleanToken();
+    bool tryToBuildSpecialSignToken();
 
     std::map<std::string, std::function<void(std::string value)>> complexTokensHandlers {
             {"int", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SPECIFIER));}},
@@ -50,6 +52,24 @@ private:
             {"done", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_DONE));}},
     };
 
+    std::map<char, std::function<void(char currentSing)>> simpleTokensHandlers {
+            {EOF, [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_END));}},
+            {'*', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_MULT_OPERATOR));}},
+            {'/', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_MULT_OPERATOR));}},
+            {'&', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_BOOLEAN_AND));}},
+            {'.', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_DOT));}},
+            {'+', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_ADD_OPERATOR));}},
+            {'-', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_ADD_OPERATOR));}},
+            {'|', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_BOOLEAN_OR));}},
+            {'?', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_NEXT_LINE));}},
+            {')', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_CLOSING_PARENTHESIS));}},
+            {'(', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_OPENING_PARENTHESIS));}},
+            {'{', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_OPENING_BRACKET));}},
+            {'}', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_CLOSING_BRACKET));}},
+            {',', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_SEMICON));}},
+            {':', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_CON));}},
+            {'$', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_END));}},
+    };
 
     char getNextSign();
     std::string appendVal(std::string val);
