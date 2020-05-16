@@ -27,10 +27,16 @@ private:
     std::stack <std::shared_ptr<Expression>> recentExpressions;
     Token token;
     void addDeclarationsToTree(std::shared_ptr<RootExpression> declaration);
-    std::shared_ptr<RootExpression> tryToBuildDeclaration();
+    std::shared_ptr<RootExpression> tryToBuildVarNamePrefixStatement();
     std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier();
     std::shared_ptr<BodyExpression> getParamsAsManyDeclarations();
     std::shared_ptr<RootExpression> assignTreeToRoot();
+    bool parseNoArgFunctionCall();
+    bool tryToParseManyArgsFunctionCall();
+    bool tryToParseUserDefinedName();
+    bool tryToHandleOperand();
+    bool parseConstantValue();
+    bool tryToParseFunctionCall();
     void transformTokenIntoTreeNode(std::shared_ptr<Token> token);
     void createIntExpression(Token token);
     void createFloatExpression(Token token);
@@ -127,8 +133,9 @@ private:
     bool tryToHandleEmbeddedDone();
     bool tryToGenerateCondition();
     bool tryToHandleNextLine();
-    std::shared_ptr<RootExpression> tryToHandleOperand();
     void printPostfix();
+    bool handleOperator();
+    Token seeNextToken();
     std::deque<std::shared_ptr<Token>> getPostfixRepresentation();
     std::shared_ptr<RootExpression> generatePostfixRepresentation();
     std::shared_ptr<RootExpression> generateTree();
