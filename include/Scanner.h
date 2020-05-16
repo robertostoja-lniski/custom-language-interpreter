@@ -8,6 +8,7 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
+#include <queue>
 #include "Configuration.h"
 #include "Interfaces.h"
 #include "Token.h"
@@ -17,14 +18,14 @@ class Scanner {
 private:
 
     std::unique_ptr<SourceInterface> sourceInterface;
-    std::unique_ptr<Token> token;
+    std::queue<std::shared_ptr<Token>> tokens;
     char sign;
     bool isVerbose {false};
 
     void removeWhiteSigns();
 
-    std::unique_ptr<Token> createTokenFromValue(std::string val);
-    std::unique_ptr<Token> createSpecialSignToken(std::string c);
+    std::shared_ptr<Token> createTokenFromValue(std::string val);
+    std::shared_ptr<Token> createSpecialSignToken(std::string c);
     std::string appendValWhileIsDigit(std::string);
 
     bool tryToBuildSimpleToken();
@@ -41,5 +42,6 @@ public:
     // simple printing tokens
     void readToken();
     Token getTokenValue();
+    Token seeTokenValue();
 };
 #endif //TKOM_SCANNER_H
