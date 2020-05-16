@@ -8,10 +8,15 @@
 #include <iostream>
 #include <string>
 #include <memory>
+struct Position{
+    off64_t row {0};
+    off64_t column {0};
+    Position() = default;
+};
 
 struct SourceInterface {
 
-    off64_t position {0};
+    Position position;
     char sign;
     virtual void getNextSign() = 0;
     SourceInterface() = default;
@@ -21,7 +26,7 @@ struct FileInterface : public SourceInterface {
     std::string filepath;
     std::unique_ptr<std::ifstream> is;
     std::string currentLine;
-    off64_t currentIndex {0};
+    Position positionInFile;
 
     FileInterface(std::string path);
     ~FileInterface();

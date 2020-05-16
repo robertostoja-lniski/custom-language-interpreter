@@ -21,7 +21,7 @@ private:
 
     std::unique_ptr<SourceInterface> sourceInterface;
     std::queue<std::shared_ptr<Token>> tokens;
-    off64_t position;
+    Position position;
     char sign;
     bool isVerbose {false};
 

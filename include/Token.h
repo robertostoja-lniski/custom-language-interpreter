@@ -7,6 +7,7 @@
 
 #include <string>
 #include <iostream>
+#include "Interfaces.h"
 
 enum Type {
     T_ANY = 0,
@@ -49,13 +50,13 @@ class Token {
 private:
     std::string value;
     Type type;
-    off64_t position{0};
+    Position position;
 
 public:
     Token() = default;
     // position is not necessary, since we can have the same tokens with different positions
-    Token(std::string value, Type type, off64_t position = 0) : value(value), type(type), position(position) {}
-    Token(char sign, Type type, off64_t position = 0) : type(type), position(position) {
+    Token(std::string value, Type type, Position position = {0,0}) : value(value), type(type), position(position) {}
+    Token(char sign, Type type, Position position = {0,0}) : type(type), position(position) {
         value = sign;
     }
     void setType(Type type) {
@@ -63,7 +64,7 @@ public:
     }
     std::string getValue() { return value; }
     Type getType() { return type; }
-    off64_t getPosition() { return position; }
+    Position getPosition() { return position; }
     bool isOperand() {
         return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
                 type == T_REAL_NUM || type == T_STRING;
