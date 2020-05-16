@@ -26,8 +26,8 @@ void Scanner::createTokenFromValue(std::string val) {
 }
 char Scanner::getNextSign() {
     sourceInterface->getNextSign();
-    sign = sourceInterface->sign;
     position = sourceInterface->position;
+    return sourceInterface->sign;
 }
 void Scanner::readToken() {
     std::cout << *tokens.front() << std::endl;
@@ -79,7 +79,7 @@ bool Scanner::tryToBuildSpecialSignToken() {
     }
     auto simpleTokenHandler = simpleTokensHandlers[sign];
     simpleTokenHandler(sign);
-    getNextSign();
+    this->sign = getNextSign();
     return true;
 }
 
@@ -119,7 +119,6 @@ bool Scanner::tryToBuildNumToken() {
 bool Scanner::tryToBuildAlphaTokens() {
     std::string val;
 
-
     if (isalpha(sign) || sign == '_') {
         do {
             val = appendVal(val);
@@ -136,19 +135,19 @@ bool Scanner::tryToBuildAlphaTokens() {
         // " " are not stored
         val = val.substr(1, val.size());
         tokens.push(std::make_unique<Token>(sign, T_STRING, sourceInterface->position));
-        getNextSign();
+        this->sign = getNextSign();
         return true;
     }
     return false;
 }
 void Scanner::removeWhiteSigns() {
     while(iswspace(sign)) {
-        getNextSign();
+        this->sign = getNextSign();
     }
 }
 bool Scanner::tryToBuildNotDefinedToken() {
     tokens.push(std::make_unique<Token>(sign, T_NOT_DEFINED_YET, sourceInterface->position));
-    getNextSign();
+    this->sign = getNextSign();
     return true;
 }
 Scanner::Scanner(Configuration configuration) {
@@ -165,12 +164,12 @@ Scanner::Scanner(Configuration configuration) {
     if(!configuration.outputPath.empty()) {
         //TODO raports and analyses will be added in final project step.
     }
-    getNextSign();
+    this->sign = getNextSign();
 }
 
 std::string Scanner::appendVal(std::string val) {
     val += sign;
-    getNextSign();
+    this->sign = getNextSign();
     return val;
 }
 
