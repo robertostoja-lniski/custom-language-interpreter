@@ -7,7 +7,7 @@ void Scanner::getNextToken() {
     removeWhiteSigns();
 
     try {
-        if(tryToBuildSimpleToken() || tryToBuildNumToken()
+        if(tryToBuildAssignmentOrBooleanToken() || tryToBuildSpecialSignToken() || tryToBuildNumToken()
             || tryToBuildAlphaTokens() || tryToBuildNotDefinedToken()) {
             return;
         }
@@ -24,33 +24,10 @@ void Scanner::createTokenFromValue(std::string val) {
     auto complexTokenHandler = complexTokensHandlers[val];
     complexTokenHandler(val);
 }
-std::shared_ptr<Token> Scanner::createSpecialSignToken(std::string val) {
-    off64_t position = sourceInterface->position;
-    if(val == "(") {
-        return std::make_shared<Token>(val, T_OPENING_PARENTHESIS, position);
-    }
-    if(val == ")") {
-        return std::make_shared<Token>(val, T_CLOSING_PARENTHESIS, position);
-    }
-    if(val == ",") {
-        return std::make_shared<Token>(val, T_SEMICON, position);
-    }
-    if(val == ":") {
-        return std::make_shared<Token>(val, T_CON, position);
-    }
-    if(val == "{") {
-        return std::make_shared<Token>(val, T_OPENING_BRACKET, position);
-    }
-    if(val == "}") {
-        return std::make_shared<Token>(val, T_CLOSING_BRACKET, position);
-    }
-    if(val == ".") {
-        return std::make_shared<Token>(val, T_DOT, position);
-    }
-}
 char Scanner::getNextSign() {
     sourceInterface->getNextSign();
     sign = sourceInterface->sign;
+    position = sourceInterface->position;
 }
 void Scanner::readToken() {
     std::cout << *tokens.front() << std::endl;
@@ -71,72 +48,41 @@ std::string Scanner::appendValWhileIsDigit(std::string val) {
     } while(isdigit(sign));
     return val;
 }
-bool Scanner::tryToBuildSimpleToken() {
+bool Scanner::tryToBuildAssignmentOrBooleanToken() {
     std::string val;
 
-    if(sign == EOF) {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_EOF, sourceInterface->position));
-        throw std::runtime_error("End of file reached");
-    }
-    if(sign == '*' || sign == '/') {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_MULT_OPERATOR, sourceInterface->position));
-        return true;
-    }
-    if(sign == '&') {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_BOOLEAN_AND, sourceInterface->position));
-        return true;
-    }
-    if(sign == '.') {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_DOT, sourceInterface->position));
-        return true;
-    }
-    if(sign == '+' || sign == '-'){
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_ADD_OPERATOR, sourceInterface->position));
-        return true;
-    }
-    if(sign == '|') {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_BOOLEAN_OR, sourceInterface->position));
-        return true;
-    }
-    if(sign == '?') {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_NEXT_LINE, sourceInterface->position));
-        return true;
-    }
-    // assign or boolean prefix
-    if(sign == '=' || sign == '>' || sign == '<') {
+    if(sign == '<' || sign == '>') {
         val = appendVal(val);
         if(sign == '=') {
             val = appendVal(val);
+        }
+        tokens.push(std::make_shared<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position));
+        return true;
+    }
+
+    if(sign == '=') {
+        val = appendVal(val);
+        if(sign == '=' || sign == '>' || sign == '<') {
+            val = appendVal(val);
             tokens.push(std::make_shared<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position));
             return true;
-        } else {
-            if(val == "=") {
-                tokens.push( std::make_shared<Token>(val, T_ASSIGN_OPERATOR, sourceInterface->position));
-                return true;
-            } else {
-                tokens.push(std::make_shared<Token>(val, T_BOOLEAN_OPERATOR, sourceInterface->position));
-                return true;
-            }
         }
-    } else if (sign == ')' || sign == '(' || sign == '{' || sign == '}' || sign == ',' || sign == ':') {
-        val = appendVal(val);
-        tokens.push(createSpecialSignToken(val));
-        return true;
-
-    }  else if (sign == '$') {
-        val = appendVal(val);
-        tokens.push(std::make_shared<Token>(val, T_END, sourceInterface->position));
+        tokens.push(std::make_shared<Token>(val, T_ASSIGN_OPERATOR, sourceInterface->position));
         return true;
     }
     return false;
 }
+
+bool Scanner::tryToBuildSpecialSignToken() {
+    if(simpleTokensHandlers.find(sign) == simpleTokensHandlers.end()) {
+        return false;
+    }
+    auto simpleTokenHandler = simpleTokensHandlers[sign];
+    simpleTokenHandler(sign);
+    getNextSign();
+    return true;
+}
+
 bool Scanner::tryToBuildNumToken() {
     std::string val;
     if (isdigit(sign)) {
@@ -225,6 +171,7 @@ Scanner::Scanner(Configuration configuration) {
 std::string Scanner::appendVal(std::string val) {
     val += sign;
     getNextSign();
-    off64_t position = sourceInterface->position;
     return val;
 }
+
+
