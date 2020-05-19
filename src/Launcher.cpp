@@ -58,10 +58,8 @@ void Launcher::readFlags(int argc, char* argv[]) {
 }
 
 void Launcher::run() {
-
     scanner = std::make_shared<Scanner>(configuration);
     parser = std::make_unique<Parser>(scanner);
-
     parser->parse();
     parser->analyzeTree();
 }

@@ -30,12 +30,17 @@ char Scanner::getNextSign() {
 void Scanner::readToken() {
     std::cout << *tokens.front() << std::endl;
 }
-Token Scanner::seeTokenValue() {
+Token Scanner::seeNextTokenValue() {
     getNextToken();
     auto token = tokens.front();
     return {token->getValue(), token->getType(), token->getPosition()};
 }
 Token Scanner::getTokenValue() {
+    if(tokens.empty()) {
+        std::cout << "empty\n";
+        return {"end", T_END, position};
+    }
+    readToken();
     auto token = std::move(tokens.front());
     tokens.pop();
     return {token->getValue(), token->getType(), token->getPosition()};
@@ -93,6 +98,7 @@ bool Scanner::tryToBuildNumToken() {
             tokens.push(std::make_unique<Token>(integerPrefix, T_INT_NUM, sourceInterface->position));
             return true;
         }
+        return true;
     }
     return false;
 }
@@ -165,11 +171,10 @@ bool Scanner::tryToBuildNotDefinedToken() {
     return true;
 }
 Scanner::Scanner(Configuration configuration) {
-    this->isVerbose = configuration.isVerbose;
-    if(configuration.inputPath != "tmp.txt") {
-        configuration.inputPath = "/home/robert/Desktop/data.txt";
-    }
-
+//    this->isVerbose = configuration.isVerbose;
+//    if(configuration.inputPath != "tmp.txt") {
+//        configuration.inputPath = "/home/robert/Desktop/data.txt";
+//    }
     if(!configuration.inputPath.empty()) {
         sourceInterface = std::make_unique<FileInterface>(configuration.inputPath);
     } else {
@@ -183,4 +188,10 @@ Scanner::Scanner(Configuration configuration) {
 
 char Scanner::getSignAndReadNext() {
     return std::exchange(sign, getNextSign());
+}
+
+void Scanner::scan() {
+    if(tokens.empty()) {
+        getNextToken();
+    }
 }

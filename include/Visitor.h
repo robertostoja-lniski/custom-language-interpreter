@@ -8,7 +8,10 @@
 #include <memory>
 #include <stack>
 #include <queue>
-
+#include <variant>
+#include <string>
+#include <cassert>
+#include <map>
 struct FieldReferenceExpression;
 struct VarDeclarationExpression;
 struct TypeSpecifierExpression;
@@ -93,6 +96,58 @@ struct Visitor {
 };
 
 struct ExpressionVisitor : Visitor {
+    void visit(IntExpression* intExpression) override;
+    void visit(FloatExpression* floatExpression) override;
+    void visit(VarNameExpression* varNameExpression)  override;
+    void visit(DoubleArgsExpression* doubleArgsExpression) override;
+    void visit(AdditionExpression* additionExpression) override;
+    void visit(MultiplyExpression* multiplyExpression)  override;
+    void visit(DivideExpression* divideExpression) override;
+    void visit(AssignExpression* assignExpression) override;
+    void visit(RootExpression* rootExpression) override;
+    void visit(VarDeclarationExpression* varDeclarationExpression) override;
+    void visit(TypeSpecifierExpression* typeSpecifierExpression) override;
+    void visit(BooleanAndExpression* booleanAndExpression) override;
+    void visit(BooleanOrExpression* booleanOrExpression) override;
+    void visit(BooleanOperatorExpression* booleanOrExpression) override;
+    void visit(FunctionArgExpression* functionArgExpression) override;
+    void visit(FunctionExpression* functionExpression) override;
+    void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
+    void visit(NewLineExpression* newLineExpression) override;
+    void visit(BodyExpression* bodyExpression) override;
+    void visit(IfExpression* ifExpression) override;
+    void visit(ElseExpression* elseExpression) override;
+    void visit(ForExpression* forExpression) override;
+    void visit(WhileExpression* whileExpression) override;
+    void visit(DoExpression* doExpression) override;
+    void visit(FileExpression* fileExpression) override;
+    void visit(FieldReferenceExpression* fieldReferenceExpression) override;
+};
+
+
+struct EvaluationVisitor : Visitor {
+    struct PrimitiveValue {
+        PrimitiveValue() = default;
+        virtual ~PrimitiveValue() = default;
+    };
+    struct IntValue : PrimitiveValue {
+        int value {0};
+        IntValue(int value) : value(value) {}
+    };
+    struct RealValue : PrimitiveValue {
+        double value {0};
+        RealValue(double value) : value(value) {}
+    };
+    struct StrValue : PrimitiveValue {
+        std::string value;
+        StrValue(std::string value) : value(value) {}
+    };
+
+    enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
+    std::map<std::string, std::shared_ptr<PrimitiveValue>> variableAssignmentMap;
+    std::map<std::string, std::string> declarationMap;
+    std::queue<std::shared_ptr<PrimitiveValue>> operands;
+
     void visit(IntExpression* intExpression) override;
     void visit(FloatExpression* floatExpression) override;
     void visit(VarNameExpression* varNameExpression)  override;
