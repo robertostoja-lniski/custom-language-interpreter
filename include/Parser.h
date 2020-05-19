@@ -82,6 +82,7 @@ private:
             {T_USER_DEFINED_NAME, [&](Token token){createVarNameExpression(token);}},
             {T_FUNCTION_NAME, [&](Token token){createFunctionCallExpression(token);}},
             {T_NEXT_LINE, [&](Token token){dummy();}},
+            {T_END, [&](Token token){dummy();}},
             {T_NO_ARG_FUNCTION_NAME, [&](Token token){createNoArgFunctionExpression(token);}},
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},

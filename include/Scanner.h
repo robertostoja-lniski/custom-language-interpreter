@@ -77,13 +77,13 @@ private:
 
     char getNextSign();
     char getSignAndReadNext();
-
+    void getNextToken();
+    void readToken();
 public:
     Scanner(Configuration configuration);
-    void getNextToken();
     // simple printing tokens
-    void readToken();
+    void scan();
     Token getTokenValue();
-    Token seeTokenValue();
+    Token seeNextTokenValue();
 };
 #endif //TKOM_SCANNER_H

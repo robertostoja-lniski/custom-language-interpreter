@@ -15,11 +15,6 @@ void Parser::parse() {
     while((nextRoot = tryToBuildVarNamePrefixStatement()) != nullptr || (nextRoot = generatePostfixRepresentation()) != nullptr) {
         mainRoot->roots.push_back(nextRoot);
     }
-    if(generatePostfixRepresentation()) {
-
-    }
-    parse();
-
 }
 
 std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
@@ -27,6 +22,9 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         auto specifierExpr = getExpressionWithAssignedSpecifier();
         token = getTokenValFromScanner();
         if(token.getType() == T_END) {
+            auto newRoot = std::make_shared<RootExpression>();
+            newRoot->expr = specifierExpr;
+            mainRoot->roots.push_back(newRoot);
             return nullptr;
         }
         if(token.getType() == T_OPENING_PARENTHESIS) {
@@ -40,8 +38,6 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         newRoot->expr = specifierExpr;
         return newRoot;
     }
-
-
     return nullptr;
 }
 
@@ -163,7 +159,6 @@ void Parser::createBooleanOrExpression(Token token) {
 }
 void Parser::createFunctionCallExpression(Token token) {
     auto funcExpr = std::make_unique<FunctionExpression>();
-    // get function name
     funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
 
     auto nextArg = recentExpressions.top();
@@ -178,12 +173,13 @@ std::shared_ptr<RootExpression> Parser::generateTree() {
         transformTokenIntoTreeNode(currentToken);
         postfixRepresentation.pop_front();
     }
-
     return assignTreeToRoot();
 }
 void Parser::analyzeTree() {
-    ExpressionVisitor expressionVisitor;
-    expressionVisitor.visit(mainRoot.get());
+//    ExpressionVisitor expressionVisitor;
+//    expressionVisitor.visit(mainRoot.get());
+      EvaluationVisitor evaluationVisitor;
+      evaluationVisitor.visit(mainRoot.get());
 }
 
 void Parser::createSemiconExpression(Token token) {
@@ -277,14 +273,13 @@ Token Parser::seeNextToken() {
     if(!scanner) {
         throw std::runtime_error("No scanner pointed");
     }
-    return scanner->seeTokenValue();
+    return scanner->seeNextTokenValue();
 }
 Token Parser::getTokenValFromScanner() {
     if(!scanner) {
         throw std::runtime_error("No scanner pointed");
     }
-    scanner->getNextToken();
-    scanner->readToken();
+    scanner->scan();
     return scanner->getTokenValue();
 }
 
@@ -305,7 +300,7 @@ bool Parser::handleOperator() {
     return true;
 }
 bool Parser::tryToHandleSpecialToken() {
-    if(!token.isCondition() && !token.isOperator() && !token.isFunction() || token.getType() == T_NEXT_LINE) {
+    if(!token.isCondition() && !token.isOperator() && !token.isFunction() || token.getType() == T_NEXT_LINE || token.getType() == T_END) {
         return false;
     }
     if(token.getType() == T_NO_ARG_FUNCTION_NAME) {
@@ -371,7 +366,7 @@ bool Parser::tryToGenerateCondition() {
     return false;
 }
 bool Parser::tryToHandleNextLine() {
-    if(token.getType() != T_NEXT_LINE) {
+    if(token.getType() != T_NEXT_LINE && token.getType() != T_END) {
         return false;
     }
     finalize();
@@ -449,6 +444,9 @@ std::shared_ptr<RootExpression> Parser::generatePostfixRepresentation() {
     }
     if(token.getType() == T_NEXT_LINE) {
         token = getTokenValFromScanner();
+        return generateTree();
+    }
+    if(token.getType() == T_END) {
         return generateTree();
     }
     return nullptr;

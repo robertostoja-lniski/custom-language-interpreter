@@ -21,11 +21,14 @@ FileInterface::~FileInterface() {
 }
 void FileInterface::getNextSign() {
 
-        if(positionInFile.column == currentLine.size()) {
-            if(!currentLine.empty()) {
-                sign = '?';
-                positionInFile.row++;
-            }
+        if(positionInFile.column == currentLine.size() && !currentLine.empty()) {
+            sign = '?';
+            positionInFile.column++;
+            return;
+        }
+        if(currentLine.empty() || positionInFile.column == currentLine.size() +1) {
+
+            positionInFile.row++;
             currentLine.clear();
             std::getline(*is, currentLine);
             positionInFile.column = 0;
