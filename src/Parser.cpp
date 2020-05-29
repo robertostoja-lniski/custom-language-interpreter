@@ -13,7 +13,24 @@ void Parser::parse() {
         return;
     }
     while((nextRoot = tryToBuildVarNamePrefixStatement()) != nullptr || (nextRoot = generatePostfixRepresentation()) != nullptr) {
-        mainRoot->roots.push_back(nextRoot);
+
+        // tmp fix for handling do done
+        if(!nextRoot->expr) {
+            continue;
+        }
+
+        if(mainRoot->roots.empty()) {
+            mainRoot->roots.push_back(nextRoot);
+        } else if(auto maybePut = std::dynamic_pointer_cast<PutExpression>(mainRoot->roots.back()->expr)) {
+            if(maybePut->toPrint == nullptr) {
+                maybePut->toPrint = nextRoot->expr;
+            } else {
+                mainRoot->roots.push_back(nextRoot);
+            }
+
+        } else {
+            mainRoot->roots.push_back(nextRoot);
+        }
     }
 }
 
@@ -27,15 +44,30 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
             mainRoot->roots.push_back(newRoot);
             return nullptr;
         }
+        auto function = std::make_shared<FunctionExpression>();
         if(token.getType() == T_OPENING_PARENTHESIS) {
             auto body = getParamsAsManyDeclarations();
-            specifierExpr->right = body;
+            function->value = specifierExpr->value;
+            function->right = body;
+            function->left = specifierExpr->left;
+            specifierExpr = nullptr;
         }
         if(token.getType() == T_NEXT_LINE) {
             token = getTokenValFromScanner();
         }
         auto newRoot = std::make_shared<RootExpression>();
-        newRoot->expr = specifierExpr;
+        if(!specifierExpr) {
+            newRoot->expr = function;
+        } else {
+            newRoot->expr = specifierExpr;
+        }
+        return newRoot;
+    }
+
+    if(token.getType() == T_PUT) {
+        token = getTokenValFromScanner();
+        auto newRoot = std::make_shared<RootExpression>();
+        newRoot->expr = std::make_shared<PutExpression>();
         return newRoot;
     }
     return nullptr;
@@ -158,7 +190,7 @@ void Parser::createBooleanOrExpression(Token token) {
     setDoubleArgsExpr(std::make_unique<BooleanOrExpression>());
 }
 void Parser::createFunctionCallExpression(Token token) {
-    auto funcExpr = std::make_unique<FunctionExpression>();
+    auto funcExpr = std::make_unique<FunctionCallExpression>();
     funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
 
     auto nextArg = recentExpressions.top();
@@ -186,17 +218,17 @@ void Parser::createSemiconExpression(Token token) {
     auto newArgs = std::make_shared<FunctionArgExpression>();
 
     if(!recentExpressions.empty()) {
-        newArgs->left = recentExpressions.top();
+        newArgs->right = recentExpressions.top();
         recentExpressions.pop();
         // maybe few arguments can be joined
 
         if(!recentExpressions.empty()) {
             auto previousExpr = recentExpressions.top();
-            auto isFuncArgExpr = std::dynamic_pointer_cast<FunctionArgExpression>(previousExpr);
-            if(isFuncArgExpr) {
-                newArgs->right = previousExpr;
+//            auto isFuncArgExpr = std::dynamic_pointer_cast<FunctionArgExpression>(previousExpr);
+//            if(isFuncArgExpr) {
+                newArgs->left = previousExpr;
                 recentExpressions.pop();
-            }
+//            }
         }
     }
     recentExpressions.push(newArgs);
@@ -256,10 +288,14 @@ void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBod
     auto condExpr = mainRoot->roots.back()->expr;
     auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
     auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
+    auto isFunction = std::dynamic_pointer_cast<FunctionExpression>(condExpr);
+
     if(isElse) {
         assignBodyToUpperElse(condBody);
     } else if (isDeclaration) {
         assignBodyToUpperDeclaration(condBody, condExpr);
+    } else if (isFunction) {
+        isFunction->body = condBody;
     } else {
         assignBodyToUpperAnyExpression(condBody, condExpr);
     }
@@ -386,13 +422,13 @@ bool Parser::tryToParseManyArgsFunctionCall() {
     auto function_call_opening = operators.top();
     operators.pop();
     auto function_name = operators.top();
-    function_name->setType(T_FUNCTION_NAME);
+    function_name->setType(T_FUNCTION_CALL);
     operators.push(function_call_opening);
     return true;
 }
 bool Parser::tryToParseFunctionCall() {
     operators.push(std::make_unique<Token>(token));
-    token = getTokenValFromScanner();
+    token = seeNextToken();
     if(token.getType() == T_CLOSING_PARENTHESIS) {
         return parseNoArgFunctionCall();
     } else {
@@ -441,6 +477,11 @@ std::shared_ptr<RootExpression> Parser::generatePostfixRepresentation() {
     while (tryToHandleOperand() || tryToGenerateCondition() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone() || tryToHandleNextLine()
            || tryToHandleSpecialToken() || tryToHandleEmbeddedExpression() ) {
         token = getTokenValFromScanner();
+    }
+    if(postfixRepresentation.front()->getType() == T_DONE) {
+        token = getTokenValFromScanner();
+        generateTree();
+        return std::make_shared<RootExpression>();
     }
     if(token.getType() == T_NEXT_LINE) {
         token = getTokenValFromScanner();

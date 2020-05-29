@@ -15,6 +15,7 @@
 struct FieldReferenceExpression;
 struct VarDeclarationExpression;
 struct TypeSpecifierExpression;
+struct PutExpression;
 // lexical expression
 struct VarNameExpression;
 struct RootExpression;
@@ -43,6 +44,7 @@ struct DeclarationExpression;
 // functions
 struct FunctionArgExpression;
 struct FunctionExpression;
+struct FunctionCallExpression;
 struct NoArgFunctionExpression;
 // file organisation
 struct NewLineExpression;
@@ -78,9 +80,11 @@ struct Visitor {
     virtual void visit(BooleanOperatorExpression* booleanOrExpression) = 0;
 
     // functions
+    virtual void visit(FunctionCallExpression* functionCallExpression) = 0;
     virtual void visit(FunctionArgExpression* functionArgExpression) = 0;
     virtual void visit(FunctionExpression* functionExpression) = 0;
     virtual void visit(NoArgFunctionExpression* noArgFunctionExpression) = 0;
+    virtual void visit(PutExpression* putExpression) = 0;
 
     // file organisation
     virtual void visit(NewLineExpression* newLineExpression) = 0;
@@ -112,6 +116,7 @@ struct ExpressionVisitor : Visitor {
     void visit(BooleanOperatorExpression* booleanOrExpression) override;
     void visit(FunctionArgExpression* functionArgExpression) override;
     void visit(FunctionExpression* functionExpression) override;
+    void visit(FunctionCallExpression* functionCallExpression) override;
     void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
     void visit(NewLineExpression* newLineExpression) override;
     void visit(BodyExpression* bodyExpression) override;
@@ -122,6 +127,7 @@ struct ExpressionVisitor : Visitor {
     void visit(DoExpression* doExpression) override;
     void visit(FileExpression* fileExpression) override;
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
+    void visit(PutExpression* putExpression) override;
 };
 
 
@@ -143,9 +149,24 @@ struct EvaluationVisitor : Visitor {
         StrValue(std::string value) : value(value) {}
     };
 
+    struct FunctionDeclaration {
+        std::string specifier;
+        struct FunctionArg {
+            std::string specifier;
+            std::string name;
+
+            FunctionArg(std::string specifier, std::string name) :
+                specifier(specifier), name(name) {}
+        };
+
+        std::vector<FunctionArg> args;
+        std::shared_ptr<BodyExpression> body;
+    };
+
     enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
     std::map<std::string, std::shared_ptr<PrimitiveValue>> variableAssignmentMap;
     std::map<std::string, std::string> declarationMap;
+    std::map<std::string, FunctionDeclaration> functionDeclarationMap;
     std::queue<std::shared_ptr<PrimitiveValue>> operands;
 
     void visit(IntExpression* intExpression) override;
@@ -174,6 +195,8 @@ struct EvaluationVisitor : Visitor {
     void visit(DoExpression* doExpression) override;
     void visit(FileExpression* fileExpression) override;
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
+    void visit(FunctionCallExpression* functionCallExpression) override;
+    void visit(PutExpression* putExpression) override;
 };
 
 struct Expression {
@@ -216,6 +239,12 @@ struct FloatExpression : Expression {
 struct VarNameExpression : Expression {
     std::string value;
     VarNameExpression(std::string value) : value(value) {}
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct PutExpression : Expression {
+    std::shared_ptr<Expression> toPrint {};
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -286,6 +315,14 @@ struct BooleanOperatorExpression : DoubleArgsExpression {
     }
 };
 struct FunctionExpression : DoubleArgsExpression {
+    std::string value;
+    std::shared_ptr<BodyExpression> body;
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct FunctionCallExpression : DoubleArgsExpression {
+    std::string value;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

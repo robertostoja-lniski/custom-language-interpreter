@@ -54,6 +54,7 @@ private:
             {"do", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_DO, position));}},
             {"else", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_ELSE, position));}},
             {"done", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_DONE, position));}},
+            {"put", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_PUT, position));}},
     };
 
     std::map<char, std::function<void(char currentSing)>> simpleTokensHandlers {

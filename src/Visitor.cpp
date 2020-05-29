@@ -147,6 +147,10 @@ void ExpressionVisitor::visit(WhileExpression* whileExpression) {
 
 }
 
+void ExpressionVisitor::visit(FunctionCallExpression *functionCallExpression) {
+
+}
+
 void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
 
     std::cout << "Inside a collection\n";
@@ -177,6 +181,10 @@ void ExpressionVisitor::visit(FieldReferenceExpression *fieldReferenceExpression
     fieldReferenceExpression->right->accept(this);
 }
 
+void ExpressionVisitor::visit(PutExpression *putExpression) {
+    std::cout << putExpression->toPrint;
+}
+
 
 /*
  * Evaluation visitor used for execution of instructions
@@ -190,21 +198,17 @@ void EvaluationVisitor::visit(FloatExpression *floatExpression) {
 }
 
 void EvaluationVisitor::visit(VarNameExpression *varNameExpression) {
-    auto varName = varNameExpression->value;
-    if(variableAssignmentMap.find(varName) == variableAssignmentMap.end()) {
-        throw std::runtime_error(varName + " is not defined.");
-    }
-
-    auto assignedVar = variableAssignmentMap[varName];
-    operands.push(assignedVar);
+    operands.push(std::make_shared<StrValue>(varNameExpression->value));
 }
 
 void EvaluationVisitor::visit(DoubleArgsExpression *doubleArgsExpression) {
-
+    std::cout << "in double arg\n";
+    doubleArgsExpression->left->accept(this);
+    doubleArgsExpression->right->accept(this);
 }
 
 void EvaluationVisitor::visit(AdditionExpression *additionExpression) {
-    std::cout << "Evaluating multiplying\n";
+    std::cout << "Evaluating addition\n";
     additionExpression->left->accept(this);
     additionExpression->right->accept(this);
 
@@ -212,6 +216,23 @@ void EvaluationVisitor::visit(AdditionExpression *additionExpression) {
     operands.pop();
     std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
     operands.pop();
+
+    auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
+    auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
+
+    if(leftOpToStr) {
+        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(leftOpToStr->value + " not declared");
+        }
+        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
+    }
+
+    if(rightOpToStr) {
+        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(rightOpToStr->value + " not declared");
+        }
+        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
+    }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
     auto rightOpToInt = std::dynamic_pointer_cast<IntValue>(rightOperand);
@@ -246,6 +267,7 @@ void EvaluationVisitor::visit(AdditionExpression *additionExpression) {
         operands.push(std::make_shared<RealValue>(leftOpToInt->value + rightOpToReal->value));
         return;
     }
+
 }
 
 void EvaluationVisitor::visit(MultiplyExpression *multiplyExpression) {
@@ -257,6 +279,23 @@ void EvaluationVisitor::visit(MultiplyExpression *multiplyExpression) {
     operands.pop();
     std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
     operands.pop();
+
+    auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
+    auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
+
+    if(leftOpToStr) {
+        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(leftOpToStr->value + " not declared");
+        }
+        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
+    }
+
+    if(rightOpToStr) {
+        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(rightOpToStr->value + " not declared");
+        }
+        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
+    }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
     auto rightOpToInt = std::dynamic_pointer_cast<IntValue>(rightOperand);
@@ -291,6 +330,23 @@ void EvaluationVisitor::visit(DivideExpression *divideExpression) {
     operands.pop();
     std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
     operands.pop();
+
+    auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
+    auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
+
+    if(leftOpToStr) {
+        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(leftOpToStr->value + " not declared");
+        }
+        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
+    }
+
+    if(rightOpToStr) {
+        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(rightOpToStr->value + " not declared");
+        }
+        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
+    }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
     auto rightOpToInt = std::dynamic_pointer_cast<IntValue>(rightOperand);
@@ -336,6 +392,7 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
 
     assignExpression->right->accept(this);
     auto valueToBeAssigned = operands.front();
+    operands.pop();
     auto isValueToBeAssignedInt = std::dynamic_pointer_cast<IntValue>(valueToBeAssigned);
     auto isValueToBeAssignedReal = std::dynamic_pointer_cast<RealValue>(valueToBeAssigned);
     auto isValueToBeAssignedStr = std::dynamic_pointer_cast<StrValue>(valueToBeAssigned);
@@ -350,12 +407,14 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
         throw std::runtime_error("Type cast error");
     }
 
-    operands.front();
     variableAssignmentMap[varName] = valueToBeAssigned;
 }
 
 void EvaluationVisitor::visit(RootExpression *rootExpression) {
     rootExpression->expr->accept(this);
+    if(operands.empty()) {
+        return;
+    }
     auto result = operands.front();
 
     if(auto isInt =  std::dynamic_pointer_cast<IntValue>(result)) {
@@ -374,14 +433,15 @@ void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 }
 
 void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
+
     typeSpecifierExpression->left->accept(this);
-//    typeSpecifierExpression->right->accept(this);
     auto varName = operands.front();
+    operands.pop();
     auto strVarName = std::dynamic_pointer_cast<StrValue>(varName);
     if(!strVarName) {
         throw std::runtime_error("Unknown token to be declared");
     }
-    operands.pop();
+
     declarationMap[strVarName->value] = typeSpecifierExpression->value;
 }
 
@@ -393,16 +453,94 @@ void EvaluationVisitor::visit(BooleanOrExpression *booleanOrExpression) {
 
 }
 
-void EvaluationVisitor::visit(BooleanOperatorExpression *booleanOrExpression) {
+void EvaluationVisitor::visit(BooleanOperatorExpression *booleanOperatorExpression) {
+    std::cout << "In boolean operator\n";
+    booleanOperatorExpression->left->accept(this);
+    booleanOperatorExpression->right->accept(this);
+
+    std::shared_ptr<PrimitiveValue> leftOperand = operands.front();
+    operands.pop();
+    std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
+    operands.pop();
+
+    auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
+    auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
+
+    if(leftOpToStr) {
+        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(leftOpToStr->value + " not declared");
+        }
+        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
+    }
+
+    if(rightOpToStr) {
+        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+            throw std::runtime_error(rightOpToStr->value + " not declared");
+        }
+        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
+    }
+
+    auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
+    auto rightOpToInt = std::dynamic_pointer_cast<IntValue>(rightOperand);
+    if(leftOpToInt && rightOpToInt) {
+        if(booleanOperatorExpression->value == ">") {
+            operands.push(std::make_shared<IntValue>(leftOpToInt->value > rightOpToInt->value));
+        }
+        return;
+    }
+    auto leftOpToReal = std::dynamic_pointer_cast<RealValue>(leftOperand);
+    auto rightOpToReal = std::dynamic_pointer_cast<RealValue>(rightOperand);
+    if(leftOpToReal && rightOpToReal) {
+        operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToReal->value));
+        return;
+    }
+    if(leftOpToReal && rightOpToInt) {
+        operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToInt->value));
+        return;
+    }
+    if(leftOpToInt && rightOpToReal) {
+        operands.push(std::make_shared<RealValue>(leftOpToInt->value * rightOpToReal->value));
+        return;
+    }
+    throw std::runtime_error("Wrong types of multiplication operands");
 
 }
 
 void EvaluationVisitor::visit(FunctionArgExpression *functionArgExpression) {
-
+    functionArgExpression->left->accept(this);
+    functionArgExpression->right->accept(this);
 }
 
 void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
 
+    functionExpression->left->accept(this);
+    auto varName = operands.front();
+    operands.pop();
+    //checks if it is function
+    auto isFunc = std::dynamic_pointer_cast<BodyExpression>(functionExpression->right);
+    auto strVarName = std::dynamic_pointer_cast<StrValue>(varName);
+    if(!strVarName) {
+        throw std::runtime_error("Unknown token to be declared");
+    }
+
+    if(isFunc) {
+
+        FunctionDeclaration functionDeclaration;
+        functionDeclaration.specifier = functionExpression->value;
+
+        auto args = isFunc->statements;
+        for(auto arg : args) {
+            auto argInfo = std::dynamic_pointer_cast<TypeSpecifierExpression>(arg);
+            if(!argInfo) {
+                throw std::runtime_error("Unknown argument in function declaration");
+            }
+            std::string argSpecifier = argInfo->value;
+            std::string argName = std::dynamic_pointer_cast<VarNameExpression>(argInfo->left)->value;
+            functionDeclaration.args.emplace_back(argSpecifier, argName);
+        }
+        functionDeclaration.body = functionExpression->body;
+        functionDeclarationMap[strVarName->value] = functionDeclaration;
+    }
 }
 
 void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
@@ -414,7 +552,9 @@ void EvaluationVisitor::visit(NewLineExpression *newLineExpression) {
 }
 
 void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
-
+    for(auto statement : bodyExpression->statements) {
+        statement->accept(this);
+    }
 }
 
 void EvaluationVisitor::visit(IfExpression *ifExpression) {
@@ -430,10 +570,67 @@ void EvaluationVisitor::visit(ForExpression *forExpression) {
 }
 
 void EvaluationVisitor::visit(WhileExpression *whileExpression) {
+    whileExpression->left->accept(this);
+    auto condition = operands.front();
+    operands.pop();
+    auto conditionToInt = std::dynamic_pointer_cast<IntValue>(condition);
+    while(conditionToInt->value != 0) {
+        whileExpression->right->accept(this);
+        whileExpression->left->accept(this);
+        auto currentCondition = operands.front();
+        operands.pop();
+        conditionToInt = std::dynamic_pointer_cast<IntValue>(currentCondition);
+    }
 
 }
 
 void EvaluationVisitor::visit(DoExpression *doExpression) {
+
+}
+
+void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
+
+    auto funcNameExpression = functionCallExpression->left;
+    auto funcName = std::dynamic_pointer_cast<VarNameExpression>(funcNameExpression)->value;
+
+    if(functionDeclarationMap.find(funcName) == functionDeclarationMap.end()) {
+        throw std::runtime_error("Function not defined");
+    }
+
+    functionCallExpression->right->accept(this);
+    auto functionDeclaration = functionDeclarationMap[funcName];
+
+    if(operands.size() != functionDeclaration.args.size()) {
+        throw std::runtime_error("Wrong number of arguments");
+    }
+
+    auto currentArg = functionDeclaration.args.cbegin();
+    while(!operands.empty()) {
+        auto calledArg = operands.front();
+        auto isInt = std::dynamic_pointer_cast<IntValue>(calledArg);
+        auto isReal = std::dynamic_pointer_cast<RealValue>(calledArg);
+        auto isStr = std::dynamic_pointer_cast<StrValue>(calledArg);
+
+        if(isInt && currentArg->specifier != "int") {
+            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
+        }
+
+        if(isReal && currentArg->specifier != "float") {
+            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
+        }
+
+        if(isStr && currentArg->specifier != "string") {
+            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
+        }
+        operands.pop();
+        currentArg++;
+
+        if(currentArg == functionDeclaration.args.cend()) {
+            break;
+        }
+    }
+
+    functionDeclaration.body->accept(this);
 
 }
 
@@ -446,5 +643,60 @@ void EvaluationVisitor::visit(FileExpression *fileExpression) {
 }
 
 void EvaluationVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
+
+}
+
+void EvaluationVisitor::visit(PutExpression *putExpression) {
+    putExpression->toPrint->accept(this);
+    auto valueToPrint = operands.front();
+
+    operands.pop();
+    auto toInt = std::dynamic_pointer_cast<IntValue>(valueToPrint);
+    auto toReal = std::dynamic_pointer_cast<RealValue>(valueToPrint);
+    auto toStr = std::dynamic_pointer_cast<StrValue>(valueToPrint);
+
+
+    if(toInt) {
+        std::cout << toInt->value << " of int type.";
+    }
+    if(toReal) {
+        std::cout << toReal->value << " of real type.";
+    }
+    if(toStr) {
+        if(declarationMap.find(toStr->value) == declarationMap.end()
+            && functionDeclarationMap.find(toStr->value) == functionDeclarationMap.end()) {
+            throw std::runtime_error(toStr->value + " undefined");
+        }
+
+        if(functionDeclarationMap.find(toStr->value) != functionDeclarationMap.end()) {
+            std::cout << toStr->value << " is a function with:\n";
+            auto func = functionDeclarationMap[toStr->value];
+            std::cout << "\t" << func.specifier << " specifier\n";
+            std::cout << "and args:\n";
+            for(auto [specifier, name] : func.args) {
+                std::cout << "\t" << specifier << " " << name << '\n';
+            }
+            return;
+        }
+
+        if(variableAssignmentMap.find(toStr->value) == variableAssignmentMap.end()) {
+            std::cout << "no value assigned to " + toStr->value + " variable.\n";
+            return;
+        }
+        auto value = variableAssignmentMap[toStr->value];
+        auto toIntValue = std::dynamic_pointer_cast<IntValue>(value);
+        auto toRealValue = std::dynamic_pointer_cast<RealValue>(value);
+        auto toStrValue = std::dynamic_pointer_cast<StrValue>(value);
+
+        if(toIntValue) {
+            std::cout << toIntValue->value << " of int type.";
+        }
+        if(toRealValue) {
+            std::cout << toRealValue->value << " of real type.";
+        }
+        if(toStrValue) {
+            std::cout << toStrValue->value << " of string type";
+        }
+    }
 
 }
