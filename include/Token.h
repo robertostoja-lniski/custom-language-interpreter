@@ -43,6 +43,8 @@ enum Type {
     T_FOR = 30,
     T_ELSE = 31,
     T_DUMMY_ARG = 32,
+    T_PUT = 33,
+    T_FUNCTION_CALL = 34,
 };
 
 class Token {
