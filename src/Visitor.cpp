@@ -190,15 +190,15 @@ void ExpressionVisitor::visit(PutExpression *putExpression) {
  * Evaluation visitor used for execution of instructions
  */
 void EvaluationVisitor::visit(IntExpression *intExpression) {
-    operands.push(std::make_shared<IntValue>(intExpression->value));
+    ctx.back().operands.push(std::make_shared<IntValue>(intExpression->value));
 }
 
 void EvaluationVisitor::visit(FloatExpression *floatExpression) {
-    operands.push(std::make_shared<RealValue>(floatExpression->value));
+    ctx.back().operands.push(std::make_shared<RealValue>(floatExpression->value));
 }
 
 void EvaluationVisitor::visit(VarNameExpression *varNameExpression) {
-    operands.push(std::make_shared<StrValue>(varNameExpression->value));
+    ctx.back().operands.push(std::make_shared<StrValue>(varNameExpression->value));
 }
 
 void EvaluationVisitor::visit(DoubleArgsExpression *doubleArgsExpression) {
@@ -212,26 +212,40 @@ void EvaluationVisitor::visit(AdditionExpression *additionExpression) {
     additionExpression->left->accept(this);
     additionExpression->right->accept(this);
 
-    std::shared_ptr<PrimitiveValue> leftOperand = operands.front();
-    operands.pop();
-    std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
-    operands.pop();
+    std::shared_ptr<PrimitiveValue> leftOperand = moveLocalOperandFromNearestContext();
+    std::shared_ptr<PrimitiveValue> rightOperand = moveLocalOperandFromNearestContext();
 
     auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
     auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
 
+    auto found = 0;
     if(leftOpToStr) {
-        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(leftOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[leftOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(leftOpToStr->value + " not declared");
         }
-        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
     }
 
+    found = 0;
     if(rightOpToStr) {
-        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++ ){
+            if(currentCtx->variableAssignmentMap.find(rightOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[rightOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(rightOpToStr->value + " not declared");
         }
-        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
     }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
@@ -240,7 +254,7 @@ void EvaluationVisitor::visit(AdditionExpression *additionExpression) {
         if(additionExpression->operation == "-") {
             rightOpToInt->value *= -1;
         }
-        operands.push(std::make_shared<IntValue>(leftOpToInt->value + rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<IntValue>(leftOpToInt->value + rightOpToInt->value));
         return;
     }
     auto leftOpToReal = std::dynamic_pointer_cast<RealValue>(leftOperand);
@@ -250,21 +264,21 @@ void EvaluationVisitor::visit(AdditionExpression *additionExpression) {
         if(additionExpression->operation == "-") {
             rightOpToReal->value *= -1;
         }
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value + rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value + rightOpToReal->value));
         return;
     }
     if(leftOpToReal && rightOpToInt) {
         if(additionExpression->operation == "-") {
             rightOpToInt->value *= -1;
         }
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value + rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value + rightOpToInt->value));
         return;
     }
     if(leftOpToInt && rightOpToReal) {
         if(additionExpression->operation == "-") {
             rightOpToReal->value *= -1;
         }
-        operands.push(std::make_shared<RealValue>(leftOpToInt->value + rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToInt->value + rightOpToReal->value));
         return;
     }
 
@@ -275,46 +289,60 @@ void EvaluationVisitor::visit(MultiplyExpression *multiplyExpression) {
     multiplyExpression->left->accept(this);
     multiplyExpression->right->accept(this);
 
-    std::shared_ptr<PrimitiveValue> leftOperand = operands.front();
-    operands.pop();
-    std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
-    operands.pop();
+    std::shared_ptr<PrimitiveValue> leftOperand = moveLocalOperandFromNearestContext();
+    std::shared_ptr<PrimitiveValue> rightOperand = moveLocalOperandFromNearestContext();
 
     auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
     auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
 
+    auto found = 0;
     if(leftOpToStr) {
-        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(leftOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[leftOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(leftOpToStr->value + " not declared");
         }
-        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
     }
 
+    found = 0;
     if(rightOpToStr) {
-        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(rightOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[rightOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(rightOpToStr->value + " not declared");
         }
-        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
     }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
     auto rightOpToInt = std::dynamic_pointer_cast<IntValue>(rightOperand);
     if(leftOpToInt && rightOpToInt) {
-        operands.push(std::make_shared<IntValue>(leftOpToInt->value * rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<IntValue>(leftOpToInt->value * rightOpToInt->value));
         return;
     }
     auto leftOpToReal = std::dynamic_pointer_cast<RealValue>(leftOperand);
     auto rightOpToReal = std::dynamic_pointer_cast<RealValue>(rightOperand);
     if(leftOpToReal && rightOpToReal) {
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToReal->value));
         return;
     }
     if(leftOpToReal && rightOpToInt) {
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToInt->value));
         return;
     }
     if(leftOpToInt && rightOpToReal) {
-        operands.push(std::make_shared<RealValue>(leftOpToInt->value * rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToInt->value * rightOpToReal->value));
         return;
     }
     throw std::runtime_error("Wrong types of multiplication operands");
@@ -326,26 +354,40 @@ void EvaluationVisitor::visit(DivideExpression *divideExpression) {
     auto isLeftInt = std::dynamic_pointer_cast<IntExpression>(divideExpression->left);
     divideExpression->right->accept(this);
 
-    std::shared_ptr<PrimitiveValue> leftOperand = operands.front();
-    operands.pop();
-    std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
-    operands.pop();
+    std::shared_ptr<PrimitiveValue> leftOperand = moveLocalOperandFromNearestContext();
+    std::shared_ptr<PrimitiveValue> rightOperand = moveLocalOperandFromNearestContext();
 
     auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
     auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
 
+    auto found = 0;
     if(leftOpToStr) {
-        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(leftOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[leftOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(leftOpToStr->value + " not declared");
         }
-        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
     }
 
+    found = 0;
     if(rightOpToStr) {
-        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(rightOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[rightOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(rightOpToStr->value + " not declared");
         }
-        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
     }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
@@ -354,7 +396,7 @@ void EvaluationVisitor::visit(DivideExpression *divideExpression) {
         throw std::runtime_error("Division by zero!");
     }
     if(leftOpToInt && rightOpToInt) {
-        operands.push(std::make_shared<IntValue>(leftOpToInt->value / rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<IntValue>(leftOpToInt->value / rightOpToInt->value));
         return;
     }
     auto leftOpToReal = std::dynamic_pointer_cast<RealValue>(leftOperand);
@@ -363,15 +405,15 @@ void EvaluationVisitor::visit(DivideExpression *divideExpression) {
         throw std::runtime_error("Division by zero!");
     }
     if(leftOpToReal && rightOpToReal) {
-        operands.push(std::make_shared<RealValue>(leftOpToInt->value / rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToInt->value / rightOpToReal->value));
         return;
     }
     if(leftOpToReal && rightOpToInt) {
-        operands.push(std::make_shared<IntValue>(leftOpToReal->value / rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<IntValue>(leftOpToReal->value / rightOpToInt->value));
         return;
     }
     if(leftOpToInt && rightOpToReal) {
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value / rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value / rightOpToReal->value));
         return;
     }
     throw std::runtime_error("Wrong types of multiplication operands");
@@ -386,36 +428,62 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
     }
 
     auto varName = isVarName->value;
-    if(declarationMap.find(varName) == declarationMap.end()) {
-        throw std::runtime_error("Error: " + varName + " Not declared");
+
+    auto wasDeclared = [](std::string varName, std::deque<Context> ctx) -> bool {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if(!wasDeclared(varName, ctx)) {
+        throw std::runtime_error(varName + " not declared");
     }
 
     assignExpression->right->accept(this);
-    auto valueToBeAssigned = operands.front();
-    operands.pop();
+    auto valueToBeAssigned = moveLocalOperandFromNearestContext();
     auto isValueToBeAssignedInt = std::dynamic_pointer_cast<IntValue>(valueToBeAssigned);
     auto isValueToBeAssignedReal = std::dynamic_pointer_cast<RealValue>(valueToBeAssigned);
     auto isValueToBeAssignedStr = std::dynamic_pointer_cast<StrValue>(valueToBeAssigned);
 
-    if(isValueToBeAssignedInt && declarationMap[varName] != "int") {
+    auto isDeclaredTypeOf = [](std::string varName, std::string type, std::deque<Context> ctx) -> bool {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()
+                && currentCtx->declarationMap[varName] == type) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if(isValueToBeAssignedInt && !isDeclaredTypeOf(varName, "int", ctx)) {
         throw std::runtime_error("Type cast error");
     }
-    if(isValueToBeAssignedReal && declarationMap[varName] != "float") {
+    if(isValueToBeAssignedReal && !isDeclaredTypeOf(varName, "float", ctx)) {
         throw std::runtime_error("Type cast error");
     }
-    if(isValueToBeAssignedStr && declarationMap[varName] != "string") {
+    if(isValueToBeAssignedStr && !isDeclaredTypeOf(varName, "string", ctx)) {
         throw std::runtime_error("Type cast error");
     }
 
-    variableAssignmentMap[varName] = valueToBeAssigned;
+    for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+        if(currentCtx->variableAssignmentMap.find(varName) != currentCtx->variableAssignmentMap.end()) {
+            currentCtx->variableAssignmentMap[varName] = valueToBeAssigned;
+            return;
+        }
+    }
+    ctx.back().variableAssignmentMap[varName] = valueToBeAssigned;
 }
 
 void EvaluationVisitor::visit(RootExpression *rootExpression) {
     rootExpression->expr->accept(this);
+    auto operands = ctx.back().operands;
     if(operands.empty()) {
         return;
     }
-    auto result = operands.front();
+    auto result = moveLocalOperandFromNearestContext();
 
     if(auto isInt =  std::dynamic_pointer_cast<IntValue>(result)) {
         std::cout << "result of subtree is int with value: " << isInt->value << '\n';
@@ -425,7 +493,6 @@ void EvaluationVisitor::visit(RootExpression *rootExpression) {
         std::cout << "result of subtree is real with value: " << isReal->value << '\n';
     }
 
-    operands.pop();
 }
 
 void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
@@ -435,14 +502,13 @@ void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
 
     typeSpecifierExpression->left->accept(this);
-    auto varName = operands.front();
-    operands.pop();
+    auto varName = ctx.back().moveLocalOperand();
     auto strVarName = std::dynamic_pointer_cast<StrValue>(varName);
     if(!strVarName) {
         throw std::runtime_error("Unknown token to be declared");
     }
 
-    declarationMap[strVarName->value] = typeSpecifierExpression->value;
+    ctx.back().declarationMap[strVarName->value] = typeSpecifierExpression->value;
 }
 
 void EvaluationVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -458,48 +524,65 @@ void EvaluationVisitor::visit(BooleanOperatorExpression *booleanOperatorExpressi
     booleanOperatorExpression->left->accept(this);
     booleanOperatorExpression->right->accept(this);
 
-    std::shared_ptr<PrimitiveValue> leftOperand = operands.front();
-    operands.pop();
-    std::shared_ptr<PrimitiveValue> rightOperand = operands.front();
-    operands.pop();
+    std::shared_ptr<PrimitiveValue> leftOperand = moveLocalOperandFromNearestContext();
+    std::shared_ptr<PrimitiveValue> rightOperand = moveLocalOperandFromNearestContext();
 
     auto leftOpToStr = std::dynamic_pointer_cast<StrValue>(leftOperand);
     auto rightOpToStr = std::dynamic_pointer_cast<StrValue>(rightOperand);
 
+    auto found = 0;
     if(leftOpToStr) {
-        if(variableAssignmentMap.find(leftOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(leftOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[leftOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(leftOpToStr->value + " not declared");
         }
-        leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[leftOpToStr->value]);
     }
 
+    found = 0;
     if(rightOpToStr) {
-        if(variableAssignmentMap.find(rightOpToStr->value) == variableAssignmentMap.end()) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->variableAssignmentMap.find(rightOpToStr->value) != currentCtx->variableAssignmentMap.end()) {
+                leftOperand = std::dynamic_pointer_cast<PrimitiveValue>(
+                        currentCtx->variableAssignmentMap[rightOpToStr->value]);
+                found = 1;
+                break;
+            }
+        }
+        if(!found) {
             throw std::runtime_error(rightOpToStr->value + " not declared");
         }
-        rightOperand = std::dynamic_pointer_cast<PrimitiveValue>(variableAssignmentMap[rightOpToStr->value]);
     }
 
     auto leftOpToInt = std::dynamic_pointer_cast<IntValue>(leftOperand);
     auto rightOpToInt = std::dynamic_pointer_cast<IntValue>(rightOperand);
     if(leftOpToInt && rightOpToInt) {
-        if(booleanOperatorExpression->value == ">") {
-            operands.push(std::make_shared<IntValue>(leftOpToInt->value > rightOpToInt->value));
+        auto currentOperator = booleanOperatorExpression->value;
+        if(currentOperator == ">") {
+            ctx.back().operands.push(std::make_shared<IntValue>(leftOpToInt->value > rightOpToInt->value));
+        } else if(currentOperator == "==") {
+            ctx.back().operands.push(std::make_shared<IntValue>(leftOpToInt->value == rightOpToInt->value));
         }
         return;
     }
     auto leftOpToReal = std::dynamic_pointer_cast<RealValue>(leftOperand);
     auto rightOpToReal = std::dynamic_pointer_cast<RealValue>(rightOperand);
     if(leftOpToReal && rightOpToReal) {
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToReal->value));
         return;
     }
     if(leftOpToReal && rightOpToInt) {
-        operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToInt->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToReal->value * rightOpToInt->value));
         return;
     }
     if(leftOpToInt && rightOpToReal) {
-        operands.push(std::make_shared<RealValue>(leftOpToInt->value * rightOpToReal->value));
+        ctx.back().operands.push(std::make_shared<RealValue>(leftOpToInt->value * rightOpToReal->value));
         return;
     }
     throw std::runtime_error("Wrong types of multiplication operands");
@@ -514,8 +597,7 @@ void EvaluationVisitor::visit(FunctionArgExpression *functionArgExpression) {
 void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
 
     functionExpression->left->accept(this);
-    auto varName = operands.front();
-    operands.pop();
+    auto varName = moveLocalOperandFromNearestContext();
     //checks if it is function
     auto isFunc = std::dynamic_pointer_cast<BodyExpression>(functionExpression->right);
     auto strVarName = std::dynamic_pointer_cast<StrValue>(varName);
@@ -539,7 +621,8 @@ void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
             functionDeclaration.args.emplace_back(argSpecifier, argName);
         }
         functionDeclaration.body = functionExpression->body;
-        functionDeclarationMap[strVarName->value] = functionDeclaration;
+        auto currentCtx = ctx.back();
+        currentCtx.functionDeclarationMap[strVarName->value] = functionDeclaration;
     }
 }
 
@@ -558,11 +641,19 @@ void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
 }
 
 void EvaluationVisitor::visit(IfExpression *ifExpression) {
-
+    ctx.push_back({});
+    ifExpression->left->accept(this);
+    auto condition = moveLocalOperandFromNearestContext();
+    auto conditionToInt = std::dynamic_pointer_cast<IntValue>(condition);
+    if(conditionToInt->value != 0) {
+        ifExpression->right->accept(this);
+    } else if(ifExpression->elseCondition != nullptr) {
+        ifExpression->elseCondition->accept(this);
+    }
+    ctx.pop_back();
 }
 
 void EvaluationVisitor::visit(ElseExpression *elseExpression) {
-
 }
 
 void EvaluationVisitor::visit(ForExpression *forExpression) {
@@ -570,18 +661,17 @@ void EvaluationVisitor::visit(ForExpression *forExpression) {
 }
 
 void EvaluationVisitor::visit(WhileExpression *whileExpression) {
+    ctx.push_back({});
     whileExpression->left->accept(this);
-    auto condition = operands.front();
-    operands.pop();
+    auto condition = moveLocalOperandFromNearestContext();
     auto conditionToInt = std::dynamic_pointer_cast<IntValue>(condition);
     while(conditionToInt->value != 0) {
         whileExpression->right->accept(this);
         whileExpression->left->accept(this);
-        auto currentCondition = operands.front();
-        operands.pop();
+        auto currentCondition = moveLocalOperandFromNearestContext();
         conditionToInt = std::dynamic_pointer_cast<IntValue>(currentCondition);
     }
-
+    ctx.pop_back();
 }
 
 void EvaluationVisitor::visit(DoExpression *doExpression) {
@@ -593,20 +683,37 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
     auto funcNameExpression = functionCallExpression->left;
     auto funcName = std::dynamic_pointer_cast<VarNameExpression>(funcNameExpression)->value;
 
-    if(functionDeclarationMap.find(funcName) == functionDeclarationMap.end()) {
+    auto isDeclaredIntGivenCtx = [](std::string funcName, std::deque<Context> ctx) -> bool {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
+                return true;
+            }
+        }
+        return false;
+    };
+    if(!isDeclaredIntGivenCtx(funcName, ctx)) {
         throw std::runtime_error("Function not defined");
     }
 
     functionCallExpression->right->accept(this);
-    auto functionDeclaration = functionDeclarationMap[funcName];
+    auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)
+            -> FunctionDeclaration {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
+                return currentCtx->functionDeclarationMap[funcName];
+            }
+        }
+        throw std::runtime_error("Declaration not found");
+    };
+    auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
 
-    if(operands.size() != functionDeclaration.args.size()) {
+    if(ctx.back().operands.size() != functionDeclaration.args.size()) {
         throw std::runtime_error("Wrong number of arguments");
     }
 
     auto currentArg = functionDeclaration.args.cbegin();
-    while(!operands.empty()) {
-        auto calledArg = operands.front();
+    while(!ctx.back().operands.empty()) {
+        auto calledArg = moveLocalOperandFromNearestContext();
         auto isInt = std::dynamic_pointer_cast<IntValue>(calledArg);
         auto isReal = std::dynamic_pointer_cast<RealValue>(calledArg);
         auto isStr = std::dynamic_pointer_cast<StrValue>(calledArg);
@@ -622,7 +729,6 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         if(isStr && currentArg->specifier != "string") {
             throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
         }
-        operands.pop();
         currentArg++;
 
         if(currentArg == functionDeclaration.args.cend()) {
@@ -635,6 +741,7 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
 }
 
 void EvaluationVisitor::visit(FileExpression *fileExpression) {
+    ctx.push_back({});
     std::cout << "Visiting file\n";
     for(auto it : fileExpression->roots) {
         it->accept(this);
@@ -648,54 +755,58 @@ void EvaluationVisitor::visit(FieldReferenceExpression *fieldReferenceExpression
 
 void EvaluationVisitor::visit(PutExpression *putExpression) {
     putExpression->toPrint->accept(this);
-    auto valueToPrint = operands.front();
+    auto valueToPrint = moveLocalOperandFromNearestContext();
 
-    operands.pop();
     auto toInt = std::dynamic_pointer_cast<IntValue>(valueToPrint);
     auto toReal = std::dynamic_pointer_cast<RealValue>(valueToPrint);
     auto toStr = std::dynamic_pointer_cast<StrValue>(valueToPrint);
 
 
     if(toInt) {
-        std::cout << toInt->value << " of int type.";
+        std::cout << toInt->value << " of int type.\n";
     }
     if(toReal) {
-        std::cout << toReal->value << " of real type.";
+        std::cout << toReal->value << " of real type.\n";
     }
     if(toStr) {
-        if(declarationMap.find(toStr->value) == declarationMap.end()
-            && functionDeclarationMap.find(toStr->value) == functionDeclarationMap.end()) {
-            throw std::runtime_error(toStr->value + " undefined");
-        }
+        auto printIfFuncOrVariable = [](std::string name, std::deque<Context> ctx)
+                -> bool {
+            for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+                if(currentCtx->functionDeclarationMap.find(name) != currentCtx->functionDeclarationMap.end()) {
+                    std::cout << name << " is a function with:\n";
+                    auto func = currentCtx->functionDeclarationMap[name];
+                    std::cout << "\t" << func.specifier << " specifier\n";
+                    std::cout << "and args:\n";
+                    for(auto [specifier, name] : func.args) {
+                        std::cout << "\t" << specifier << " " << name << '\n';
+                    }
+                    return true;
+                }
 
-        if(functionDeclarationMap.find(toStr->value) != functionDeclarationMap.end()) {
-            std::cout << toStr->value << " is a function with:\n";
-            auto func = functionDeclarationMap[toStr->value];
-            std::cout << "\t" << func.specifier << " specifier\n";
-            std::cout << "and args:\n";
-            for(auto [specifier, name] : func.args) {
-                std::cout << "\t" << specifier << " " << name << '\n';
+                if(currentCtx->declarationMap.find(name) != currentCtx->declarationMap.end()) {
+                    auto value = currentCtx->variableAssignmentMap[name];
+                    auto toIntValue = std::dynamic_pointer_cast<IntValue>(value);
+                    auto toRealValue = std::dynamic_pointer_cast<RealValue>(value);
+                    auto toStrValue = std::dynamic_pointer_cast<StrValue>(value);
+
+                    if(toIntValue) {
+                        std::cout << toIntValue->value << " of int type.\n";
+                    }
+                    if(toRealValue) {
+                        std::cout << toRealValue->value << " of real type.\n";
+                    }
+                    if(toStrValue) {
+                        std::cout << toStrValue->value << " of string type.\n";
+                    }
+                    return true;
+                }
+
             }
-            return;
-        }
+            return false;
+        };
 
-        if(variableAssignmentMap.find(toStr->value) == variableAssignmentMap.end()) {
+        if(!printIfFuncOrVariable(toStr->value, ctx)) {
             std::cout << "no value assigned to " + toStr->value + " variable.\n";
-            return;
-        }
-        auto value = variableAssignmentMap[toStr->value];
-        auto toIntValue = std::dynamic_pointer_cast<IntValue>(value);
-        auto toRealValue = std::dynamic_pointer_cast<RealValue>(value);
-        auto toStrValue = std::dynamic_pointer_cast<StrValue>(value);
-
-        if(toIntValue) {
-            std::cout << toIntValue->value << " of int type.";
-        }
-        if(toRealValue) {
-            std::cout << toRealValue->value << " of real type.";
-        }
-        if(toStrValue) {
-            std::cout << toStrValue->value << " of string type";
         }
     }
 
