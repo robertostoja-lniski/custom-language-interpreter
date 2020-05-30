@@ -148,7 +148,6 @@ struct EvaluationVisitor : Visitor {
         std::string value;
         StrValue(std::string value) : value(value) {}
     };
-
     struct FunctionDeclaration {
         std::string specifier;
         struct FunctionArg {
@@ -156,18 +155,33 @@ struct EvaluationVisitor : Visitor {
             std::string name;
 
             FunctionArg(std::string specifier, std::string name) :
-                specifier(specifier), name(name) {}
+                    specifier(specifier), name(name) {}
         };
 
         std::vector<FunctionArg> args;
         std::shared_ptr<BodyExpression> body;
     };
 
-    enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
-    std::map<std::string, std::shared_ptr<PrimitiveValue>> variableAssignmentMap;
-    std::map<std::string, std::string> declarationMap;
-    std::map<std::string, FunctionDeclaration> functionDeclarationMap;
-    std::queue<std::shared_ptr<PrimitiveValue>> operands;
+    struct Context {
+        enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
+        std::map<std::string, std::shared_ptr<PrimitiveValue>> variableAssignmentMap;
+        std::map<std::string, std::string> declarationMap;
+        std::map<std::string, FunctionDeclaration> functionDeclarationMap;
+        std::queue<std::shared_ptr<PrimitiveValue>> operands;
+        Context() = default;
+        auto moveLocalOperand() {
+            auto ret = operands.front();
+            operands.pop();
+            return ret;
+        }
+    };
+
+    auto moveLocalOperandFromNearestContext() {
+        return ctx.back().moveLocalOperand();
+    }
+    // front is most global
+    // back is most local
+    std::deque<Context> ctx;
 
     void visit(IntExpression* intExpression) override;
     void visit(FloatExpression* floatExpression) override;
