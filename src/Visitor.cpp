@@ -185,6 +185,14 @@ void ExpressionVisitor::visit(PutExpression *putExpression) {
     std::cout << putExpression->toPrint;
 }
 
+void ExpressionVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
+    /* unused */
+}
+
+void ExpressionVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
+    /* unused */
+}
+
 /*
  * Evaluation visitor used for execution of instructions
  */
@@ -555,6 +563,10 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
                     }
                 }
 
+                if(currentCtx->systemHandlerDeclarations.find(name) != currentCtx->systemHandlerDeclarations.end()) {
+                    std::cout << name << " is a system handler.\n";
+                    return true;
+                }
             }
             return false;
         };
@@ -564,4 +576,14 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
         }
     }
 
+}
+
+void EvaluationVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
+
+}
+
+void EvaluationVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
+    auto handlerName = systemHandlerDeclExpression->name->value;
+    auto& currentContext = ctx.back();
+    ctx.back().systemHandlerDeclarations[handlerName] = std::make_shared<SystemHandlerExpression>();
 }

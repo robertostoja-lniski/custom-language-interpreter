@@ -70,6 +70,24 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         newRoot->expr = std::make_shared<PutExpression>();
         return newRoot;
     }
+
+    if(token.getType() == T_SYSTEM_HANDLER) {
+        auto systemHandlerToken = token;
+        token = getTokenValFromScanner();
+
+        if(token.getType() == T_USER_DEFINED_NAME) {
+            auto systemHandlerDeclExpression = std::make_shared<SystemHandlerDeclExpression>();
+            auto name = std::make_shared<VarNameExpression>(token.getValue());
+            systemHandlerDeclExpression->name = name;
+            auto newRoot = std::make_shared<RootExpression>();
+            newRoot->expr = systemHandlerDeclExpression;
+            token = getTokenValFromScanner();
+            if(token.getType() == T_NEXT_LINE) {
+                token = getTokenValFromScanner();
+            }
+            return newRoot;
+        }
+    }
     return nullptr;
 }
 

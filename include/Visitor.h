@@ -12,6 +12,9 @@
 #include <string>
 #include <cassert>
 #include <map>
+#include <thread>
+#include <zconf.h>
+
 struct FieldReferenceExpression;
 struct VarDeclarationExpression;
 struct TypeSpecifierExpression;
@@ -51,6 +54,8 @@ struct NewLineExpression;
 struct BodyExpression;
 struct DoExpression;
 struct FileExpression;
+struct SystemHandlerExpression;
+struct SystemHandlerDeclExpression;
 
 struct Visitor {
     // visit root
@@ -96,7 +101,8 @@ struct Visitor {
     virtual void visit(ElseExpression* elseExpression) = 0;
     virtual void visit(ForExpression* forExpression) = 0;
     virtual void visit(WhileExpression* whileExpression) = 0;
-
+    virtual void visit(SystemHandlerExpression* systemHandlerExpression) = 0;
+    virtual void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) = 0;
 };
 
 struct ExpressionVisitor : Visitor {
@@ -128,6 +134,8 @@ struct ExpressionVisitor : Visitor {
     void visit(FileExpression* fileExpression) override;
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
     void visit(PutExpression* putExpression) override;
+    void visit(SystemHandlerExpression* systemHandlerExpression) override;
+    void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
 };
 
 
@@ -150,6 +158,7 @@ struct EvaluationVisitor : Visitor {
         std::map<std::string, std::variant<int, double, std::string>> variableAssignmentMap;
         std::map<std::string, std::string> declarationMap;
         std::map<std::string, FunctionDeclaration> functionDeclarationMap;
+        std::map<std::string, std::shared_ptr<SystemHandlerExpression>> systemHandlerDeclarations;
         std::queue<std::variant<int, double, std::string>> operands;
         Context() = default;
         auto getOperandAndPopFromContext() {
@@ -350,6 +359,8 @@ struct EvaluationVisitor : Visitor {
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
     void visit(FunctionCallExpression* functionCallExpression) override;
     void visit(PutExpression* putExpression) override;
+    void visit(SystemHandlerExpression* systemHandlerExpression) override;
+    void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
 };
 
 struct Expression {
@@ -382,6 +393,7 @@ struct IntExpression : Expression {
         visitor->visit(this);
     }
 };
+
 struct FloatExpression : Expression {
     double value{};
     FloatExpression(double value) : value(value) {}
@@ -530,4 +542,62 @@ struct FieldReferenceExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
+
+struct BaseHandler {
+    virtual void run() = 0;
+    ~BaseHandler() = default;
+};
+
+struct SendRaportHandler : BaseHandler {
+    std::string addr;
+    std::string type;
+    std::string dir;
+};
+
+struct BackupHandler : BaseHandler{
+    std::string dest;
+    std::string dir;
+};
+
+struct CheckSystemHandler : BaseHandler{
+    std::string output;
+    std::string type;
+    std::string freq;
+};
+
+struct RunHandler : BaseHandler {
+    std::string path;
+};
+
+struct ThreadHandler {
+    std::shared_ptr<BaseHandler> handler;
+    pid_t handlerPid;
+    ThreadHandler(std::shared_ptr<BaseHandler> handler)
+        : handler(handler) {}
+    void run() {
+        auto currentHandlerPid = fork();
+        if(currentHandlerPid == 0) {
+            handler->run();
+        } else {
+            handlerPid = currentHandlerPid;
+        }
+    }
+};
+
+struct SystemHandlerExpression : Expression {
+    std::shared_ptr<VarNameExpression> name;
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
+struct SystemHandlerDeclExpression : Expression {
+    std::shared_ptr<VarNameExpression> name;
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
+
+
 #endif //TKOM_VISITOR_H
