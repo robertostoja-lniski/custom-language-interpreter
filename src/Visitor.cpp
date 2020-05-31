@@ -373,17 +373,17 @@ void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
             functionDeclaration.args.emplace_back(argSpecifier, argName);
         }
         functionDeclaration.body = functionExpression->body;
-        auto currentCtx = ctx.back();
+        auto& currentCtx = ctx.back();
         currentCtx.functionDeclarationMap[strVarName] = functionDeclaration;
     }
 }
 
 void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
-
+     /* unused - handled as any arg num function */
 }
 
 void EvaluationVisitor::visit(NewLineExpression *newLineExpression) {
-
+    /* unused */
 }
 
 void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
@@ -435,7 +435,7 @@ void EvaluationVisitor::visit(WhileExpression *whileExpression) {
 }
 
 void EvaluationVisitor::visit(DoExpression *doExpression) {
-
+    /* unused */
 }
 
 void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
@@ -455,7 +455,10 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         throw std::runtime_error("Function not defined");
     }
 
-    functionCallExpression->right->accept(this);
+    if(functionCallExpression->right) {
+        functionCallExpression->right->accept(this);
+    }
+
     auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)
             -> FunctionDeclaration {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
