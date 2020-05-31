@@ -4,7 +4,7 @@
 
 #ifndef TKOM_VISITOR_H
 #define TKOM_VISITOR_H
-
+#include <iostream>
 #include <memory>
 #include <stack>
 #include <queue>
@@ -132,22 +132,6 @@ struct ExpressionVisitor : Visitor {
 
 
 struct EvaluationVisitor : Visitor {
-    struct PrimitiveValue {
-        PrimitiveValue() = default;
-        virtual ~PrimitiveValue() = default;
-    };
-    struct IntValue : PrimitiveValue {
-        int value {0};
-        IntValue(int value) : value(value) {}
-    };
-    struct RealValue : PrimitiveValue {
-        double value {0};
-        RealValue(double value) : value(value) {}
-    };
-    struct StrValue : PrimitiveValue {
-        std::string value;
-        StrValue(std::string value) : value(value) {}
-    };
     struct FunctionDeclaration {
         std::string specifier;
         struct FunctionArg {
@@ -157,27 +141,175 @@ struct EvaluationVisitor : Visitor {
             FunctionArg(std::string specifier, std::string name) :
                     specifier(specifier), name(name) {}
         };
-
         std::vector<FunctionArg> args;
         std::shared_ptr<BodyExpression> body;
     };
 
     struct Context {
         enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
-        std::map<std::string, std::shared_ptr<PrimitiveValue>> variableAssignmentMap;
+        std::map<std::string, std::variant<int, double, std::string>> variableAssignmentMap;
         std::map<std::string, std::string> declarationMap;
         std::map<std::string, FunctionDeclaration> functionDeclarationMap;
-        std::queue<std::shared_ptr<PrimitiveValue>> operands;
+        std::queue<std::variant<int, double, std::string>> operands;
         Context() = default;
         auto moveLocalOperand() {
             auto ret = operands.front();
             operands.pop();
             return ret;
         }
+        bool isVariableAssigned(std::string variableToCheck) {
+            return variableAssignmentMap.find(variableToCheck) != variableAssignmentMap.end();
+        }
+        auto getAssignedValue(std::string variableToGet) {
+            return variableAssignmentMap[variableToGet];
+        }
     };
+
+    auto getAssignedValueFromNearestContext(std::string varName) {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->isVariableAssigned(varName)) {
+                return currentCtx->getAssignedValue(varName);
+            }
+        }
+        throw std::runtime_error("No value is assigned");
+    }
 
     auto moveLocalOperandFromNearestContext() {
         return ctx.back().moveLocalOperand();
+    }
+
+    class OperatorHandler {
+    private:
+        std::string op;
+        template<typename L, typename R>
+        auto add(L left, R right) {
+            return left + right;
+        }
+        template<typename L, typename R>
+        auto multiply(L left, R right) {
+            return left * right;
+        }
+        template<typename L, typename R>
+        auto divide(L left, R right) {
+            return left / right;
+        }
+        template<typename L, typename R>
+        auto eq(L left, R right) {
+            return (int)(left == right);
+        }
+        template<typename L, typename R>
+        auto geq(L left, R right) {
+            return (int)(left >= right);
+        }
+        template<typename L, typename R>
+        auto leq(L left, R right) {
+            return (int)(left <= right);
+        }
+        template<typename L, typename R>
+        auto l(L left, R right) {
+            return (int)(left < right);
+        }
+        template<typename L, typename R>
+        auto g(L left, R right) {
+            return (int)(left > right);
+        }
+        template<typename L, typename R>
+        auto boolAnd(L left, R right) {
+            return (int)(left && right);
+        }
+        template<typename L, typename R>
+        auto boolOr(L left, R right) {
+            return (int)(left || right);
+        }
+        template<typename L, typename R>
+        std::variant<int,double,std::string> count(L left, R right) {
+            // could not make map of functions
+            // because they are function templates
+            if(op == "+") {
+                return add(left, right);
+            }
+            if(op == "-") {
+                return add(left, right * (-1));
+            }
+            if(op == "*") {
+                return multiply(left, right);
+            }
+            if(op == "/") {
+                return divide(left, right);
+            }
+            if(op == "==") {
+                return eq(left, right);
+            }
+            if(op == ">=") {
+                return geq(left, right);
+            }
+            if(op == "<=") {
+                return leq(left, right);
+            }
+            if(op == "<") {
+                return l(left, right);
+            }
+            if(op == ">") {
+                return g(left, right);
+            }
+            if(op == "&") {
+                return boolAnd(left, right);
+            }
+            if(op == "|") {
+                return boolOr(left, right);
+            }
+        }
+    public:
+        OperatorHandler(std::string op) : op(op) {}
+        auto addResToCtx(std::variant<int, double, std::string> leftOperand,
+                    std::variant<int, double, std::string> rightOperand, std::deque<Context> &context) {
+
+            if (const auto l (std::get_if<int>(&leftOperand)); l) {
+                if (const auto r (std::get_if<double>(&rightOperand)); r) {
+                    std::variant<int, double, std::string> countResult = count(*l,*r);
+                    context.back().operands.push(countResult);
+                }
+            }
+
+            if (const auto l (std::get_if<int>(&leftOperand)); l) {
+                if (const auto r (std::get_if<int>(&rightOperand)); r) {
+                    std::variant<int, double, std::string> countResult = count(*l,*r);
+                    context.back().operands.push(countResult);
+                }
+            }
+
+            if (const auto l (std::get_if<double>(&leftOperand)); l) {
+                if (const auto r (std::get_if<int>(&rightOperand)); r) {
+                    std::variant<int, double, std::string> countResult = count(*l,*r);
+                    context.back().operands.push(countResult);
+                }
+            }
+
+            if (const auto l (std::get_if<double>(&leftOperand)); l) {
+                if (const auto r (std::get_if<double>(&rightOperand)); r) {
+                    std::variant<int, double, std::string> countResult = count(*l,*r);
+                    context.back().operands.push(countResult);
+                }
+            }
+
+
+        }
+    };
+
+    void handleOperation(std::string operation) {
+        auto leftOperand = moveLocalOperandFromNearestContext();
+        auto rightOperand = moveLocalOperandFromNearestContext();
+
+        // substitude value for varName
+        if (const auto varName (std::get_if<std::string>(&leftOperand)); varName) {
+            leftOperand = getAssignedValueFromNearestContext(*varName);
+        }
+        if (const auto varName (std::get_if<std::string>(&rightOperand)); varName) {
+            rightOperand = getAssignedValueFromNearestContext(*varName);
+        }
+
+        OperatorHandler operatorHandler(operation);
+        operatorHandler.addResToCtx(leftOperand, rightOperand, ctx);
     }
     // front is most global
     // back is most local
