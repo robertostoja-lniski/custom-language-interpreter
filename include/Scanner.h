@@ -47,7 +47,7 @@ private:
             {"unsigned_int", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SPECIFIER, position));}},
             {"float", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SPECIFIER, position));}},
             {"string", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SPECIFIER, position));}},
-            {"system_handler", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SPECIFIER, position));}},
+            {"system_handler", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SYSTEM_HANDLER, position));}},
             {"while", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_WHILE, position));}},
             {"for", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_FOR, position));}},
             {"if", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_IF, position));}},
