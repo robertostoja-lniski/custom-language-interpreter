@@ -208,8 +208,6 @@ std::shared_ptr<RootExpression> Parser::generateTree() {
     return assignTreeToRoot();
 }
 void Parser::analyzeTree() {
-//    ExpressionVisitor expressionVisitor;
-//    expressionVisitor.visit(mainRoot.get());
       EvaluationVisitor evaluationVisitor;
       evaluationVisitor.visit(mainRoot.get());
 }
@@ -224,19 +222,17 @@ void Parser::createSemiconExpression(Token token) {
 
         if(!recentExpressions.empty()) {
             auto previousExpr = recentExpressions.top();
-//            auto isFuncArgExpr = std::dynamic_pointer_cast<FunctionArgExpression>(previousExpr);
-//            if(isFuncArgExpr) {
                 newArgs->left = previousExpr;
                 recentExpressions.pop();
-//            }
         }
     }
     recentExpressions.push(newArgs);
 }
 
 void Parser::createNoArgFunctionExpression(Token token) {
-    std::string name = token.getValue();
-    recentExpressions.push(std::make_shared<NoArgFunctionExpression>(name));
+    auto funcExpr = std::make_unique<FunctionCallExpression>();
+    funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
+    recentExpressions.push(std::move(funcExpr));
 }
 
 void Parser::transformTokenIntoTreeNode(std::shared_ptr<Token> postfixToken) {
@@ -414,6 +410,7 @@ bool Parser::parseNoArgFunctionCall() {
     operators.pop();
     auto func_name = operators.top();
     func_name->setType(T_NO_ARG_FUNCTION_NAME);
+    token = getTokenValFromScanner();
     return true;
 }
 bool Parser::tryToParseManyArgsFunctionCall() {

@@ -173,7 +173,7 @@ bool Scanner::tryToBuildNotDefinedToken() {
 Scanner::Scanner(Configuration configuration) {
 //    this->isVerbose = configuration.isVerbose;
     if(configuration.inputPath != "tmp.txt") {
-        configuration.inputPath = "/home/robert/Desktop/data2.txt";
+        configuration.inputPath = "/home/robert/Desktop/data4.txt";
     }
     if(!configuration.inputPath.empty()) {
         sourceInterface = std::make_unique<FileInterface>(configuration.inputPath);
