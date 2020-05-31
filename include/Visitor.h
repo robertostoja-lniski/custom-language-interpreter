@@ -152,7 +152,7 @@ struct EvaluationVisitor : Visitor {
         std::map<std::string, FunctionDeclaration> functionDeclarationMap;
         std::queue<std::variant<int, double, std::string>> operands;
         Context() = default;
-        auto moveLocalOperand() {
+        auto getOperandAndPopFromContext() {
             auto ret = operands.front();
             operands.pop();
             return ret;
@@ -175,7 +175,8 @@ struct EvaluationVisitor : Visitor {
     }
 
     auto moveLocalOperandFromNearestContext() {
-        return ctx.back().moveLocalOperand();
+        auto& currentContext = ctx.back();
+        return currentContext.getOperandAndPopFromContext();
     }
 
     class OperatorHandler {
@@ -311,6 +312,12 @@ struct EvaluationVisitor : Visitor {
         OperatorHandler operatorHandler(operation);
         operatorHandler.addResToCtx(leftOperand, rightOperand, ctx);
     }
+
+    template<typename T>
+    void addToCurrentContext(T t) {
+        ctx.back().operands.push(t);
+    }
+
     // front is most global
     // back is most local
     std::deque<Context> ctx;

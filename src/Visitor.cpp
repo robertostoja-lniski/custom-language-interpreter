@@ -185,20 +185,19 @@ void ExpressionVisitor::visit(PutExpression *putExpression) {
     std::cout << putExpression->toPrint;
 }
 
-
 /*
  * Evaluation visitor used for execution of instructions
  */
 void EvaluationVisitor::visit(IntExpression *intExpression) {
-    ctx.back().operands.push(intExpression->value);
+    addToCurrentContext(intExpression->value);
 }
 
 void EvaluationVisitor::visit(FloatExpression *floatExpression) {
-    ctx.back().operands.push(floatExpression->value);
+    addToCurrentContext(floatExpression->value);
 }
 
 void EvaluationVisitor::visit(VarNameExpression *varNameExpression) {
-    ctx.back().operands.push(varNameExpression->value);
+    addToCurrentContext(varNameExpression->value);
 }
 
 void EvaluationVisitor::visit(DoubleArgsExpression *doubleArgsExpression) {
@@ -233,9 +232,8 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
     auto leftOperand = assignExpression->left;
     auto isVarName = std::dynamic_pointer_cast<VarNameExpression>(leftOperand);
     if(!isVarName) {
-        return;
+        throw std::runtime_error("Values can be only assigned to variables");
     }
-
     auto varName = isVarName->value;
 
     auto wasDeclared = [](std::string varName, const std::deque<Context> ctx) -> bool {
@@ -254,26 +252,26 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
     assignExpression->right->accept(this);
     auto valueToBeAssigned = moveLocalOperandFromNearestContext();
 
-    auto isDeclaredTypeOf = [](std::string varName, std::string type, std::deque<Context> ctx) -> bool {
+    auto getTypeOf = [](std::string varName, std::deque<Context> ctx) -> std::string {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()
-                && currentCtx->declarationMap[varName] == type) {
-                return true;
+            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
+                return currentCtx->declarationMap[varName];
             }
         }
-        return false;
+        throw std::runtime_error("Variable " + varName + " not declared");
     };
 
+    auto type = getTypeOf(varName, ctx);
     if (const auto val (std::get_if<double>(&valueToBeAssigned)); val
-        && !isDeclaredTypeOf(varName, "float", ctx)) {
+        && type != "float") {
         throw std::runtime_error("Type cast error");
     }
     if (const auto val (std::get_if<int>(&valueToBeAssigned)); val
-        && !isDeclaredTypeOf(varName, "int", ctx)) {
+        && type != "int") {
         throw std::runtime_error("Type cast error");
     }
     if (const auto val (std::get_if<std::string>(&valueToBeAssigned)); val
-        && !isDeclaredTypeOf(varName, "string", ctx)) {
+        && type != "string") {
         throw std::runtime_error("Type cast error");
     }
 
@@ -283,13 +281,14 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
             return;
         }
     }
-    ctx.back().variableAssignmentMap[varName] = valueToBeAssigned;
+    auto& currentCtx = ctx.back();
+    currentCtx.variableAssignmentMap[varName] = valueToBeAssigned;
 }
 
 void EvaluationVisitor::visit(RootExpression *rootExpression) {
     rootExpression->expr->accept(this);
-    auto operands = ctx.back().operands;
-    if(operands.empty()) {
+    auto& currentCtxOperands = ctx.back().operands;
+    if(currentCtxOperands.empty()) {
         return;
     }
     auto result = moveLocalOperandFromNearestContext();
@@ -311,7 +310,8 @@ void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 
 void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
     typeSpecifierExpression->left->accept(this);
-    auto op = ctx.back().moveLocalOperand();
+    auto& currentContext = ctx.back();
+    auto op = currentContext.getOperandAndPopFromContext();
     if (const auto varName (std::get_if<std::string>(&op)); varName) {
 //        op = getAssignedValueFromNearestContext(*varName);
         ctx.back().declarationMap[*varName] = typeSpecifierExpression->value;
@@ -466,13 +466,13 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         throw std::runtime_error("Declaration not found");
     };
     auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
-
-    if(ctx.back().operands.size() != functionDeclaration.args.size()) {
+    auto& currentCtxOperands = ctx.back().operands;
+    if(currentCtxOperands.size() != functionDeclaration.args.size()) {
         throw std::runtime_error("Wrong number of arguments");
     }
 
     auto currentArg = functionDeclaration.args.cbegin();
-    while(!ctx.back().operands.empty()) {
+    while(!currentCtxOperands.empty()) {
         auto calledArg = moveLocalOperandFromNearestContext();
 
         if (const auto value (std::get_if<std::string>(&calledArg)); value
