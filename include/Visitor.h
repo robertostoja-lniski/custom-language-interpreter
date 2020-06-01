@@ -14,6 +14,16 @@
 #include <map>
 #include <thread>
 #include <zconf.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ftw.h>
+#include <dirent.h>
+#include <cstring>
+#include <fstream>
+#include <sys/wait.h>
 
 struct FieldReferenceExpression;
 struct VarDeclarationExpression;
@@ -25,11 +35,11 @@ struct RootExpression;
 // numeric expressions
 struct IntExpression;
 struct FloatExpression;
-
+struct RetExpression;
+struct StringExpression;
 // Secial words
 struct IfExpression;
 struct ElseExpression;
-struct ForExpression;
 struct WhileExpression;
 
 // generic structure for double args expressions
@@ -65,6 +75,7 @@ struct Visitor {
     // numeric and lexical storage
     virtual void visit(IntExpression* intExpression) = 0;
     virtual void visit(FloatExpression* floatExpression) = 0;
+    virtual void visit(StringExpression* stringExpression) = 0;
     virtual void visit(VarNameExpression* varNameExpression) = 0;
     virtual void visit(DoubleArgsExpression* doubleArgsExpression) = 0;
 
@@ -90,6 +101,7 @@ struct Visitor {
     virtual void visit(FunctionExpression* functionExpression) = 0;
     virtual void visit(NoArgFunctionExpression* noArgFunctionExpression) = 0;
     virtual void visit(PutExpression* putExpression) = 0;
+    virtual void visit(RetExpression* retExpression) = 0;
 
     // file organisation
     virtual void visit(NewLineExpression* newLineExpression) = 0;
@@ -99,7 +111,6 @@ struct Visitor {
     //keywords
     virtual void visit(IfExpression* ifExpression) = 0;
     virtual void visit(ElseExpression* elseExpression) = 0;
-    virtual void visit(ForExpression* forExpression) = 0;
     virtual void visit(WhileExpression* whileExpression) = 0;
     virtual void visit(SystemHandlerExpression* systemHandlerExpression) = 0;
     virtual void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) = 0;
@@ -107,6 +118,7 @@ struct Visitor {
 
 struct ExpressionVisitor : Visitor {
     void visit(IntExpression* intExpression) override;
+    void visit(StringExpression* stringExpression) override;
     void visit(FloatExpression* floatExpression) override;
     void visit(VarNameExpression* varNameExpression)  override;
     void visit(DoubleArgsExpression* doubleArgsExpression) override;
@@ -128,237 +140,12 @@ struct ExpressionVisitor : Visitor {
     void visit(BodyExpression* bodyExpression) override;
     void visit(IfExpression* ifExpression) override;
     void visit(ElseExpression* elseExpression) override;
-    void visit(ForExpression* forExpression) override;
     void visit(WhileExpression* whileExpression) override;
     void visit(DoExpression* doExpression) override;
     void visit(FileExpression* fileExpression) override;
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
     void visit(PutExpression* putExpression) override;
-    void visit(SystemHandlerExpression* systemHandlerExpression) override;
-    void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
-};
-
-
-struct EvaluationVisitor : Visitor {
-    struct FunctionDeclaration {
-        std::string specifier;
-        struct FunctionArg {
-            std::string specifier;
-            std::string name;
-
-            FunctionArg(std::string specifier, std::string name) :
-                    specifier(specifier), name(name) {}
-        };
-        std::vector<FunctionArg> args;
-        std::shared_ptr<BodyExpression> body;
-    };
-
-    struct Context {
-        enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
-        std::map<std::string, std::variant<int, double, std::string>> variableAssignmentMap;
-        std::map<std::string, std::string> declarationMap;
-        std::map<std::string, FunctionDeclaration> functionDeclarationMap;
-        std::map<std::string, std::shared_ptr<SystemHandlerExpression>> systemHandlerDeclarations;
-        std::queue<std::variant<int, double, std::string>> operands;
-        Context() = default;
-        auto getOperandAndPopFromContext() {
-            auto ret = operands.front();
-            operands.pop();
-            return ret;
-        }
-        bool isVariableAssigned(std::string variableToCheck) {
-            return variableAssignmentMap.find(variableToCheck) != variableAssignmentMap.end();
-        }
-        auto getAssignedValue(std::string variableToGet) {
-            return variableAssignmentMap[variableToGet];
-        }
-    };
-
-    auto getAssignedValueFromNearestContext(std::string varName) {
-        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->isVariableAssigned(varName)) {
-                return currentCtx->getAssignedValue(varName);
-            }
-        }
-        throw std::runtime_error("No value is assigned");
-    }
-
-    auto moveLocalOperandFromNearestContext() {
-        auto& currentContext = ctx.back();
-        return currentContext.getOperandAndPopFromContext();
-    }
-
-    class OperatorHandler {
-    private:
-        std::string op;
-        template<typename L, typename R>
-        auto add(L left, R right) {
-            return left + right;
-        }
-        template<typename L, typename R>
-        auto multiply(L left, R right) {
-            return left * right;
-        }
-        template<typename L, typename R>
-        auto divide(L left, R right) {
-            return left / right;
-        }
-        template<typename L, typename R>
-        auto eq(L left, R right) {
-            return (int)(left == right);
-        }
-        template<typename L, typename R>
-        auto geq(L left, R right) {
-            return (int)(left >= right);
-        }
-        template<typename L, typename R>
-        auto leq(L left, R right) {
-            return (int)(left <= right);
-        }
-        template<typename L, typename R>
-        auto l(L left, R right) {
-            return (int)(left < right);
-        }
-        template<typename L, typename R>
-        auto g(L left, R right) {
-            return (int)(left > right);
-        }
-        template<typename L, typename R>
-        auto boolAnd(L left, R right) {
-            return (int)(left && right);
-        }
-        template<typename L, typename R>
-        auto boolOr(L left, R right) {
-            return (int)(left || right);
-        }
-        template<typename L, typename R>
-        std::variant<int,double,std::string> count(L left, R right) {
-            // could not make map of functions
-            // because they are function templates
-            if(op == "+") {
-                return add(left, right);
-            }
-            if(op == "-") {
-                return add(left, right * (-1));
-            }
-            if(op == "*") {
-                return multiply(left, right);
-            }
-            if(op == "/") {
-                return divide(left, right);
-            }
-            if(op == "==") {
-                return eq(left, right);
-            }
-            if(op == ">=") {
-                return geq(left, right);
-            }
-            if(op == "<=") {
-                return leq(left, right);
-            }
-            if(op == "<") {
-                return l(left, right);
-            }
-            if(op == ">") {
-                return g(left, right);
-            }
-            if(op == "&") {
-                return boolAnd(left, right);
-            }
-            if(op == "|") {
-                return boolOr(left, right);
-            }
-        }
-    public:
-        OperatorHandler(std::string op) : op(op) {}
-        auto addResToCtx(std::variant<int, double, std::string> leftOperand,
-                    std::variant<int, double, std::string> rightOperand, std::deque<Context> &context) {
-
-            if (const auto l (std::get_if<int>(&leftOperand)); l) {
-                if (const auto r (std::get_if<double>(&rightOperand)); r) {
-                    std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
-                }
-            }
-
-            if (const auto l (std::get_if<int>(&leftOperand)); l) {
-                if (const auto r (std::get_if<int>(&rightOperand)); r) {
-                    std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
-                }
-            }
-
-            if (const auto l (std::get_if<double>(&leftOperand)); l) {
-                if (const auto r (std::get_if<int>(&rightOperand)); r) {
-                    std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
-                }
-            }
-
-            if (const auto l (std::get_if<double>(&leftOperand)); l) {
-                if (const auto r (std::get_if<double>(&rightOperand)); r) {
-                    std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
-                }
-            }
-
-
-        }
-    };
-
-    void handleOperation(std::string operation) {
-        auto leftOperand = moveLocalOperandFromNearestContext();
-        auto rightOperand = moveLocalOperandFromNearestContext();
-
-        // substitude value for varName
-        if (const auto varName (std::get_if<std::string>(&leftOperand)); varName) {
-            leftOperand = getAssignedValueFromNearestContext(*varName);
-        }
-        if (const auto varName (std::get_if<std::string>(&rightOperand)); varName) {
-            rightOperand = getAssignedValueFromNearestContext(*varName);
-        }
-
-        OperatorHandler operatorHandler(operation);
-        operatorHandler.addResToCtx(leftOperand, rightOperand, ctx);
-    }
-
-    template<typename T>
-    void addToCurrentContext(T t) {
-        ctx.back().operands.push(t);
-    }
-
-    // front is most global
-    // back is most local
-    std::deque<Context> ctx;
-
-    void visit(IntExpression* intExpression) override;
-    void visit(FloatExpression* floatExpression) override;
-    void visit(VarNameExpression* varNameExpression)  override;
-    void visit(DoubleArgsExpression* doubleArgsExpression) override;
-    void visit(AdditionExpression* additionExpression) override;
-    void visit(MultiplyExpression* multiplyExpression)  override;
-    void visit(DivideExpression* divideExpression) override;
-    void visit(AssignExpression* assignExpression) override;
-    void visit(RootExpression* rootExpression) override;
-    void visit(VarDeclarationExpression* varDeclarationExpression) override;
-    void visit(TypeSpecifierExpression* typeSpecifierExpression) override;
-    void visit(BooleanAndExpression* booleanAndExpression) override;
-    void visit(BooleanOrExpression* booleanOrExpression) override;
-    void visit(BooleanOperatorExpression* booleanOrExpression) override;
-    void visit(FunctionArgExpression* functionArgExpression) override;
-    void visit(FunctionExpression* functionExpression) override;
-    void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
-    void visit(NewLineExpression* newLineExpression) override;
-    void visit(BodyExpression* bodyExpression) override;
-    void visit(IfExpression* ifExpression) override;
-    void visit(ElseExpression* elseExpression) override;
-    void visit(ForExpression* forExpression) override;
-    void visit(WhileExpression* whileExpression) override;
-    void visit(DoExpression* doExpression) override;
-    void visit(FileExpression* fileExpression) override;
-    void visit(FieldReferenceExpression* fieldReferenceExpression) override;
-    void visit(FunctionCallExpression* functionCallExpression) override;
-    void visit(PutExpression* putExpression) override;
+    void visit(RetExpression* retExpression) override;
     void visit(SystemHandlerExpression* systemHandlerExpression) override;
     void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
 };
@@ -394,6 +181,14 @@ struct IntExpression : Expression {
     }
 };
 
+struct StringExpression : Expression {
+    std::string value{};
+    StringExpression(std::string value) : value(value) {}
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
 struct FloatExpression : Expression {
     double value{};
     FloatExpression(double value) : value(value) {}
@@ -410,6 +205,12 @@ struct VarNameExpression : Expression {
 };
 struct PutExpression : Expression {
     std::shared_ptr<Expression> toPrint {};
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+struct RetExpression : Expression {
+    std::shared_ptr<Expression> toRet {};
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -434,12 +235,6 @@ struct IfExpression : DoubleArgsExpression {
     }
 };
 
-struct ForExpression : DoubleArgsExpression {
-    std::shared_ptr<Expression> collectionName;
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
 struct TypeSpecifierExpression : DoubleArgsExpression {
     std::string value;
     TypeSpecifierExpression(std::string value) : value(value) {}
@@ -542,62 +337,11 @@ struct FieldReferenceExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-
-struct BaseHandler {
-    virtual void run() = 0;
-    ~BaseHandler() = default;
-};
-
-struct SendRaportHandler : BaseHandler {
-    std::string addr;
-    std::string type;
-    std::string dir;
-};
-
-struct BackupHandler : BaseHandler{
-    std::string dest;
-    std::string dir;
-};
-
-struct CheckSystemHandler : BaseHandler{
-    std::string output;
-    std::string type;
-    std::string freq;
-};
-
-struct RunHandler : BaseHandler {
-    std::string path;
-};
-
-struct ThreadHandler {
-    std::shared_ptr<BaseHandler> handler;
-    pid_t handlerPid;
-    ThreadHandler(std::shared_ptr<BaseHandler> handler)
-        : handler(handler) {}
-    void run() {
-        auto currentHandlerPid = fork();
-        if(currentHandlerPid == 0) {
-            handler->run();
-        } else {
-            handlerPid = currentHandlerPid;
-        }
-    }
-};
-
-struct SystemHandlerExpression : Expression {
-    std::shared_ptr<VarNameExpression> name;
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
-
 struct SystemHandlerDeclExpression : Expression {
     std::shared_ptr<VarNameExpression> name;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
-
-
 
 #endif //TKOM_VISITOR_H

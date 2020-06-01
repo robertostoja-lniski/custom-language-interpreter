@@ -3,10 +3,9 @@
 #include "../include/Scanner.h"
 
 void Scanner::getNextToken() {
-    removeWhiteSigns();
     try {
-        if(tryToBuildAssignmentOrBooleanToken() || tryToBuildSpecialSignToken() || tryToBuildNumToken()
-            || tryToBuildAlphaTokens() || tryToBuildNotDefinedToken()) {
+        if(removeWhiteSigns() ||tryToBuildAssignmentOrBooleanToken() || tryToBuildSpecialSignToken()
+            || tryToBuildNumToken() || tryToBuildAlphaTokens() || tryToBuildNotDefinedToken()) {
             return;
         }
     } catch(std::exception &e) {
@@ -28,7 +27,7 @@ char Scanner::getNextSign() {
     return sourceInterface->sign;
 }
 void Scanner::readToken() {
-    std::cout << *tokens.front() << std::endl;
+//    std::cout << *tokens.front() << std::endl;
 }
 Token Scanner::seeNextTokenValue() {
     getNextToken();
@@ -160,10 +159,11 @@ bool Scanner::tryToBuildAlphaTokens() {
     return tryToBuildNonQuotedSign() || tryToBuildQuotedSign();
 }
 
-void Scanner::removeWhiteSigns() {
+bool Scanner::removeWhiteSigns() {
     while(iswspace(sign)) {
         this->sign = getNextSign();
     }
+    return false;
 }
 bool Scanner::tryToBuildNotDefinedToken() {
     tokens.push(std::make_unique<Token>(sign, T_NOT_DEFINED_YET, sourceInterface->position));
@@ -171,17 +171,10 @@ bool Scanner::tryToBuildNotDefinedToken() {
     return true;
 }
 Scanner::Scanner(Configuration configuration) {
-//    this->isVerbose = configuration.isVerbose;
-    if(configuration.inputPath != "tmp.txt") {
-        configuration.inputPath = "/home/robert/Desktop/data5.txt";
-    }
     if(!configuration.inputPath.empty()) {
         sourceInterface = std::make_unique<FileInterface>(configuration.inputPath);
     } else {
         sourceInterface = std::make_unique<TerminalInterface>();
-    }
-    if(!configuration.outputPath.empty()) {
-        //TODO raports and analyses will be added in final project step.
     }
     this->sign = getNextSign();
 }

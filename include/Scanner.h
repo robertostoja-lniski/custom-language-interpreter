@@ -25,7 +25,7 @@ private:
     char sign;
     bool isVerbose {false};
 
-    void removeWhiteSigns();
+    bool removeWhiteSigns();
 
     void createTokenFromValue(std::string val);
     std::string appendValWhileIsDigit(std::string);
@@ -55,6 +55,18 @@ private:
             {"else", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_ELSE, position));}},
             {"done", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_DONE, position));}},
             {"put", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_PUT, position));}},
+            {"register", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_REGISTER, position));}},
+            {"send_raport", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_SEND_RAPORT, position));}},
+            {"backup", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_BACKUP, position));}},
+            {"check_system", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_CHECK_SYSTEM, position));}},
+            {"start", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RUN, position));}},
+            {"run", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RUN_SCRIPT, position));}},
+            {"path", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_PATH, position));}},
+            {"raport_dir", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RAPORT_DIR, position));}},
+            {"raport_type", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RAPORT_TYPE, position));}},
+            {"mail", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_MAIL, position));}},
+            {"ret", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RET, position));}},
+
     };
 
     std::map<char, std::function<void(char currentSing)>> simpleTokensHandlers {
