@@ -122,12 +122,12 @@ void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
 void ExpressionVisitor::visit(IfExpression* ifExpression) {
     std::cout << "In if condition\n";
     std::cout << "Condition: ";
-    ifExpression->left->accept(this);
+    ifExpression->condition->accept(this);
     std::cout << "Block positive\n";
-    ifExpression->right->accept(this);
-    if(ifExpression->elseCondition) {
+    ifExpression->ifBlock->accept(this);
+    if(ifExpression->elseBlock) {
         std::cout << "Block else\n";
-        ifExpression->elseCondition->accept(this);
+        ifExpression->elseBlock->accept(this);
     }
 }
 

@@ -228,8 +228,10 @@ struct WhileExpression : DoubleArgsExpression {
     }
 };
 
-struct IfExpression : DoubleArgsExpression {
-    std::shared_ptr<BodyExpression> elseCondition {nullptr};
+struct IfExpression : Expression {
+    std::shared_ptr<Expression> condition {nullptr};
+    std::shared_ptr<BodyExpression> ifBlock {nullptr};
+    std::shared_ptr<BodyExpression> elseBlock {nullptr};
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

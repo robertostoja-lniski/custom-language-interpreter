@@ -141,8 +141,7 @@ void Parser::createIfExpression(Token token) {
     auto cond = recentExpressions.top();
     recentExpressions.pop();
 
-    ifExpr->left = cond;
-    recentExpressions.size();
+    ifExpr->condition = std::move(cond);
     recentExpressions.push(std::move(ifExpr));
 }
 
@@ -264,11 +263,16 @@ void Parser::joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> con
     }
     mainRoot->roots.pop_back();
 }
-void Parser::assignBodyToUpperElse(std::shared_ptr<BodyExpression> condBody) {
-    mainRoot->roots.pop_back();
-    auto condExpr = mainRoot->roots.back()->expr;
-    auto condExprAsDoubleArg = std::dynamic_pointer_cast<IfExpression>(condExpr);
-    condExprAsDoubleArg->elseCondition = condBody;
+void Parser::assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<IfExpression> condExpr) {
+
+    if(!condExpr->ifBlock) {
+        condExpr->ifBlock = condBody;
+        return;
+    }
+    if(!condExpr->elseBlock) {
+        condExpr->elseBlock = condBody;
+        return;
+    }
 }
 void Parser::assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
     auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
@@ -282,11 +286,17 @@ void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> cond
 void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody) {
     auto condExpr = mainRoot->roots.back()->expr;
     auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
+    if(isElse) {
+        mainRoot->roots.pop_back();
+    }
+    condExpr = mainRoot->roots.back()->expr;
+    auto isIf = std::dynamic_pointer_cast<IfExpression>(condExpr);
     auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
     auto isFunction = std::dynamic_pointer_cast<FunctionExpression>(condExpr);
 
-    if(isElse) {
-        assignBodyToUpperElse(condBody);
+
+    if(isIf) {
+        assignBodyToUpperIf(condBody, isIf);
     } else if (isDeclaration) {
         assignBodyToUpperDeclaration(condBody, condExpr);
     } else if (isFunction) {
@@ -519,18 +529,21 @@ void Parser::handleNewExpression(std::shared_ptr<RootExpression> nextRoot) {
 
     if(mainRoot->roots.empty()) {
         mainRoot->roots.push_back(nextRoot);
+        return;
     } else if(auto maybePut = std::dynamic_pointer_cast<PutExpression>(mainRoot->roots.back()->expr)) {
         if(maybePut->toPrint == nullptr) {
             maybePut->toPrint = nextRoot->expr;
         } else {
             mainRoot->roots.push_back(nextRoot);
         }
+        return;
     } else if(auto maybeRet = std::dynamic_pointer_cast<RetExpression>(mainRoot->roots.back()->expr)) {
         if(maybeRet->toRet == nullptr) {
             maybeRet->toRet = nextRoot->expr;
         } else {
             mainRoot->roots.push_back(nextRoot);
         }
+        return;
     }
     mainRoot->roots.push_back(nextRoot);
 }

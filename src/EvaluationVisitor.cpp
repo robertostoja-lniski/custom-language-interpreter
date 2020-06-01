@@ -203,16 +203,16 @@ void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
 }
 
 void EvaluationVisitor::visit(IfExpression *ifExpression) {
-    ifExpression->left->accept(this);
+    ifExpression->condition->accept(this);
     auto condition = moveLocalOperandFromNearestContext();
     int conditionToInt;
     if (const auto condToInt (std::get_if<int>(&condition)); condToInt) {
         conditionToInt = *condToInt;
     }
     if(conditionToInt != 0) {
-        ifExpression->right->accept(this);
-    } else if(ifExpression->elseCondition != nullptr) {
-        ifExpression->elseCondition->accept(this);
+        ifExpression->ifBlock->accept(this);
+    } else if(ifExpression->elseBlock != nullptr) {
+        ifExpression->elseBlock->accept(this);
     }
 }
 
