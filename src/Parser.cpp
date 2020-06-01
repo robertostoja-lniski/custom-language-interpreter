@@ -182,7 +182,24 @@ void Parser::createBooleanOperatorExpression(Token token) {
     setDoubleArgsExpr(std::make_shared<BooleanOperatorExpression>(value));
 }
 void Parser::createAssignExpression(Token token) {
-    setDoubleArgsExpr(std::make_unique<AssignExpression>());
+    auto assignExpr = std::make_unique<AssignExpression>();
+    if(recentExpressions.size() < 2) {
+        throw std::runtime_error("Not enough args for operation");
+    }
+    auto toAssign = recentExpressions.top();
+    recentExpressions.pop();
+    auto variable = recentExpressions.top();
+    recentExpressions.pop();
+
+    if(auto isFieldRef = std::dynamic_pointer_cast<FieldReferenceExpression>(variable)) {
+        assignExpr->variable = isFieldRef->varName;
+        assignExpr->fieldReference = isFieldRef->refName;
+    } else {
+        assignExpr->variable = std::dynamic_pointer_cast<VarNameExpression>(variable)->value;
+    }
+
+    assignExpr->toAssign = toAssign;
+    recentExpressions.push(std::move(assignExpr));
 }
 void Parser::createBooleanAndExpression(Token token) {
     setDoubleArgsExpr(std::make_unique<BooleanAndExpression>());
@@ -334,11 +351,13 @@ Token Parser::getTokenValFromScanner() {
 
 void Parser::createFieldReferenceExpression(Token token) {
     auto fieldReferenceExpression = std::make_unique<FieldReferenceExpression>();
-    auto fieldName = recentExpressions.top();
+    auto refName = recentExpressions.top();
+    recentExpressions.pop();
     auto handlerName = recentExpressions.top();
-    fieldReferenceExpression->left = fieldName;
-    fieldReferenceExpression->right = handlerName;
-    setDoubleArgsExpr(std::move(fieldReferenceExpression));
+    recentExpressions.pop();
+    fieldReferenceExpression->varName = std::dynamic_pointer_cast<VarNameExpression>(handlerName)->value;
+    fieldReferenceExpression->refName = std::dynamic_pointer_cast<VarNameExpression>(refName)->value;
+    recentExpressions.push(std::move(fieldReferenceExpression));
 }
 bool Parser::handleOperator() {
     auto currentType = token.getType();

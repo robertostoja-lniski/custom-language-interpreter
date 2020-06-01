@@ -41,8 +41,11 @@ void ExpressionVisitor::visit(MultiplyExpression *multiplyExpression) {
 
 void ExpressionVisitor::visit(AssignExpression *assignExpression) {
     std::cout << "Assignment\n";
-    assignExpression->left->accept(this);
-    assignExpression->right->accept(this);
+    std::cout << assignExpression->variable;
+    if(!assignExpression->fieldReference.empty()) {
+        std::cout << "." << assignExpression->fieldReference;
+    }
+    std::cout << "=" << assignExpression->toAssign;
 }
 
 void ExpressionVisitor::visit(DivideExpression *divideExpression) {
@@ -170,8 +173,7 @@ void ExpressionVisitor::visit(FileExpression *fileExpression) {
 
 void ExpressionVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
     std::cout << "Object has field accessed\n";
-    fieldReferenceExpression->left->accept(this);
-    fieldReferenceExpression->right->accept(this);
+    std::cout << fieldReferenceExpression->refName << "." << fieldReferenceExpression->refName << '\n';
 }
 
 void ExpressionVisitor::visit(PutExpression *putExpression) {

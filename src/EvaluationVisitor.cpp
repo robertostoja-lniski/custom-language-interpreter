@@ -43,37 +43,16 @@ void EvaluationVisitor::visit(DivideExpression *divideExpression) {
 }
 
 void EvaluationVisitor::visit(AssignExpression *assignExpression) {
-    auto leftOperand = assignExpression->left;
-
-    if(auto isFieldRef = std::dynamic_pointer_cast<FieldReferenceExpression>(leftOperand)) {
-        isFieldRef->accept(this);
-        assignExpression->right->accept(this);
-        updateSystemHandler();
+    if(!assignExpression->fieldReference.empty()) {
+        assignExpression->toAssign->accept(this);
+        updateSystemHandler(assignExpression->variable, assignExpression->fieldReference);
         return;
     }
 
-    auto isVarName = std::dynamic_pointer_cast<VarNameExpression>(leftOperand);
-    if(!isVarName) {
-        throw std::runtime_error("Values can be only assigned to variables");
-    }
-    auto varName = isVarName->value;
+    auto varName = assignExpression->variable;
+    assignExpression->toAssign->accept(this);
 
-    auto wasDeclared = [](std::string varName, const std::deque<Context> ctx) -> bool {
-        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    if(!wasDeclared(varName, ctx)) {
-        throw std::runtime_error(varName + " not declared");
-    }
-
-    assignExpression->right->accept(this);
     auto valueToBeAssigned = moveLocalOperandFromNearestContext();
-
     auto getTypeOf = [](std::string varName, std::deque<Context> ctx) -> std::string {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
             if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
@@ -85,15 +64,15 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
 
     auto type = getTypeOf(varName, ctx);
     if (const auto val (std::get_if<double>(&valueToBeAssigned)); val
-                                                                  && type != "float") {
+            && type != "float") {
         throw std::runtime_error("Type cast error");
     }
     if (const auto val (std::get_if<int>(&valueToBeAssigned)); val
-                                                               && type != "int") {
+            && type != "int") {
         throw std::runtime_error("Type cast error");
     }
     if (const auto val (std::get_if<std::string>(&valueToBeAssigned)); val
-                                                                       && type != "string") {
+            && type != "string") {
         throw std::runtime_error("Type cast error");
     }
 
@@ -272,25 +251,16 @@ void EvaluationVisitor::visit(StringExpression* stringExpression){
 }
 
 void EvaluationVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
-    // check if right is handler control
-    auto isVarNameExpr = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->right);
-    if(isVarNameExpr) {
-        if(isVarNameExpr->value == "start") {
-            auto handlerName = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->left)->value;
-            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
-            handlerRef->run();
-            return;
-        }
-        if(isVarNameExpr->value == "stop") {
-            auto handlerName = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->left)->value;
-            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
-            handlerRef->stop();
-            return;
-        }
-
+    auto handlerName = fieldReferenceExpression->varName;
+    auto handlerRef = getSystemHandlerReferenceByName(handlerName);
+    if(fieldReferenceExpression->refName == "start") {
+        handlerRef->run();
+    } else if(fieldReferenceExpression->refName == "stop") {
+        handlerRef->stop();
+    } else {
+        throw std::runtime_error("Command or field unrecognised by handler\n"
+                                 "Use <my_handler>.start or <my_handler>.stop");
     }
-    fieldReferenceExpression->left->accept(this);
-    fieldReferenceExpression->right->accept(this);
 }
 
 void EvaluationVisitor::visit(PutExpression *putExpression) {

@@ -316,7 +316,11 @@ struct MultiplyExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-struct AssignExpression : DoubleArgsExpression {
+struct AssignExpression : Expression {
+    std::string variable;
+    // optional
+    std::string fieldReference;
+    std::shared_ptr<Expression> toAssign;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -339,7 +343,9 @@ struct FunctionArgExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-struct FieldReferenceExpression : DoubleArgsExpression {
+struct FieldReferenceExpression : Expression {
+    std::string varName;
+    std::string refName;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

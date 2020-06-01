@@ -30,7 +30,6 @@
 struct BaseHandler {
     bool isRegistration {false};
     virtual void run() = 0;
-    virtual void stop() = 0;
     ~BaseHandler() = default;
 };
 
@@ -40,7 +39,10 @@ struct SendRaportHandler : BaseHandler {
     std::string dir;
     void run() override {
         if(addr.empty() || type.empty() || dir.empty()) {
-            throw std::runtime_error("Not enough args to run");
+            throw std::runtime_error("Not enough args to run set:\n"
+                                     "addr     email address\n"
+                                     ",type     raport type\n"
+                                     "and       dir to analyze");
         }
         if(type == "file_number") {
             size_t fileNum = 0;
@@ -64,11 +66,6 @@ struct SendRaportHandler : BaseHandler {
             system(command.c_str());
         }
     }
-
-    void stop() override {
-        std::cout << "stopped.\n";
-    }
-
 };
 
 struct BackupHandler : BaseHandler {
@@ -81,10 +78,6 @@ struct BackupHandler : BaseHandler {
         std::string command = "cp -R " + dest + " " + dir;
         system(command.c_str());
     }
-    void stop() override {
-        std::cout << "stopped.\n";
-    }
-
 };
 
 struct CheckSystemHandler : BaseHandler {
@@ -93,7 +86,10 @@ struct CheckSystemHandler : BaseHandler {
     std::string freq;
     void run() override {
         if(output.empty() || type.empty() || freq.empty()) {
-            throw std::runtime_error("Not enough args to run");
+            throw std::runtime_error("Not enough args to run. Set:\n"
+                                     "output    file to store raport"
+                                     "type      raport type"
+                                     "freq      frequency of raports");
         }
         if(type == "file_number") {
             while(true) {
@@ -117,22 +113,16 @@ struct CheckSystemHandler : BaseHandler {
             }
         }
     }
-    void stop() override {
-        std::cout << "stopped.\n";
-    }
-
 };
 
 struct RunHandler : BaseHandler {
     std::string path;
     void run() override {
         if(path.empty()) {
-            throw std::runtime_error("Not enough args to run");
+            throw std::runtime_error("Not enough args to run. Set\n"
+                                     "path      script to run");
         }
         system(path.c_str());
-    }
-    void stop() override {
-        std::cout << "stopped.\n";
     }
     void update(std::shared_ptr<RunHandler> toUpdate) {
         if(!toUpdate->path.empty()) {
@@ -278,7 +268,7 @@ struct EvaluationVisitor : Visitor {
             handlerRef->handler = std::make_unique<RunHandler>();
         }
     }
-    void updateSystemHandler() {
+    void updateSystemHandler(std::string handlerName, std::string fieldReference) {
         auto wasHandlerDeclared = [](std::string varName, const std::deque<Context> ctx) -> bool {
             for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
                 if(currentCtx->systemHandlerDeclarations.find(varName) != currentCtx->systemHandlerDeclarations.end()) {
@@ -288,31 +278,19 @@ struct EvaluationVisitor : Visitor {
             return false;
         };
 
-        auto handler = moveLocalOperandFromNearestContext();
-        auto operation = moveLocalOperandFromNearestContext();
-        auto handlerName(std::get_if<std::string>(&handler));
-        if(!handlerName) {
-            throw std::runtime_error("Handler name not a string");
-        }
-
-        if(!wasHandlerDeclared(*handlerName, ctx)) {
+        auto toSign = moveLocalOperandFromNearestContext();
+        if(!wasHandlerDeclared(handlerName, ctx)) {
             throw std::runtime_error("Handler not declared");
         }
 
-        if(const auto operationName (std::get_if<std::string>(&operation)); operationName) {
-            auto toSign = moveLocalOperandFromNearestContext();
-            auto toSignStr(std::get_if<std::string>(&toSign));
-            if(!toSignStr) {
-                throw std::runtime_error("Wrong field access type");
-            }
-            auto handlerRef = getSystemHandlerReferenceByName(*handlerName);
-            if(*operationName == "register") {
+        if(const auto toSignStr (std::get_if<std::string>(&toSign)); toSignStr) {
+            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
+            if(fieldReference == "register") {
                 registerHandler(*toSignStr, handlerRef);
                 return;
             }
-            updateHandler(*toSignStr, *operationName, handlerRef);
+            updateHandler(*toSignStr, fieldReference, handlerRef);
         }
-        return;
     }
 
     class OperatorHandler {
