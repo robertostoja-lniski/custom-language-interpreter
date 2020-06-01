@@ -282,6 +282,7 @@ struct FunctionExpression : DoubleArgsExpression {
     std::string specifier;
     std::string name;
     std::shared_ptr<BodyExpression> body;
+    std::shared_ptr<BodyExpression> args;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

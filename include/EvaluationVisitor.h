@@ -142,19 +142,6 @@ struct RunHandler : BaseHandler {
 };
 
 struct EvaluationVisitor : Visitor {
-    struct FunctionDeclaration {
-        std::string specifier;
-        struct FunctionArg {
-            std::string specifier;
-            std::string name;
-
-            FunctionArg(std::string specifier, std::string name) :
-                    specifier(specifier), name(name) {}
-        };
-        std::vector<FunctionArg> args;
-        std::shared_ptr<BodyExpression> body;
-    };
-
     struct SystemHandlerInfo {
         std::shared_ptr<BaseHandler> handler;
         pid_t handlerPid;
@@ -180,7 +167,7 @@ struct EvaluationVisitor : Visitor {
         enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
         std::map<std::string, std::variant<int, double, std::string>> variableAssignmentMap;
         std::map<std::string, std::string> declarationMap;
-        std::map<std::string, FunctionDeclaration> functionDeclarationMap;
+        std::map<std::string, FunctionExpression*> functionDeclarationMap;
         std::map<std::string, std::shared_ptr<SystemHandlerInfo>> systemHandlerDeclarations;
         std::queue<std::variant<int, double, std::string>> operands;
         Context() = default;

@@ -152,23 +152,9 @@ void EvaluationVisitor::visit(FunctionArgExpression *functionArgExpression) {
 void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
 
     std::string strVarName = functionExpression->name;
-
-    FunctionDeclaration functionDeclaration;
-    functionDeclaration.specifier = functionExpression->specifier;
-
     auto args = functionExpression->body->statements;
-    for(auto arg : args) {
-        auto argInfo = std::dynamic_pointer_cast<TypeSpecifierExpression>(arg);
-        if(!argInfo) {
-            throw std::runtime_error("Unknown argument in function declaration");
-        }
-        std::string argSpecifier = argInfo->specifierName;
-        std::string argName = argInfo->varName;
-        functionDeclaration.args.emplace_back(argSpecifier, argName);
-    }
-    functionDeclaration.body = functionExpression->body;
     auto& currentCtx = ctx.back();
-    currentCtx.functionDeclarationMap[strVarName] = functionDeclaration;
+    currentCtx.functionDeclarationMap[strVarName] = functionExpression;
 }
 
 void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
@@ -230,24 +216,11 @@ void EvaluationVisitor::visit(DoExpression *doExpression) {
 void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
 
     auto funcName = functionCallExpression->name;
-    auto isDeclaredIntGivenCtx = [](std::string funcName, std::deque<Context> ctx) -> bool {
-        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
-                return true;
-            }
-        }
-        return false;
-    };
-    if(!isDeclaredIntGivenCtx(funcName, ctx)) {
-        throw std::runtime_error("Function not defined");
-    }
-
     if(functionCallExpression->argListHead) {
         functionCallExpression->argListHead->accept(this);
     }
-
     auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)
-            -> FunctionDeclaration {
+            -> FunctionExpression* {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
             if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
                 return currentCtx->functionDeclarationMap[funcName];
@@ -255,35 +228,36 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         }
         throw std::runtime_error("Declaration not found");
     };
+    // legacy
     auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
     auto& currentCtxOperands = ctx.back().operands;
-    if(currentCtxOperands.size() != functionDeclaration.args.size()) {
+    auto opSize = currentCtxOperands.size();
+    auto funcSize = functionDeclaration->args->statements.size();
+    if(currentCtxOperands.size() != functionDeclaration->args->statements.size()) {
         throw std::runtime_error("Wrong number of arguments");
     }
 
-    auto currentArg = functionDeclaration.args.cbegin();
+    auto getTypeOf = [](std::string varName, std::deque<Context> ctx) -> std::string {
+        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
+            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
+                return currentCtx->declarationMap[varName];
+            }
+        }
+        throw std::runtime_error("Variable " + varName + " not declared");
+    };
+
+    auto currentArg = functionDeclaration->args->statements.begin();
     while(!currentCtxOperands.empty()) {
         auto calledArg = moveLocalOperandFromNearestContext();
-
-        if (const auto value (std::get_if<std::string>(&calledArg)); value
-                                                                     && currentArg->specifier != "int") {
-            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
-        }
-        if (const auto value (std::get_if<double>(&calledArg)); value
-                                                                && currentArg->specifier != "double") {
-            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
-        }
-        if (const auto value (std::get_if<int>(&calledArg)); value
-                                                             && currentArg->specifier != "string") {
+        const auto calledArgName (std::get_if<std::string>(&calledArg));
+        auto calledArgSpecifier = getTypeOf(*calledArgName, ctx);
+        auto currentArgDeclSpecifier = std::dynamic_pointer_cast<TypeSpecifierExpression>(*currentArg)->specifierName;
+        if(calledArgSpecifier != currentArgDeclSpecifier) {
             throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
         }
         currentArg++;
-
-        if(currentArg == functionDeclaration.args.cend()) {
-            break;
-        }
     }
-    functionDeclaration.body->accept(this);
+    functionDeclaration->body->accept(this);
 }
 
 void EvaluationVisitor::visit(FileExpression *fileExpression) {
@@ -338,11 +312,7 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
                 if(currentCtx->functionDeclarationMap.find(name) != currentCtx->functionDeclarationMap.end()) {
                     std::cout << name << " is a function with:\n";
                     auto func = currentCtx->functionDeclarationMap[name];
-                    std::cout << "\t" << func.specifier << " specifier\n";
-                    std::cout << "and args:\n";
-                    for(auto [specifier, name] : func.args) {
-                        std::cout << "\t" << specifier << " " << name << '\n';
-                    }
+                    std::cout << "\t" << func->specifier << " specifier\n";
                     return true;
                 }
 

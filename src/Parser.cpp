@@ -26,9 +26,9 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
 
         if(token.getType() == T_OPENING_PARENTHESIS) {
             auto function = std::make_shared<FunctionExpression>();
-            auto body = getParamsAsManyDeclarations();
+            auto args = getParamsAsManyDeclarations();
             function->specifier = specifierExpr->specifierName;
-            function->body = body;
+            function->args = args;
             function->name = specifierExpr->varName;
 
             auto newRoot = std::make_shared<RootExpression>();
