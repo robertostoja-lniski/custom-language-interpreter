@@ -192,11 +192,11 @@ void Parser::createBooleanOrExpression(Token token) {
 }
 void Parser::createFunctionCallExpression(Token token) {
     auto funcExpr = std::make_unique<FunctionCallExpression>();
-    funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
+    funcExpr->name = token.getValue();
 
     auto nextArg = recentExpressions.top();
     recentExpressions.pop();
-    funcExpr->right = nextArg;
+    funcExpr->argListHead = nextArg;
 
     recentExpressions.push(std::move(funcExpr));
 }
@@ -232,7 +232,7 @@ void Parser::createSemiconExpression(Token token) {
 
 void Parser::createNoArgFunctionExpression(Token token) {
     auto funcExpr = std::make_unique<FunctionCallExpression>();
-    funcExpr->left = std::make_shared<VarNameExpression>(token.getValue());
+    funcExpr->name = token.getValue();
     recentExpressions.push(std::move(funcExpr));
 }
 

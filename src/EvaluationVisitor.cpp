@@ -151,36 +151,24 @@ void EvaluationVisitor::visit(FunctionArgExpression *functionArgExpression) {
 
 void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
 
-    functionExpression->left->accept(this);
-    auto varName = moveLocalOperandFromNearestContext();
-    //checks if it is function
-    auto isFunc = std::dynamic_pointer_cast<BodyExpression>(functionExpression->right);
-    std::string strVarName;
-    if (const auto varNameToStr (std::get_if<std::string>(&varName)); varNameToStr) {
-        strVarName = *varNameToStr;
-    } else {
-        throw std::runtime_error("Unknown token to be declared");
-    }
+    std::string strVarName = functionExpression->name;
 
-    if(isFunc) {
+    FunctionDeclaration functionDeclaration;
+    functionDeclaration.specifier = functionExpression->specifier;
 
-        FunctionDeclaration functionDeclaration;
-        functionDeclaration.specifier = functionExpression->specifier;
-
-        auto args = isFunc->statements;
-        for(auto arg : args) {
-            auto argInfo = std::dynamic_pointer_cast<TypeSpecifierExpression>(arg);
-            if(!argInfo) {
-                throw std::runtime_error("Unknown argument in function declaration");
-            }
-            std::string argSpecifier = argInfo->specifierName;
-            std::string argName = argInfo->varName;
-            functionDeclaration.args.emplace_back(argSpecifier, argName);
+    auto args = functionExpression->body->statements;
+    for(auto arg : args) {
+        auto argInfo = std::dynamic_pointer_cast<TypeSpecifierExpression>(arg);
+        if(!argInfo) {
+            throw std::runtime_error("Unknown argument in function declaration");
         }
-        functionDeclaration.body = functionExpression->body;
-        auto& currentCtx = ctx.back();
-        currentCtx.functionDeclarationMap[strVarName] = functionDeclaration;
+        std::string argSpecifier = argInfo->specifierName;
+        std::string argName = argInfo->varName;
+        functionDeclaration.args.emplace_back(argSpecifier, argName);
     }
+    functionDeclaration.body = functionExpression->body;
+    auto& currentCtx = ctx.back();
+    currentCtx.functionDeclarationMap[strVarName] = functionDeclaration;
 }
 
 void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
@@ -241,9 +229,7 @@ void EvaluationVisitor::visit(DoExpression *doExpression) {
 
 void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
 
-    auto funcNameExpression = functionCallExpression->left;
-    auto funcName = std::dynamic_pointer_cast<VarNameExpression>(funcNameExpression)->value;
-
+    auto funcName = functionCallExpression->name;
     auto isDeclaredIntGivenCtx = [](std::string funcName, std::deque<Context> ctx) -> bool {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
             if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
@@ -256,8 +242,8 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         throw std::runtime_error("Function not defined");
     }
 
-    if(functionCallExpression->right) {
-        functionCallExpression->right->accept(this);
+    if(functionCallExpression->argListHead) {
+        functionCallExpression->argListHead->accept(this);
     }
 
     auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)

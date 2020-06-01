@@ -286,8 +286,9 @@ struct FunctionExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-struct FunctionCallExpression : DoubleArgsExpression {
-    std::string value;
+struct FunctionCallExpression : Expression {
+    std::string name;
+    std::shared_ptr<Expression> argListHead;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
