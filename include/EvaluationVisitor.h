@@ -465,17 +465,5 @@ struct EvaluationVisitor : Visitor {
     void visit(SystemHandlerExpression* systemHandlerExpression) override;
     void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
 };
-struct SystemHandlerExpression : Expression {
-    std::string name;
-    std::shared_ptr<BaseHandler> handler;
-    // if empty no operation
-    std::string operation;
-    SystemHandlerExpression(std::string name) : name(name) {}
-    SystemHandlerExpression() = default;
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
-
 
 #endif //TKOM_EVALUATIONVISITOR_H
