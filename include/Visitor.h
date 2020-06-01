@@ -112,7 +112,6 @@ struct Visitor {
     virtual void visit(IfExpression* ifExpression) = 0;
     virtual void visit(ElseExpression* elseExpression) = 0;
     virtual void visit(WhileExpression* whileExpression) = 0;
-    virtual void visit(SystemHandlerExpression* systemHandlerExpression) = 0;
     virtual void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) = 0;
 };
 
@@ -146,7 +145,6 @@ struct ExpressionVisitor : Visitor {
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
     void visit(PutExpression* putExpression) override;
     void visit(RetExpression* retExpression) override;
-    void visit(SystemHandlerExpression* systemHandlerExpression) override;
     void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
 };
 

@@ -237,10 +237,6 @@ std::shared_ptr<RootExpression> Parser::generateTree() {
     }
     return assignTreeToRoot();
 }
-void Parser::analyzeTree() {
-      EvaluationVisitor evaluationVisitor;
-      evaluationVisitor.visit(mainRoot.get());
-}
 
 void Parser::createSemiconExpression(Token token) {
     auto newArgs = std::make_shared<FunctionArgExpression>();

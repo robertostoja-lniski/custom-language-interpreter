@@ -66,6 +66,7 @@ private:
             {"raport_type", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RAPORT_TYPE, position));}},
             {"mail", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_MAIL, position));}},
             {"ret", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_RET, position));}},
+            {"exit", [&](std::string value) {tokens.push(std::make_shared<Token>(std::move(value), T_EXIT, position));}},
 
     };
 

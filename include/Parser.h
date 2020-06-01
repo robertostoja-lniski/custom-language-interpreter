@@ -171,8 +171,10 @@ public:
         this->scanner = scanner;
         mainRoot = std::make_unique<FileExpression>();
     };
-    void analyzeTree();
     void parse();
+    auto getProgramTree() {
+        return std::move(mainRoot);
+    }
 };
 
 
