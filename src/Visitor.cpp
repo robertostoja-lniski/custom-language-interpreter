@@ -134,10 +134,10 @@ void ExpressionVisitor::visit(IfExpression* ifExpression) {
 void ExpressionVisitor::visit(WhileExpression* whileExpression) {
     std::cout << "In while loop\n";
     std::cout << "Condition:\n";
-    whileExpression->left->accept(this);
+    whileExpression->condition->accept(this);
     std::cout << "Block";
-    if(whileExpression->right) {
-        whileExpression->right->accept(this);
+    if(whileExpression->block) {
+        whileExpression->block->accept(this);
     } else {
         std::cout << " is empty.\n";
     }

@@ -222,21 +222,20 @@ void EvaluationVisitor::visit(ElseExpression *elseExpression) {
 
 void EvaluationVisitor::visit(WhileExpression *whileExpression) {
 
-    whileExpression->left->accept(this);
+    whileExpression->condition->accept(this);
     auto condition = moveLocalOperandFromNearestContext();
     int conditionToInt;
     if (const auto condToInt (std::get_if<int>(&condition)); condToInt) {
         conditionToInt = *condToInt;
     }
     while(conditionToInt != 0) {
-        whileExpression->right->accept(this);
-        whileExpression->left->accept(this);
+        whileExpression->block->accept(this);
+        whileExpression->condition->accept(this);
         auto currentCondition = moveLocalOperandFromNearestContext();
         if (const auto condToInt (std::get_if<int>(&currentCondition)); condToInt) {
             conditionToInt = *condToInt;
         }
     }
-    ctx.pop_back();
 }
 
 void EvaluationVisitor::visit(DoExpression *doExpression) {

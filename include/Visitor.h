@@ -222,7 +222,9 @@ struct DoubleArgsExpression : Expression {
     }
 };
 
-struct WhileExpression : DoubleArgsExpression {
+struct WhileExpression : Expression {
+    std::shared_ptr<Expression> condition {nullptr};
+    std::shared_ptr<BodyExpression> block {nullptr};
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }

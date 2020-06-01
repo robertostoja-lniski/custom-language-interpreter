@@ -65,6 +65,7 @@ private:
     void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody);
     void assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody);
     void assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<IfExpression> condExpr);
+    void assignBodyToUpperWhile(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<WhileExpression> condExpr);
     void assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
