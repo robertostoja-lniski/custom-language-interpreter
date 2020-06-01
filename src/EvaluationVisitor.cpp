@@ -296,16 +296,8 @@ void EvaluationVisitor::visit(FieldReferenceExpression *fieldReferenceExpression
 void EvaluationVisitor::visit(PutExpression *putExpression) {
     putExpression->toPrint->accept(this);
     auto valueToPrint = moveLocalOperandFromNearestContext();
-
-    if (const auto value (std::get_if<double>(&valueToPrint)); value) {
-        std::cout << *value << " of real type.\n";
-        return;
-    }
-    if (const auto value (std::get_if<int>(&valueToPrint)); value) {
-        std::cout << *value << " of int type.\n";
-        return;
-    }
-    if (const auto value (std::get_if<std::string>(&valueToPrint)); value) {
+    auto isString = std::get_if<std::string>(&valueToPrint);
+    if(isString) {
         auto printIfFuncOrVariable = [](std::string name, std::deque<Context> ctx)
                 -> bool {
             for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
@@ -318,19 +310,8 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
 
                 if(currentCtx->declarationMap.find(name) != currentCtx->declarationMap.end()) {
                     auto value = currentCtx->variableAssignmentMap[name];
-
-                    if (const auto valueToPrint (std::get_if<double>(&value)); valueToPrint) {
-                        std::cout << *valueToPrint << " of real type.\n";
-                        return true;
-                    }
-                    if (const auto valueToPrint (std::get_if<int>(&value)); valueToPrint) {
-                        std::cout << *valueToPrint << " of int type.\n";
-                        return true;
-                    }
-                    if (const auto valueToPrint (std::get_if<std::string>(&value)); valueToPrint) {
-                        std::cout << *valueToPrint << " of int type.\n";
-                        return true;
-                    }
+                    std::visit([](const auto &elem) { std::cout << elem << '\n'; }, value);
+                    return true;
                 }
 
                 if(currentCtx->systemHandlerDeclarations.find(name) != currentCtx->systemHandlerDeclarations.end()) {
@@ -340,11 +321,11 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
             }
             return false;
         };
-
-        if(!printIfFuncOrVariable(*value, ctx)) {
-            std::cout << "no value assigned to " + *value + " variable.\n";
+        if(!printIfFuncOrVariable(*isString, ctx)) {
+            std::cout << "no value assigned to " + *isString + " variable.\n";
         }
     }
+    std::visit([](const auto &elem) { std::cout << elem << '\n'; }, valueToPrint);
 }
 
 void EvaluationVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
