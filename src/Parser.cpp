@@ -302,11 +302,7 @@ void Parser::assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::
         return;
     }
 }
-void Parser::assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
-//    auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
-//    auto declarationStatements = std::dynamic_pointer_cast<BodyExpression>(declaration->right);
-//    declarationStatements->statements.push_back(condBody);
-}
+
 void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
     auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);
     condExprAsDoubleArg->right = condBody;
@@ -322,14 +318,11 @@ void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBod
     }
     condExpr = mainRoot->roots.back()->expr;
     auto isIf = std::dynamic_pointer_cast<IfExpression>(condExpr);
-    auto isDeclaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
     auto isFunction = std::dynamic_pointer_cast<FunctionExpression>(condExpr);
     auto isWhile = std::dynamic_pointer_cast<WhileExpression>(condExpr);
 
     if(isIf) {
         assignBodyToUpperIf(condBody, isIf);
-    } else if (isDeclaration) {
-        assignBodyToUpperDeclaration(condBody, condExpr);
     } else if (isFunction) {
         isFunction->body = condBody;
     } else if(isWhile) {
