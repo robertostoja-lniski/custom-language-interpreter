@@ -13,23 +13,8 @@ void Parser::parse() {
         return;
     }
     while((nextRoot = tryToBuildVarNamePrefixStatement()) != nullptr || (nextRoot = generatePostfixRepresentation()) != nullptr) {
-
-        // tmp fix for handling do done
-        if(!nextRoot->expr) {
-            continue;
-        }
-
-        if(mainRoot->roots.empty()) {
-            mainRoot->roots.push_back(nextRoot);
-        } else if(auto maybePut = std::dynamic_pointer_cast<PutExpression>(mainRoot->roots.back()->expr)) {
-            if(maybePut->toPrint == nullptr) {
-                maybePut->toPrint = nextRoot->expr;
-            } else {
-                mainRoot->roots.push_back(nextRoot);
-            }
-
-        } else {
-            mainRoot->roots.push_back(nextRoot);
+        if(nextRoot->expr) {
+            handleNewExpression(nextRoot);
         }
     }
 }
@@ -38,6 +23,7 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
     if(token.getType() == T_SPECIFIER) {
         auto specifierExpr = getExpressionWithAssignedSpecifier();
         token = getTokenValFromScanner();
+
         if(token.getType() == T_END) {
             auto newRoot = std::make_shared<RootExpression>();
             newRoot->expr = specifierExpr;
@@ -88,7 +74,7 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
             return newRoot;
         }
     }
-    return nullptr;
+
 }
 
 std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecifier() {
@@ -137,18 +123,6 @@ void Parser::createFloatExpression(Token token) {
 void Parser::createVarNameExpression(Token token) {
     std::string name = token.getValue();
     recentExpressions.push(std::make_shared<VarNameExpression>(name));
-}
-void Parser::createForExpression(Token token) {
-    auto forExpr = std::make_unique<ForExpression>();
-
-    auto collection = recentExpressions.top();
-    recentExpressions.pop();
-    auto iter = recentExpressions.top();
-    recentExpressions.pop();
-
-    forExpr->left = iter;
-    forExpr->collectionName = collection;
-    recentExpressions.push(std::move(forExpr));
 }
 
 void Parser::createElseExpression(Token token) {
@@ -334,7 +308,12 @@ Token Parser::getTokenValFromScanner() {
 }
 
 void Parser::createFieldReferenceExpression(Token token) {
-    setDoubleArgsExpr(std::make_unique<FieldReferenceExpression>());
+    auto fieldReferenceExpression = std::make_unique<FieldReferenceExpression>();
+    auto fieldName = recentExpressions.top();
+    auto handlerName = recentExpressions.top();
+    fieldReferenceExpression->left = fieldName;
+    fieldReferenceExpression->right = handlerName;
+    setDoubleArgsExpr(std::move(fieldReferenceExpression));
 }
 bool Parser::handleOperator() {
     auto currentType = token.getType();
@@ -471,6 +450,19 @@ bool Parser::tryToHandleOperand() {
             token = getTokenValFromScanner();
             return tryToParseFunctionCall();
         }
+        if(nextToken.getType() == T_DOT) {
+
+            auto handler = operators.top();
+            operators.pop();
+            postfixRepresentation.push_back(handler);
+            // dot
+            token = getTokenValFromScanner();
+            operators.push(std::make_unique<Token>(token));
+            // field
+            token = getTokenValFromScanner();
+            postfixRepresentation.push_back(std::make_unique<Token>(token));
+            return true;
+        }
 
         postfixRepresentation.push_back(operators.top());
         operators.pop();
@@ -506,4 +498,32 @@ std::shared_ptr<RootExpression> Parser::generatePostfixRepresentation() {
         return generateTree();
     }
     return nullptr;
+}
+
+void Parser::createFieldNameExpression(Token token) {
+    recentExpressions.push(std::make_unique<VarNameExpression>(token.getValue()));
+}
+
+void Parser::createStringExpression(Token token) {
+    recentExpressions.push(std::make_unique<StringExpression>(token.getValue()));
+}
+
+void Parser::handleNewExpression(std::shared_ptr<RootExpression> nextRoot) {
+
+    if(mainRoot->roots.empty()) {
+        mainRoot->roots.push_back(nextRoot);
+    } else if(auto maybePut = std::dynamic_pointer_cast<PutExpression>(mainRoot->roots.back()->expr)) {
+        if(maybePut->toPrint == nullptr) {
+            maybePut->toPrint = nextRoot->expr;
+        } else {
+            mainRoot->roots.push_back(nextRoot);
+        }
+    } else if(auto maybeRet = std::dynamic_pointer_cast<RetExpression>(mainRoot->roots.back()->expr)) {
+        if(maybeRet->toRet == nullptr) {
+            maybeRet->toRet = nextRoot->expr;
+        } else {
+            mainRoot->roots.push_back(nextRoot);
+        }
+    }
+    mainRoot->roots.push_back(nextRoot);
 }

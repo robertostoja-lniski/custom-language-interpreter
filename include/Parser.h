@@ -13,6 +13,7 @@
 #include <queue>
 #include "boost/lexical_cast.hpp"
 #include "Visitor.h"
+#include "EvaluationVisitor.h"
 #include "Scanner.h"
 
 using boost::lexical_cast;
@@ -57,7 +58,10 @@ private:
     void createWhileExpression(Token token);
     void createDoExpression(Token token);
     void createDoneExpression(Token token);
+    void createStringExpression(Token token);
     void createFieldReferenceExpression(Token token);
+    void createFieldNameExpression(Token token);
+    void handleNewExpression(std::shared_ptr<RootExpression> newExpr);
     void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody);
     void assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody);
     void assignBodyToUpperElse(std::shared_ptr<BodyExpression> condBody);
@@ -72,6 +76,7 @@ private:
     std::map<Type, std::function<void(Token token)>> tokensToNode {
             {T_INT_NUM, [&](Token token){createIntExpression(token);}},
             {T_REAL_NUM, [&](Token token){createFloatExpression(token);}},
+            {T_STRING, [&](Token token){createStringExpression(token);}},
             {T_ADD_OPERATOR, [&](Token token){createAdditionExpression(token);}},
             {T_MULT_OPERATOR, [&](Token token){createMultExpression(token);}},
             {T_BOOLEAN_OPERATOR, [&](Token token){createBooleanOperatorExpression(token);}},
@@ -88,11 +93,20 @@ private:
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},
             {T_ELSE, [&](Token token){createElseExpression(token);}},
-            {T_FOR, [&](Token token){createForExpression(token);}},
             {T_DO, [&](Token token){createDoExpression(token);}},
             {T_DONE, [&](Token token){createDoneExpression(token);}},
             {T_DOT, [&](Token token){createFieldReferenceExpression(token);}},
             {T_DUMMY_ARG, [&](Token token){createVarNameExpression(token);}},
+            {T_REGISTER, [&](Token token){createFieldNameExpression(token);}},
+            {T_PATH, [&](Token token){createFieldNameExpression(token);}},
+            {T_MAIL, [&](Token token){createFieldNameExpression(token);}},
+            {T_RUN, [&](Token token){createFieldNameExpression(token);}},
+            {T_RUN_SCRIPT, [&](Token token){createFieldNameExpression(token);}},
+            {T_RAPORT_DIR, [&](Token token){createFieldNameExpression(token);}},
+            {T_RAPORT_TYPE, [&](Token token){createFieldNameExpression(token);}},
+            {T_SEND_RAPORT, [&](Token token){createFieldNameExpression(token);}},
+            {T_BACKUP, [&](Token token){createFieldNameExpression(token);}},
+            {T_CHECK_SYSTEM, [&](Token token){createFieldNameExpression(token);}},
     };
 
     // operators by priority
@@ -105,11 +119,11 @@ private:
             {T_CON, {1,0}},
             {T_OPENING_PARENTHESIS, {0,INT_MAX}},
             {T_SEMICON, {2,1}},
-            {T_DOT, {2,1}},
             {T_SPECIFIER, {3,2}},
             {T_BOOLEAN_OR, {4,3}},
             {T_BOOLEAN_AND, {5,4}},
             {T_ASSIGN_OPERATOR,{6,5}},
+            {T_DOT, {7,6}},
             {T_BOOLEAN_OPERATOR, {7,6}},
             {T_ADD_OPERATOR, {8,7}},
             {T_MULT_OPERATOR, {9,8}},

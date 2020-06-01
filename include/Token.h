@@ -46,6 +46,17 @@ enum Type {
     T_PUT = 33,
     T_FUNCTION_CALL = 34,
     T_SYSTEM_HANDLER = 35,
+    T_REGISTER = 36,
+    T_SEND_RAPORT = 37,
+    T_BACKUP = 38,
+    T_RUN = 39,
+    T_CHECK_SYSTEM = 40,
+    T_RUN_SCRIPT = 41,
+    T_PATH = 42,
+    T_MAIL = 43,
+    T_RAPORT_TYPE = 44,
+    T_RAPORT_DIR = 45,
+    T_RET = 46,
 };
 
 class Token {
@@ -70,7 +81,8 @@ public:
     Position getPosition() { return position; }
     bool isOperand() {
         return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
-                type == T_REAL_NUM || type == T_STRING;
+                type == T_REAL_NUM || type == T_STRING || type == T_SEND_RAPORT ||
+                type == T_BACKUP || type == T_RUN_SCRIPT || type == T_CHECK_SYSTEM;
     }
 
     friend bool operator==(const Token& lhs, const Token& rhs);
