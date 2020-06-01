@@ -27,6 +27,7 @@ private:
     Token token;
     std::shared_ptr<RootExpression> tryToBuildVarNamePrefixStatement();
     std::shared_ptr<RootExpression> tryToBuildBuiltInFunctionCall();
+    std::shared_ptr<RootExpression> tryToBuildBlockBoundary();
     std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier();
     std::shared_ptr<BodyExpression> getParamsAsManyDeclarations();
     std::shared_ptr<RootExpression> assignTreeToRoot();
@@ -83,6 +84,8 @@ private:
             {T_FUNCTION_CALL, [&](Token token){createFunctionCallExpression(token);}},
             {T_NEXT_LINE, [&](Token token){dummy();}},
             {T_END, [&](Token token){dummy();}},
+            {T_OPENING_PARENTHESIS, [&](Token token){dummy();}},
+            {T_CLOSING_PARENTHESIS, [&](Token token){dummy();}},
             {T_NO_ARG_FUNCTION_NAME, [&](Token token){createNoArgFunctionExpression(token);}},
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},
@@ -138,16 +141,30 @@ private:
     std::deque <std::shared_ptr<Token>> postfixRepresentation;
 
     void finalize();
-    bool tryToHandleSpecialToken();
     bool tryToHandleEmbeddedExpression();
     bool tryToHandleEmbeddedDo();
     bool tryToHandleEmbeddedDone();
-    bool tryToGenerateCondition();
     bool tryToHandleNextLine();
-    bool handleOperator();
+    bool tryToHandleOperator();
     Token seeNextToken();
     std::shared_ptr<RootExpression> generatePostfixRepresentation();
     std::shared_ptr<RootExpression> generateTree();
+
+    bool isSpecial() {
+        auto type = token.getType();
+        return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
+               type == T_REAL_NUM || type == T_STRING || type == T_SEND_RAPORT ||
+               type == T_BACKUP || type == T_RUN_SCRIPT || type == T_CHECK_SYSTEM ||
+               type == T_NEXT_LINE || type == T_END || type == T_WHILE ||
+               type == T_IF || type == T_ELSE || type == T_FUNCTION_NAME;
+    }
+
+    bool isOperand() {
+        auto type = token.getType();
+        return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
+               type == T_REAL_NUM || type == T_STRING || type == T_SEND_RAPORT ||
+               type == T_BACKUP || type == T_RUN_SCRIPT || type == T_CHECK_SYSTEM;
+    }
 
 public:
     Parser(std::shared_ptr<Scanner> scanner){

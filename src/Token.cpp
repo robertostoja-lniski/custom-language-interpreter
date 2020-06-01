@@ -17,11 +17,3 @@ std::ostream &operator<<(std::ostream &out, const Token& t) {
             << t.position.row << ": " << t.position.column << '\n';
 }
 
-bool Token::isClosingParenthesis() {
-    return type == T_CLOSING_PARENTHESIS;
-}
-
-bool Token::isOpeningParenthesis() {
-    return type == T_OPENING_PARENTHESIS;
-}
-

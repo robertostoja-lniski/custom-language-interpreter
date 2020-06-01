@@ -14,6 +14,7 @@ void Parser::parse() {
     }
     while((nextRoot = tryToBuildVarNamePrefixStatement()) != nullptr ||
             (nextRoot = tryToBuildBuiltInFunctionCall()) != nullptr ||
+            (nextRoot = tryToBuildBlockBoundary()) != nullptr ||
             (nextRoot = generatePostfixRepresentation()) != nullptr) {
         if(nextRoot->expr) {
             handleNewExpression(nextRoot);
@@ -360,7 +361,10 @@ void Parser::createFieldReferenceExpression(Token token) {
     fieldReferenceExpression->refName = std::dynamic_pointer_cast<VarNameExpression>(refName)->value;
     recentExpressions.push(std::move(fieldReferenceExpression));
 }
-bool Parser::handleOperator() {
+bool Parser::tryToHandleOperator() {
+    if(isSpecial()) {
+        return false;
+    }
     auto currentType = token.getType();
     if(operators.empty() || priorities[currentType].out > priorities[operators.top()->getType()].in) {
         operators.push(std::make_shared<Token>(token));
@@ -373,16 +377,7 @@ bool Parser::handleOperator() {
     }
     return true;
 }
-bool Parser::tryToHandleSpecialToken() {
-    if(!token.isCondition() && !token.isOperator() && !token.isFunction() || token.getType() == T_NEXT_LINE || token.getType() == T_END) {
-        return false;
-    }
-    if(token.getType() == T_NO_ARG_FUNCTION_NAME) {
-        postfixRepresentation.push_back(std::make_unique<Token>(token));
-        return true;
-    }
-    return handleOperator();
-}
+
 bool Parser::tryToHandleEmbeddedExpression() {
     if(operators.empty() || token.getType()!=T_CLOSING_PARENTHESIS) {
         return false;
@@ -398,33 +393,7 @@ bool Parser::tryToHandleEmbeddedExpression() {
     operators.pop();
     return true;
 }
-bool Parser::tryToHandleEmbeddedDo() {
-    if(token.getType() != T_DO) {
-        return false;
-    }
-    if(operators.empty()) {
-        postfixRepresentation.push_back(std::make_shared<Token>(token));
-        return true;
-    }
 
-    auto cond = operators.top();
-    postfixRepresentation.push_back(cond);
-    operators.pop();
-    postfixRepresentation.push_back(std::make_shared<Token>(token));
-    return true;
-}
-bool Parser::tryToHandleEmbeddedDone() {
-    if(token.getType() != T_DONE) {
-        return false;
-    }
-    while(!operators.empty()) {
-        auto cond = operators.top();
-        postfixRepresentation.push_back(cond);
-        operators.pop();
-    }
-    postfixRepresentation.push_back(std::make_shared<Token>(token));
-    return true;
-}
 void Parser::finalize() {
     while(!operators.empty()) {
         postfixRepresentation.push_back(operators.top());
@@ -432,13 +401,6 @@ void Parser::finalize() {
     }
 }
 
-bool Parser::tryToGenerateCondition() {
-    // treat conditions as operators
-    if(token.isCondition()) {
-        return tryToHandleSpecialToken();
-    }
-    return false;
-}
 bool Parser::tryToHandleNextLine() {
     if(token.getType() != T_NEXT_LINE && token.getType() != T_END) {
         return false;
@@ -474,9 +436,8 @@ bool Parser::tryToParseFunctionCall() {
         return tryToParseManyArgsFunctionCall();
     }
 }
-
 bool Parser::tryToHandleOperand() {
-    if (!token.isOperand()) {
+    if (!isOperand()) {
         return false;
     }
     if(token.getType() == T_USER_DEFINED_NAME) {
@@ -510,14 +471,9 @@ bool Parser::tryToHandleOperand() {
 
 std::shared_ptr<RootExpression> Parser::generatePostfixRepresentation() {
 
-    while (tryToHandleOperand() || tryToGenerateCondition() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone() || tryToHandleNextLine()
-           || tryToHandleSpecialToken() || tryToHandleEmbeddedExpression() ) {
+    while (tryToHandleOperand() || tryToHandleOperator() || tryToHandleNextLine()
+            || tryToHandleEmbeddedExpression() ) {
         token = getTokenValFromScanner();
-    }
-    if(postfixRepresentation.front()->getType() == T_DONE) {
-        token = getTokenValFromScanner();
-        generateTree();
-        return std::make_shared<RootExpression>();
     }
     if(token.getType() == T_NEXT_LINE) {
         token = getTokenValFromScanner();
@@ -558,5 +514,27 @@ void Parser::handleNewExpression(std::shared_ptr<RootExpression> nextRoot) {
         return;
     }
     mainRoot->roots.push_back(nextRoot);
+}
+
+std::shared_ptr<RootExpression> Parser::tryToBuildBlockBoundary() {
+    if(token.getType() == T_DONE) {
+        createDoneExpression(token);
+        token = getTokenValFromScanner();
+        if(token.getType() == T_NEXT_LINE) {
+            token = getTokenValFromScanner();
+        }
+        return std::make_shared<RootExpression>();
+    }
+    if(token.getType() == T_DO) {
+        token = getTokenValFromScanner();
+        auto condBody = std::make_shared<DoExpression>();
+        if(token.getType() == T_NEXT_LINE) {
+            token = getTokenValFromScanner();
+        }
+        auto ret = std::make_shared<RootExpression>();
+        ret->expr = condBody;
+        return ret;
+    }
+    return nullptr;
 }
 
