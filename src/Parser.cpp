@@ -57,6 +57,13 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         return newRoot;
     }
 
+    if(token.getType() == T_RET) {
+        token = getTokenValFromScanner();
+        auto newRoot = std::make_shared<RootExpression>();
+        newRoot->expr = std::make_shared<RetExpression>();
+        return newRoot;
+    }
+
     if(token.getType() == T_SYSTEM_HANDLER) {
         auto systemHandlerToken = token;
         token = getTokenValFromScanner();
