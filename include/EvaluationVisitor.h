@@ -152,7 +152,6 @@ struct EvaluationVisitor : Visitor {
             system(msg.c_str());
         }
     };
-
     struct Context {
         enum class Specifiers {INT, FLOAT, STRING, SYSTEM_HANDLER};
         std::map<std::string, std::variant<int, double, std::string>> variableAssignmentMap;

@@ -21,22 +21,18 @@ using boost::lexical_cast;
 class Parser {
 private:
 
-    //tmp just for one subtree
     std::shared_ptr<Scanner> scanner;
-    // right not used
     std::unique_ptr<FileExpression> mainRoot;
     std::stack <std::shared_ptr<Expression>> recentExpressions;
     Token token;
-    void addDeclarationsToTree(std::shared_ptr<RootExpression> declaration);
     std::shared_ptr<RootExpression> tryToBuildVarNamePrefixStatement();
+    std::shared_ptr<RootExpression> tryToBuildBuiltInFunctionCall();
     std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier();
     std::shared_ptr<BodyExpression> getParamsAsManyDeclarations();
     std::shared_ptr<RootExpression> assignTreeToRoot();
     bool parseNoArgFunctionCall();
     bool tryToParseManyArgsFunctionCall();
-    bool tryToParseUserDefinedName();
     bool tryToHandleOperand();
-    bool parseConstantValue();
     bool tryToParseFunctionCall();
     void transformTokenIntoTreeNode(std::shared_ptr<Token> token);
     void createIntExpression(Token token);
@@ -69,9 +65,7 @@ private:
     void assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
-    void dummy() {
-//        postfixRepresentation.push_front(std::make_shared<Token>());
-    };
+    void dummy() {};
     Token getTokenValFromScanner();
 
     std::map<Type, std::function<void(Token token)>> tokensToNode {
@@ -151,10 +145,8 @@ private:
     bool tryToHandleEmbeddedDone();
     bool tryToGenerateCondition();
     bool tryToHandleNextLine();
-    void printPostfix();
     bool handleOperator();
     Token seeNextToken();
-    std::deque<std::shared_ptr<Token>> getPostfixRepresentation();
     std::shared_ptr<RootExpression> generatePostfixRepresentation();
     std::shared_ptr<RootExpression> generateTree();
 

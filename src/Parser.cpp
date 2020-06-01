@@ -12,13 +12,30 @@ void Parser::parse() {
     if(token.getType() == T_END) {
         return;
     }
-    while((nextRoot = tryToBuildVarNamePrefixStatement()) != nullptr || (nextRoot = generatePostfixRepresentation()) != nullptr) {
+    while((nextRoot = tryToBuildVarNamePrefixStatement()) != nullptr ||
+            (nextRoot = tryToBuildBuiltInFunctionCall()) != nullptr ||
+            (nextRoot = generatePostfixRepresentation()) != nullptr) {
         if(nextRoot->expr) {
             handleNewExpression(nextRoot);
         }
     }
 }
+std::shared_ptr<RootExpression> Parser::tryToBuildBuiltInFunctionCall() {
+    if(token.getType() == T_PUT) {
+        token = getTokenValFromScanner();
+        auto newRoot = std::make_shared<RootExpression>();
+        newRoot->expr = std::make_shared<PutExpression>();
+        return newRoot;
+    }
 
+    if(token.getType() == T_RET) {
+        token = getTokenValFromScanner();
+        auto newRoot = std::make_shared<RootExpression>();
+        newRoot->expr = std::make_shared<RetExpression>();
+        return newRoot;
+    }
+    return nullptr;
+}
 std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
     if(token.getType() == T_SPECIFIER) {
         auto specifierExpr = getExpressionWithAssignedSpecifier();
@@ -40,20 +57,6 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         }
         auto newRoot = std::make_shared<RootExpression>();
         newRoot->expr = specifierExpr;
-        return newRoot;
-    }
-
-    if(token.getType() == T_PUT) {
-        token = getTokenValFromScanner();
-        auto newRoot = std::make_shared<RootExpression>();
-        newRoot->expr = std::make_shared<PutExpression>();
-        return newRoot;
-    }
-
-    if(token.getType() == T_RET) {
-        token = getTokenValFromScanner();
-        auto newRoot = std::make_shared<RootExpression>();
-        newRoot->expr = std::make_shared<RetExpression>();
         return newRoot;
     }
 
@@ -90,6 +93,7 @@ std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecif
 std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
     auto argBlock = std::make_shared<BodyExpression>();
     token = getTokenValFromScanner();
+
     while(token.getType() == T_SPECIFIER) {
         auto specifierName = token.getValue();
         token = getTokenValFromScanner();
@@ -108,18 +112,22 @@ std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
             }
             if(token.getType() == T_CLOSING_PARENTHESIS) {
                 token = getTokenValFromScanner();
-                break;
+                if(token.getType() == T_NEXT_LINE) {
+                    token = getTokenValFromScanner();
+                }
+                return argBlock;
             }
         }
         throw std::runtime_error("Wrong args in declaration");
     }
     if(token.getType() == T_CLOSING_PARENTHESIS) {
         token = getTokenValFromScanner();
+        if(token.getType() == T_NEXT_LINE) {
+            token = getTokenValFromScanner();
+        }
+        return argBlock;
     }
-    if(token.getType() == T_NEXT_LINE) {
-        token = getTokenValFromScanner();
-    }
-    return argBlock;
+    throw std::runtime_error("Wrong declaration");
 }
 
 void Parser::createIntExpression(Token token) {
@@ -473,16 +481,7 @@ bool Parser::tryToParseFunctionCall() {
         return tryToParseManyArgsFunctionCall();
     }
 }
-bool Parser::tryToParseUserDefinedName() {
-    postfixRepresentation.push_back(std::make_unique<Token>(token));
-    return true;
-}
-bool Parser::parseConstantValue() {
-        // tak jakby else
-        // it is a simple operand
-        postfixRepresentation.push_back(std::make_unique<Token>(token));
-        return true;
-}
+
 bool Parser::tryToHandleOperand() {
     if (!token.isOperand()) {
         return false;
@@ -512,17 +511,10 @@ bool Parser::tryToHandleOperand() {
         operators.pop();
         return true;
     }
-    return parseConstantValue();
+    postfixRepresentation.push_back(std::make_unique<Token>(token));
+    return true;
 }
 
-void Parser::printPostfix() {
-    // should be iterator - to be changed soon
-    auto copiedRepresentation = postfixRepresentation;
-    while(!copiedRepresentation.empty()) {
-        std::cout << copiedRepresentation.front()->getValue() << ' ';
-        copiedRepresentation.pop_front();
-    }
-}
 std::shared_ptr<RootExpression> Parser::generatePostfixRepresentation() {
 
     while (tryToHandleOperand() || tryToGenerateCondition() || tryToHandleEmbeddedDo() || tryToHandleEmbeddedDone() || tryToHandleNextLine()
@@ -574,3 +566,4 @@ void Parser::handleNewExpression(std::shared_ptr<RootExpression> nextRoot) {
     }
     mainRoot->roots.push_back(nextRoot);
 }
+

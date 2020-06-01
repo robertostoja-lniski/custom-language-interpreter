@@ -198,6 +198,7 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
     if(functionCallExpression->argListHead) {
         functionCallExpression->argListHead->accept(this);
     }
+
     auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)
             -> FunctionExpression* {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
@@ -207,36 +208,41 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         }
         throw std::runtime_error("Declaration not found");
     };
-    // legacy
-    auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
-    auto& currentCtxOperands = ctx.back().operands;
-    auto opSize = currentCtxOperands.size();
-    auto funcSize = functionDeclaration->args->statements.size();
-    if(currentCtxOperands.size() != functionDeclaration->args->statements.size()) {
-        throw std::runtime_error("Wrong number of arguments");
-    }
 
-    auto getTypeOf = [](std::string varName, std::deque<Context> ctx) -> std::string {
-        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
-                return currentCtx->declarationMap[varName];
+    auto& currentArgs = ctx.back().operands;
+    auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
+    auto declaredArgs = functionDeclaration->args->statements;
+    auto declaredArgsIt = declaredArgs.begin();
+    if(currentArgs.size() != declaredArgs.size()) {
+        throw std::runtime_error("Arg num mismatch");
+    }
+    // sets function call args with values from currentArgs
+    ctx.push_back({});
+    while(!currentArgs.empty()) {
+
+        if(const auto isString = std::get_if<std::string>(&currentArgs.front()); isString) {
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "string"){
+                ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
             }
         }
-        throw std::runtime_error("Variable " + varName + " not declared");
-    };
 
-    auto currentArg = functionDeclaration->args->statements.begin();
-    while(!currentCtxOperands.empty()) {
-        auto calledArg = moveLocalOperandFromNearestContext();
-        const auto calledArgName (std::get_if<std::string>(&calledArg));
-        auto calledArgSpecifier = getTypeOf(*calledArgName, ctx);
-        auto currentArgDeclSpecifier = std::dynamic_pointer_cast<TypeSpecifierExpression>(*currentArg)->specifierName;
-        if(calledArgSpecifier != currentArgDeclSpecifier) {
-            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
+        if(const auto isInt = std::get_if<int>(&currentArgs.front()); isInt) {
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "int"){
+                ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+            }
         }
-        currentArg++;
+
+        if(const auto isFloat = std::get_if<std::string>(&currentArgs.front()); isFloat) {
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "float"){
+                ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+            }
+        }
+
+        declaredArgsIt++;
+        currentArgs.pop();
     }
     functionDeclaration->body->accept(this);
+    ctx.pop_back();
 }
 
 void EvaluationVisitor::visit(FileExpression *fileExpression) {
@@ -314,6 +320,7 @@ void EvaluationVisitor::visit(RetExpression *retExpression) {
     // go to previous ctx
     // (ctx from which function was called)
     auto ctxIt = ctx.rbegin();
-    ctxIt++;
+    // goes two ctx upper
+    ctxIt += 2;
     ctxIt->operands.push(toRet);
 }
