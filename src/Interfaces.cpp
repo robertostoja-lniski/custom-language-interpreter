@@ -22,7 +22,7 @@ FileInterface::~FileInterface() {
 void FileInterface::getNextSign() {
 
         if(positionInFile.column == currentLine.size() && !currentLine.empty()) {
-            sign = '?';
+            sign = '\n';
             positionInFile.column++;
             return;
         }

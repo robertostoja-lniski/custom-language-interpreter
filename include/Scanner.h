@@ -78,7 +78,7 @@ private:
             {'+', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_ADD_OPERATOR, position));}},
             {'-', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_ADD_OPERATOR, position));}},
             {'|', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_BOOLEAN_OR, position));}},
-            {'?', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_NEXT_LINE, position));}},
+            {'\n', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_NEXT_LINE, position));}},
             {')', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_CLOSING_PARENTHESIS, position));}},
             {'(', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_OPENING_PARENTHESIS, position));}},
             {'{', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_OPENING_BRACKET, position));}},
@@ -88,6 +88,7 @@ private:
             {'$', [&](char currentSing) {tokens.push(std::make_shared<Token>(currentSing, T_END, position));}},
     };
 
+    bool tryToBuildNextLine();
     char getNextSign();
     char getSignAndReadNext();
     void getNextToken();
