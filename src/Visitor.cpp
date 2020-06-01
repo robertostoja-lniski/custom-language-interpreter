@@ -180,10 +180,6 @@ void ExpressionVisitor::visit(PutExpression *putExpression) {
     std::cout << putExpression->toPrint;
 }
 
-void ExpressionVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
-    /* unused */
-}
-
 void ExpressionVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
     /* unused */
 }

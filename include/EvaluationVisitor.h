@@ -288,7 +288,13 @@ struct EvaluationVisitor : Visitor {
                 registerHandler(*toSignStr, handlerRef);
                 return;
             }
-            updateHandler(*toSignStr, fieldReference, handlerRef);
+            try {
+                auto val = getAssignedValueFromNearestContext(*toSignStr);
+                auto strVal = std::get_if<std::string>(&val);
+                updateHandler(*strVal, fieldReference, handlerRef);
+            } catch(std::exception& e) {
+                updateHandler(*toSignStr, fieldReference, handlerRef);
+            }
         }
     }
 
@@ -462,7 +468,6 @@ struct EvaluationVisitor : Visitor {
     void visit(FunctionCallExpression* functionCallExpression) override;
     void visit(PutExpression* putExpression) override;
     void visit(RetExpression* retExpression) override;
-    void visit(SystemHandlerExpression* systemHandlerExpression) override;
     void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
 };
 

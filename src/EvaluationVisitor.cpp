@@ -308,13 +308,11 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
         if(!printIfFuncOrVariable(*isString, ctx)) {
             std::cout << "no value assigned to " + *isString + " variable.\n";
         }
+        return;
     }
     std::visit([](const auto &elem) { std::cout << elem << '\n'; }, valueToPrint);
 }
 
-void EvaluationVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
-    /* unused - handled by AssignExpression */
-}
 
 void EvaluationVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
     auto handlerName = systemHandlerDeclExpression->name->value;

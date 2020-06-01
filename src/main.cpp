@@ -2,7 +2,6 @@
 #include "../include/Launcher.h"
 
 int main(int argc, char* argv[]) {
-    std::cout << "Scanner launched!" << std::endl;
 
     Launcher launcher;
 

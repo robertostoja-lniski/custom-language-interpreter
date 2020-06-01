@@ -35,6 +35,9 @@ std::shared_ptr<RootExpression> Parser::tryToBuildBuiltInFunctionCall() {
         newRoot->expr = std::make_shared<RetExpression>();
         return newRoot;
     }
+    if(token.getType() == T_EXIT) {
+        exit(0);
+    }
     return nullptr;
 }
 std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
