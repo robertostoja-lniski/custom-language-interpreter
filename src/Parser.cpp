@@ -24,29 +24,22 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         auto specifierExpr = getExpressionWithAssignedSpecifier();
         token = getTokenValFromScanner();
 
-        if(token.getType() == T_END) {
-            auto newRoot = std::make_shared<RootExpression>();
-            newRoot->expr = specifierExpr;
-            mainRoot->roots.push_back(newRoot);
-            return nullptr;
-        }
-        auto function = std::make_shared<FunctionExpression>();
         if(token.getType() == T_OPENING_PARENTHESIS) {
+            auto function = std::make_shared<FunctionExpression>();
             auto body = getParamsAsManyDeclarations();
-            function->value = specifierExpr->value;
-            function->right = body;
-            function->left = specifierExpr->left;
-            specifierExpr = nullptr;
+            function->specifier = specifierExpr->specifierName;
+            function->body = body;
+            function->name = specifierExpr->varName;
+
+            auto newRoot = std::make_shared<RootExpression>();
+            newRoot->expr = function;
+            return newRoot;
         }
         if(token.getType() == T_NEXT_LINE) {
             token = getTokenValFromScanner();
         }
         auto newRoot = std::make_shared<RootExpression>();
-        if(!specifierExpr) {
-            newRoot->expr = function;
-        } else {
-            newRoot->expr = specifierExpr;
-        }
+        newRoot->expr = specifierExpr;
         return newRoot;
     }
 
@@ -85,38 +78,48 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
 }
 
 std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecifier() {
-    auto specifierExpr = std::make_shared<TypeSpecifierExpression>(token.getValue());
+    auto specifierExpr = std::make_shared<TypeSpecifierExpression>();
     auto shouldBeIdentToken = getTokenValFromScanner();
-    if(shouldBeIdentToken.getType() != T_USER_DEFINED_NAME || shouldBeIdentToken.getValue() == "$") {
+    if(shouldBeIdentToken.getType() != T_USER_DEFINED_NAME) {
         throw std::runtime_error("Type specifier without ident");
     }
-    specifierExpr->left = std::make_shared<VarNameExpression>(shouldBeIdentToken.getValue());
+    specifierExpr->specifierName = token.getValue();
+    specifierExpr->varName = shouldBeIdentToken.getValue();
     return specifierExpr;
 }
 std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
     auto argBlock = std::make_shared<BodyExpression>();
-    while(token.getType() != T_CLOSING_PARENTHESIS) {
-
+    token = getTokenValFromScanner();
+    while(token.getType() == T_SPECIFIER) {
+        auto specifierName = token.getValue();
         token = getTokenValFromScanner();
-        if(token.getType() == T_CLOSING_PARENTHESIS) {
+        if(token.getType() == T_USER_DEFINED_NAME) {
+            auto varName = token.getValue();
+            auto currentArg = std::make_shared<TypeSpecifierExpression>();
+
+            currentArg->varName = varName;
+            currentArg->specifierName = specifierName;
+            argBlock->statements.push_back(currentArg);
+
             token = getTokenValFromScanner();
-            if(token.getType() == T_NEXT_LINE) {
+            if(token.getType() == T_SEMICON) {
                 token = getTokenValFromScanner();
+                continue;
             }
-            return argBlock;
+            if(token.getType() == T_CLOSING_PARENTHESIS) {
+                token = getTokenValFromScanner();
+                break;
+            }
         }
-        if(token.getType() == T_SEMICON) {
-            continue;
-        }
-
-        auto currentArg = std::make_shared<TypeSpecifierExpression>(token.getValue());
-        token = getTokenValFromScanner();
-        auto currentArgName = std::make_shared<VarNameExpression>(token.getValue());
-
-        currentArg->left = currentArgName;
-        argBlock->statements.push_back(currentArg);
+        throw std::runtime_error("Wrong args in declaration");
     }
-    return nullptr;
+    if(token.getType() == T_CLOSING_PARENTHESIS) {
+        token = getTokenValFromScanner();
+    }
+    if(token.getType() == T_NEXT_LINE) {
+        token = getTokenValFromScanner();
+    }
+    return argBlock;
 }
 
 void Parser::createIntExpression(Token token) {
@@ -275,9 +278,9 @@ void Parser::assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::
     }
 }
 void Parser::assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
-    auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
-    auto declarationStatements = std::dynamic_pointer_cast<BodyExpression>(declaration->right);
-    declarationStatements->statements.push_back(condBody);
+//    auto declaration = std::dynamic_pointer_cast<TypeSpecifierExpression>(condExpr);
+//    auto declarationStatements = std::dynamic_pointer_cast<BodyExpression>(declaration->right);
+//    declarationStatements->statements.push_back(condBody);
 }
 void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
     auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);

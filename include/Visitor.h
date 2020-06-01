@@ -239,9 +239,9 @@ struct IfExpression : Expression {
     }
 };
 
-struct TypeSpecifierExpression : DoubleArgsExpression {
-    std::string value;
-    TypeSpecifierExpression(std::string value) : value(value) {}
+struct TypeSpecifierExpression : Expression {
+    std::string specifierName;
+    std::string varName;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -279,7 +279,8 @@ struct BooleanOperatorExpression : DoubleArgsExpression {
     }
 };
 struct FunctionExpression : DoubleArgsExpression {
-    std::string value;
+    std::string specifier;
+    std::string name;
     std::shared_ptr<BodyExpression> body;
     void accept(Visitor* visitor) override {
         visitor->visit(this);

@@ -64,12 +64,8 @@ void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 }
 
 void ExpressionVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
-    std::cout << typeSpecifierExpression->value << '\n';
-    typeSpecifierExpression->left->accept(this);
-    if(typeSpecifierExpression->right) {
-        std::cout << "Collection with values\n";
-        typeSpecifierExpression->right->accept(this);
-    }
+    std::cout << typeSpecifierExpression->specifierName << " "
+        << typeSpecifierExpression->varName << std::endl;
 }
 
 void ExpressionVisitor::visit(BooleanAndExpression *booleanAndExpression) {

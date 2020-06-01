@@ -121,12 +121,9 @@ void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 }
 
 void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
-    typeSpecifierExpression->left->accept(this);
-    auto& currentContext = ctx.back();
-    auto op = currentContext.getOperandAndPopFromContext();
-    if (const auto varName (std::get_if<std::string>(&op)); varName) {
-        ctx.back().declarationMap[*varName] = typeSpecifierExpression->value;
-    }
+    auto varName = typeSpecifierExpression->varName;
+    auto specifierName = typeSpecifierExpression->specifierName;
+    ctx.back().declarationMap[varName] = specifierName;
 }
 
 void EvaluationVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -168,7 +165,7 @@ void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
     if(isFunc) {
 
         FunctionDeclaration functionDeclaration;
-        functionDeclaration.specifier = functionExpression->value;
+        functionDeclaration.specifier = functionExpression->specifier;
 
         auto args = isFunc->statements;
         for(auto arg : args) {
@@ -176,8 +173,8 @@ void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
             if(!argInfo) {
                 throw std::runtime_error("Unknown argument in function declaration");
             }
-            std::string argSpecifier = argInfo->value;
-            std::string argName = std::dynamic_pointer_cast<VarNameExpression>(argInfo->left)->value;
+            std::string argSpecifier = argInfo->specifierName;
+            std::string argName = argInfo->varName;
             functionDeclaration.args.emplace_back(argSpecifier, argName);
         }
         functionDeclaration.body = functionExpression->body;
