@@ -38,7 +38,6 @@ enum Type {
     T_BOOLEAN_OR = 25,
     T_DOT = 26,
     T_FUNCTION_NAME = 27,
-    T_NO_ARG_FUNCTION_NAME = 28,
     T_NEXT_LINE = 29,
     T_FOR = 30,
     T_ELSE = 31,
@@ -101,7 +100,7 @@ public:
     }
 
     bool isFunction() {
-        return type == T_FUNCTION_NAME || type == T_NO_ARG_FUNCTION_NAME;
+        return type == T_FUNCTION_NAME;
     }
     bool isClosingParenthesis();
 

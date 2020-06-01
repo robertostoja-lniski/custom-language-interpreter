@@ -121,12 +121,14 @@ void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 }
 
 void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
-    typeSpecifierExpression->left->accept(this);
-    auto& currentContext = ctx.back();
-    auto op = currentContext.getOperandAndPopFromContext();
-    if (const auto varName (std::get_if<std::string>(&op)); varName) {
-        ctx.back().declarationMap[*varName] = typeSpecifierExpression->value;
+    auto specifier = typeSpecifierExpression->specifier;
+    auto name = typeSpecifierExpression->name;
+    if(!ctx.back().isVariableDeclared(name)) {
+        ctx.back().declarationMap[name] = specifier;
+        return;
     }
+
+    throw std::runtime_error("Already Declared");
 }
 
 void EvaluationVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -147,51 +149,27 @@ void EvaluationVisitor::visit(BooleanOperatorExpression *booleanOperatorExpressi
     handleOperation(booleanOperatorExpression->value);
 }
 
-void EvaluationVisitor::visit(FunctionArgExpression *functionArgExpression) {
-    functionArgExpression->left->accept(this);
-    functionArgExpression->right->accept(this);
-}
-
 void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
+    auto varName = functionExpression->name;
+    FunctionDeclaration functionDeclaration;
+    functionDeclaration.specifier = functionExpression->specifier;
 
-    functionExpression->left->accept(this);
-    auto varName = moveLocalOperandFromNearestContext();
-    //checks if it is function
-    auto isFunc = std::dynamic_pointer_cast<BodyExpression>(functionExpression->right);
-    std::string strVarName;
-    if (const auto varNameToStr (std::get_if<std::string>(&varName)); varNameToStr) {
-        strVarName = *varNameToStr;
-    } else {
-        throw std::runtime_error("Unknown token to be declared");
-    }
-
-    if(isFunc) {
-
-        FunctionDeclaration functionDeclaration;
-        functionDeclaration.specifier = functionExpression->value;
-
-        auto args = isFunc->statements;
+    if(functionExpression->arguments) {
+        auto args = std::move(functionExpression->arguments->statements);
         for(auto arg : args) {
             auto argInfo = std::dynamic_pointer_cast<TypeSpecifierExpression>(arg);
             if(!argInfo) {
                 throw std::runtime_error("Unknown argument in function declaration");
             }
-            std::string argSpecifier = argInfo->value;
-            std::string argName = std::dynamic_pointer_cast<VarNameExpression>(argInfo->left)->value;
+            std::string argSpecifier = argInfo->specifier;
+            std::string argName = argInfo->name;
             functionDeclaration.args.emplace_back(argSpecifier, argName);
         }
-        functionDeclaration.body = functionExpression->body;
-        auto& currentCtx = ctx.back();
-        currentCtx.functionDeclarationMap[strVarName] = functionDeclaration;
     }
-}
 
-void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
-    /* unused - handled as any arg num function */
-}
-
-void EvaluationVisitor::visit(NewLineExpression *newLineExpression) {
-    /* unused */
+    functionDeclaration.body = std::move(functionExpression->body);
+    auto& currentCtx = ctx.back();
+    currentCtx.functionDeclarationMap[varName] = functionDeclaration;
 }
 
 void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
@@ -203,16 +181,16 @@ void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
 }
 
 void EvaluationVisitor::visit(IfExpression *ifExpression) {
-    ifExpression->left->accept(this);
+    ifExpression->condition->accept(this);
     auto condition = moveLocalOperandFromNearestContext();
     int conditionToInt;
     if (const auto condToInt (std::get_if<int>(&condition)); condToInt) {
         conditionToInt = *condToInt;
     }
     if(conditionToInt != 0) {
-        ifExpression->right->accept(this);
-    } else if(ifExpression->elseCondition != nullptr) {
-        ifExpression->elseCondition->accept(this);
+        ifExpression->mainBody->accept(this);
+    } else if(ifExpression->elseBody != nullptr) {
+        ifExpression->elseBody->accept(this);
     }
 }
 
@@ -222,15 +200,15 @@ void EvaluationVisitor::visit(ElseExpression *elseExpression) {
 
 void EvaluationVisitor::visit(WhileExpression *whileExpression) {
 
-    whileExpression->left->accept(this);
+    whileExpression->condition->accept(this);
     auto condition = moveLocalOperandFromNearestContext();
     int conditionToInt;
     if (const auto condToInt (std::get_if<int>(&condition)); condToInt) {
         conditionToInt = *condToInt;
     }
     while(conditionToInt != 0) {
-        whileExpression->right->accept(this);
-        whileExpression->left->accept(this);
+        whileExpression->body->accept(this);
+        whileExpression->condition->accept(this);
         auto currentCondition = moveLocalOperandFromNearestContext();
         if (const auto condToInt (std::get_if<int>(&currentCondition)); condToInt) {
             conditionToInt = *condToInt;
@@ -245,9 +223,7 @@ void EvaluationVisitor::visit(DoExpression *doExpression) {
 
 void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
 
-    auto funcNameExpression = functionCallExpression->left;
-    auto funcName = std::dynamic_pointer_cast<VarNameExpression>(funcNameExpression)->value;
-
+    auto funcName = functionCallExpression->name;
     auto isDeclaredIntGivenCtx = [](std::string funcName, std::deque<Context> ctx) -> bool {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
             if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
@@ -260,10 +236,6 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         throw std::runtime_error("Function not defined");
     }
 
-    if(functionCallExpression->right) {
-        functionCallExpression->right->accept(this);
-    }
-
     auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)
             -> FunctionDeclaration {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
@@ -274,7 +246,7 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         throw std::runtime_error("Declaration not found");
     };
     auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
-    auto& currentCtxOperands = ctx.back().operands;
+    auto currentCtxOperands = functionCallExpression->arguments->statements;
     if(currentCtxOperands.size() != functionDeclaration.args.size()) {
         throw std::runtime_error("Wrong number of arguments");
     }
@@ -316,25 +288,21 @@ void EvaluationVisitor::visit(StringExpression* stringExpression){
 }
 
 void EvaluationVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
-    // check if right is handler control
-    auto isVarNameExpr = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->right);
-    if(isVarNameExpr) {
-        if(isVarNameExpr->value == "start") {
-            auto handlerName = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->left)->value;
-            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
-            handlerRef->run();
-            return;
-        }
-        if(isVarNameExpr->value == "stop") {
-            auto handlerName = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->left)->value;
-            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
-            handlerRef->stop();
-            return;
-        }
+    auto handlerName = fieldReferenceExpression->varName;
+    auto fieldName = fieldReferenceExpression->fieldName;
 
+    if(fieldName == "start") {
+        auto handlerRef = getSystemHandlerReferenceByName(handlerName);
+        handlerRef->run();
+        return;
     }
-    fieldReferenceExpression->left->accept(this);
-    fieldReferenceExpression->right->accept(this);
+    if(fieldName == "stop") {
+        auto handlerRef = getSystemHandlerReferenceByName(handlerName);
+        handlerRef->stop();
+        return;
+    }
+
+    // assigning does not work !
 }
 
 void EvaluationVisitor::visit(PutExpression *putExpression) {
@@ -400,9 +368,9 @@ void EvaluationVisitor::visit(SystemHandlerExpression *systemHandlerExpression) 
 }
 
 void EvaluationVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
-    auto handlerName = systemHandlerDeclExpression->name->value;
-    auto& currentContext = ctx.back();
-    ctx.back().systemHandlerDeclarations[handlerName] = std::make_shared<SystemHandlerInfo>();
+//    auto handlerName = systemHandlerDeclExpression->name->value;
+//    auto& currentContext = ctx.back();
+//    ctx.back().systemHandlerDeclarations[handlerName] = std::make_shared<SystemHandlerInfo>();
 }
 
 void EvaluationVisitor::visit(RetExpression *retExpression) {

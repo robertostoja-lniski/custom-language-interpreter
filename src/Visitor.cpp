@@ -64,12 +64,9 @@ void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression
 }
 
 void ExpressionVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
-    std::cout << typeSpecifierExpression->value << '\n';
-    typeSpecifierExpression->left->accept(this);
-    if(typeSpecifierExpression->right) {
-        std::cout << "Collection with values\n";
-        typeSpecifierExpression->right->accept(this);
-    }
+    std::cout << "declared:\n";
+    std::cout << "\t" << typeSpecifierExpression->specifier << " " <<
+        typeSpecifierExpression->name << "\n";
 }
 
 void ExpressionVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -92,52 +89,34 @@ void ExpressionVisitor::visit(BooleanOperatorExpression *booleanOperatorExpressi
 
 void ExpressionVisitor::visit(FunctionExpression *functionExpression) {
     std::cout << "Function with name\n";
-    functionExpression->left->accept(this);
-    if(functionExpression->right) {
+    std::cout << functionExpression->name << "\n";
+    if(functionExpression->arguments) {
         std::cout << "And args:\n";
-        functionExpression->right->accept(this);
+        functionExpression->arguments->accept(this);
     } else {
         std::cout << "Without any args\n";
     }
 }
 
-void ExpressionVisitor::visit(FunctionArgExpression *functionArgExpression) {
-    std::cout << "Function Arg:\n\t";
-    functionArgExpression->left->accept(this);
-    std::cout << "\t";
-    if(functionArgExpression->right)
-        functionArgExpression->right->accept(this);
-}
-
-void ExpressionVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
-    std::cout << "Function with no args:\n";
-    std::cout << noArgFunctionExpression->name <<"\n";
-}
-
-void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
-    std::cout << "Analysing next line\n";
-    newLineExpression->left->accept(this);
-//    newLineExpression->right->accept(this);
-}
 void ExpressionVisitor::visit(IfExpression* ifExpression) {
     std::cout << "In if condition\n";
     std::cout << "Condition: ";
-    ifExpression->left->accept(this);
+    ifExpression->condition->accept(this);
     std::cout << "Block positive\n";
-    ifExpression->right->accept(this);
-    if(ifExpression->elseCondition) {
+    ifExpression->mainBody->accept(this);
+    if(ifExpression->elseBody) {
         std::cout << "Block else\n";
-        ifExpression->elseCondition->accept(this);
+        ifExpression->elseBody->accept(this);
     }
 }
 
 void ExpressionVisitor::visit(WhileExpression* whileExpression) {
     std::cout << "In while loop\n";
     std::cout << "Condition:\n";
-    whileExpression->left->accept(this);
+    std::cout << whileExpression->condition << "\n";
     std::cout << "Block";
-    if(whileExpression->right) {
-        whileExpression->right->accept(this);
+    if(whileExpression->body) {
+        whileExpression->body->accept(this);
     } else {
         std::cout << " is empty.\n";
     }
@@ -174,8 +153,8 @@ void ExpressionVisitor::visit(FileExpression *fileExpression) {
 
 void ExpressionVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
     std::cout << "Object has field accessed\n";
-    fieldReferenceExpression->left->accept(this);
-    fieldReferenceExpression->right->accept(this);
+    std::cout << fieldReferenceExpression->varName << "." <<
+        fieldReferenceExpression->fieldName << "\n";
 }
 
 void ExpressionVisitor::visit(PutExpression *putExpression) {

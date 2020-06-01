@@ -11,6 +11,7 @@
 #include <map>
 #include <functional>
 #include <queue>
+
 #include "boost/lexical_cast.hpp"
 #include "Visitor.h"
 #include "EvaluationVisitor.h"
@@ -21,18 +22,24 @@ using boost::lexical_cast;
 class Parser {
 private:
 
+    bool ommitEndl() {
+        if(token.getType() == T_NEXT_LINE) {
+            return true;
+        }
+    }
     //tmp just for one subtree
     std::shared_ptr<Scanner> scanner;
+    EvaluationVisitor evaluationVisitor;
     // right not used
     std::unique_ptr<FileExpression> mainRoot;
     std::stack <std::shared_ptr<Expression>> recentExpressions;
     Token token;
     void addDeclarationsToTree(std::shared_ptr<RootExpression> declaration);
-    std::shared_ptr<RootExpression> tryToBuildVarNamePrefixStatement();
+    std::unique_ptr<RootExpression> tryToBuildDeclaration();
     std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier();
     std::shared_ptr<BodyExpression> getParamsAsManyDeclarations();
     std::shared_ptr<RootExpression> assignTreeToRoot();
-    bool parseNoArgFunctionCall();
+    std::unique_ptr<BodyExpression> tryToBuildFunctionArguments();
     bool tryToParseManyArgsFunctionCall();
     bool tryToParseUserDefinedName();
     bool tryToHandleOperand();
@@ -89,7 +96,6 @@ private:
             {T_FUNCTION_CALL, [&](Token token){createFunctionCallExpression(token);}},
             {T_NEXT_LINE, [&](Token token){dummy();}},
             {T_END, [&](Token token){dummy();}},
-            {T_NO_ARG_FUNCTION_NAME, [&](Token token){createNoArgFunctionExpression(token);}},
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},
             {T_ELSE, [&](Token token){createElseExpression(token);}},
@@ -129,7 +135,6 @@ private:
             {T_MULT_OPERATOR, {9,8}},
             {T_FUNCTION_NAME, {10,9}},
             {T_FUNCTION_CALL, {10,9}},
-            {T_NO_ARG_FUNCTION_NAME, {10,9}},
             {T_SEMICON, {11,10}},
             {T_FOR,{12,11}},
             {T_IF, {13,12}},
@@ -163,6 +168,9 @@ public:
         mainRoot = std::make_unique<FileExpression>();
     };
     void analyzeTree();
+    auto getProgramTree() {
+        return std::move(mainRoot);
+    }
     void parse();
 };
 

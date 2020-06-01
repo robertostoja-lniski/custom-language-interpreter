@@ -192,6 +192,9 @@ struct EvaluationVisitor : Visitor {
         bool isVariableAssigned(std::string variableToCheck) {
             return variableAssignmentMap.find(variableToCheck) != variableAssignmentMap.end();
         }
+        bool isVariableDeclared(std::string variableToCheck) {
+            return declarationMap.find(variableToCheck) != declarationMap.end();
+        }
         auto getAssignedValue(std::string variableToGet) {
             return variableAssignmentMap[variableToGet];
         }
@@ -484,10 +487,7 @@ struct EvaluationVisitor : Visitor {
     void visit(BooleanAndExpression* booleanAndExpression) override;
     void visit(BooleanOrExpression* booleanOrExpression) override;
     void visit(BooleanOperatorExpression* booleanOrExpression) override;
-    void visit(FunctionArgExpression* functionArgExpression) override;
     void visit(FunctionExpression* functionExpression) override;
-    void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
-    void visit(NewLineExpression* newLineExpression) override;
     void visit(BodyExpression* bodyExpression) override;
     void visit(IfExpression* ifExpression) override;
     void visit(ElseExpression* elseExpression) override;

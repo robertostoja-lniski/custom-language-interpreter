@@ -55,12 +55,9 @@ struct DivideExpression;
 struct AssignExpression;
 struct DeclarationExpression;
 // functions
-struct FunctionArgExpression;
 struct FunctionExpression;
 struct FunctionCallExpression;
-struct NoArgFunctionExpression;
 // file organisation
-struct NewLineExpression;
 struct BodyExpression;
 struct DoExpression;
 struct FileExpression;
@@ -97,14 +94,11 @@ struct Visitor {
 
     // functions
     virtual void visit(FunctionCallExpression* functionCallExpression) = 0;
-    virtual void visit(FunctionArgExpression* functionArgExpression) = 0;
     virtual void visit(FunctionExpression* functionExpression) = 0;
-    virtual void visit(NoArgFunctionExpression* noArgFunctionExpression) = 0;
     virtual void visit(PutExpression* putExpression) = 0;
     virtual void visit(RetExpression* retExpression) = 0;
 
     // file organisation
-    virtual void visit(NewLineExpression* newLineExpression) = 0;
     virtual void visit(BodyExpression* bodyExpression) = 0;
     virtual void visit(DoExpression* doExpression) = 0;
 
@@ -132,11 +126,8 @@ struct ExpressionVisitor : Visitor {
     void visit(BooleanAndExpression* booleanAndExpression) override;
     void visit(BooleanOrExpression* booleanOrExpression) override;
     void visit(BooleanOperatorExpression* booleanOrExpression) override;
-    void visit(FunctionArgExpression* functionArgExpression) override;
     void visit(FunctionExpression* functionExpression) override;
     void visit(FunctionCallExpression* functionCallExpression) override;
-    void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
-    void visit(NewLineExpression* newLineExpression) override;
     void visit(BodyExpression* bodyExpression) override;
     void visit(IfExpression* ifExpression) override;
     void visit(ElseExpression* elseExpression) override;
@@ -165,14 +156,6 @@ struct FileExpression : Expression {
         visitor->visit(this);
     }
 };
-struct NoArgFunctionExpression : Expression {
-    std::string name;
-    NoArgFunctionExpression(std::string name) : name(name) {}
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
-
 struct IntExpression : Expression {
     int value{};
     IntExpression(int value) : value(value) {}
@@ -222,22 +205,34 @@ struct DoubleArgsExpression : Expression {
     }
 };
 
-struct WhileExpression : DoubleArgsExpression {
+struct WhileExpression : Expression {
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<BodyExpression> body;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
 
-struct IfExpression : DoubleArgsExpression {
-    std::shared_ptr<BodyExpression> elseCondition {nullptr};
+/* boundary for if */
+struct ElseExpression : Expression {
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
 
-struct TypeSpecifierExpression : DoubleArgsExpression {
-    std::string value;
-    TypeSpecifierExpression(std::string value) : value(value) {}
+struct IfExpression : Expression {
+    std::shared_ptr<Expression> condition;
+    std::shared_ptr<BodyExpression> mainBody {nullptr};
+    std::shared_ptr<BodyExpression> elseBody {nullptr};
+    void accept(Visitor* visitor) override {
+        visitor->visit(this);
+    }
+};
+
+struct TypeSpecifierExpression : Expression {
+    std::string specifier;
+    std::string name;
+    TypeSpecifierExpression() = default;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -249,23 +244,13 @@ struct RootExpression : Expression {
         visitor->visit(this);
     }
 };
-struct BodyExpression:Expression {
+struct BodyExpression : Expression {
     std::deque<std::shared_ptr<Expression>> statements;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
-struct ElseExpression : Expression {
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
-struct NewLineExpression : DoubleArgsExpression {
-    std::shared_ptr<Expression> left{}, right{};
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
+
 struct BooleanOperatorExpression : DoubleArgsExpression {
     std::string value;
     BooleanOperatorExpression(std::string value) :
@@ -274,15 +259,19 @@ struct BooleanOperatorExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-struct FunctionExpression : DoubleArgsExpression {
-    std::string value;
-    std::shared_ptr<BodyExpression> body;
+struct FunctionExpression : Expression {
+    std::string specifier;
+    std::string name;
+    std::unique_ptr<BodyExpression> arguments;
+    std::unique_ptr<BodyExpression> body;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
-struct FunctionCallExpression : DoubleArgsExpression {
-    std::string value;
+struct FunctionCallExpression : Expression {
+    std::string specifier;
+    std::string name;
+    std::unique_ptr<BodyExpression> arguments;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
@@ -324,21 +313,15 @@ struct BooleanAndExpression : DoubleArgsExpression {
         visitor->visit(this);
     }
 };
-struct FunctionArgExpression : DoubleArgsExpression {
-    FunctionArgExpression() {
-        right = nullptr;
-    }
-    void accept(Visitor* visitor) override {
-        visitor->visit(this);
-    }
-};
-struct FieldReferenceExpression : DoubleArgsExpression {
+struct FieldReferenceExpression : Expression {
+    std::string varName;
+    std::string fieldName;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
 };
 struct SystemHandlerDeclExpression : Expression {
-    std::shared_ptr<VarNameExpression> name;
+    std::string name;
     void accept(Visitor* visitor) override {
         visitor->visit(this);
     }
