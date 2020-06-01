@@ -78,7 +78,7 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
             return newRoot;
         }
     }
-
+    return nullptr;
 }
 
 std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecifier() {
@@ -495,6 +495,9 @@ void Parser::createStringExpression(Token token) {
 
 void Parser::handleNewExpression(std::shared_ptr<RootExpression> nextRoot) {
 
+    if(!nextRoot->expr) {
+        return;
+    }
     if(mainRoot->roots.empty()) {
         mainRoot->roots.push_back(nextRoot);
         return;

@@ -223,23 +223,31 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         if(const auto isString = std::get_if<std::string>(&currentArgs.front()); isString) {
             if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "string"){
                 ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+                declaredArgsIt++;
+                currentArgs.pop_front();
+                continue;
             }
         }
 
         if(const auto isInt = std::get_if<int>(&currentArgs.front()); isInt) {
             if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "int"){
                 ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+                declaredArgsIt++;
+                currentArgs.pop_front();
+                continue;
             }
         }
 
-        if(const auto isFloat = std::get_if<std::string>(&currentArgs.front()); isFloat) {
+        if(const auto isFloat = std::get_if<double>(&currentArgs.front()); isFloat) {
             if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "float"){
                 ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+                declaredArgsIt++;
+                currentArgs.pop_front();
+                continue;
             }
         }
 
-        declaredArgsIt++;
-        currentArgs.pop();
+        throw std::runtime_error("Arg mismatch");
     }
     functionDeclaration->body->accept(this);
     ctx.pop_back();
@@ -322,5 +330,5 @@ void EvaluationVisitor::visit(RetExpression *retExpression) {
     auto ctxIt = ctx.rbegin();
     // goes two ctx upper
     ctxIt += 2;
-    ctxIt->operands.push(toRet);
+    ctxIt->operands.push_back(toRet);
 }

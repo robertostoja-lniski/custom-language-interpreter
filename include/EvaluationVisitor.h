@@ -158,11 +158,11 @@ struct EvaluationVisitor : Visitor {
         std::map<std::string, std::string> declarationMap;
         std::map<std::string, FunctionExpression*> functionDeclarationMap;
         std::map<std::string, std::shared_ptr<SystemHandlerInfo>> systemHandlerDeclarations;
-        std::queue<std::variant<int, double, std::string>> operands;
+        std::deque<std::variant<int, double, std::string>> operands;
         Context() = default;
         auto getOperandAndPopFromContext() {
-            auto ret = operands.front();
-            operands.pop();
+            auto ret = operands.back();
+            operands.pop_back();
             return ret;
         }
         bool isVariableAssigned(std::string variableToCheck) {
@@ -381,28 +381,28 @@ struct EvaluationVisitor : Visitor {
             if (const auto l (std::get_if<int>(&leftOperand)); l) {
                 if (const auto r (std::get_if<double>(&rightOperand)); r) {
                     std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
+                    context.back().operands.push_back(countResult);
                 }
             }
 
             if (const auto l (std::get_if<int>(&leftOperand)); l) {
                 if (const auto r (std::get_if<int>(&rightOperand)); r) {
                     std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
+                    context.back().operands.push_back(countResult);
                 }
             }
 
             if (const auto l (std::get_if<double>(&leftOperand)); l) {
                 if (const auto r (std::get_if<int>(&rightOperand)); r) {
                     std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
+                    context.back().operands.push_back(countResult);
                 }
             }
 
             if (const auto l (std::get_if<double>(&leftOperand)); l) {
                 if (const auto r (std::get_if<double>(&rightOperand)); r) {
                     std::variant<int, double, std::string> countResult = count(*l,*r);
-                    context.back().operands.push(countResult);
+                    context.back().operands.push_back(countResult);
                 }
             }
         }
@@ -426,7 +426,7 @@ struct EvaluationVisitor : Visitor {
 
     template<typename T>
     void addToCurrentContext(T t) {
-        ctx.back().operands.push(t);
+        ctx.back().operands.push_back(t);
     }
 
     // front is most global
