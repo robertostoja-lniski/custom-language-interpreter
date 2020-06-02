@@ -449,26 +449,26 @@ struct EvaluationVisitor : Visitor {
     void visit(DivideExpression* divideExpression) override;
     void visit(AssignExpression* assignExpression) override;
     void visit(RootExpression* rootExpression) override;
-    void visit(VarDeclarationExpression* varDeclarationExpression) override;
-    void visit(TypeSpecifierExpression* typeSpecifierExpression) override;
+    void visit(VarDeclarationStatement* varDeclarationExpression) override;
+    void visit(TypeSpecifierStatement* typeSpecifierExpression) override;
     void visit(BooleanAndExpression* booleanAndExpression) override;
     void visit(BooleanOrExpression* booleanOrExpression) override;
     void visit(BooleanOperatorExpression* booleanOrExpression) override;
     void visit(FunctionArgExpression* functionArgExpression) override;
     void visit(FunctionExpression* functionExpression) override;
     void visit(NoArgFunctionExpression* noArgFunctionExpression) override;
-    void visit(NewLineExpression* newLineExpression) override;
-    void visit(BodyExpression* bodyExpression) override;
+    void visit(NewLineOperator* newLineExpression) override;
+    void visit(BodyStatement* bodyExpression) override;
     void visit(IfExpression* ifExpression) override;
     void visit(ElseExpression* elseExpression) override;
     void visit(WhileExpression* whileExpression) override;
-    void visit(DoExpression* doExpression) override;
+    void visit(DoNode* doExpression) override;
     void visit(FileExpression* fileExpression) override;
     void visit(FieldReferenceExpression* fieldReferenceExpression) override;
     void visit(FunctionCallExpression* functionCallExpression) override;
     void visit(PutExpression* putExpression) override;
     void visit(RetExpression* retExpression) override;
-    void visit(SystemHandlerDeclExpression* systemHandlerDeclExpression) override;
+    void visit(SystemHandlerDeclStatement* systemHandlerDeclExpression) override;
 };
 
 #endif //TKOM_EVALUATIONVISITOR_H

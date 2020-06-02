@@ -95,11 +95,11 @@ void EvaluationVisitor::visit(RootExpression *rootExpression) {
     auto result = moveLocalOperandFromNearestContext();
 }
 
-void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
+void EvaluationVisitor::visit(VarDeclarationStatement *varDeclarationExpression) {
     /* handled as type specifier */
 }
 
-void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
+void EvaluationVisitor::visit(TypeSpecifierStatement *typeSpecifierExpression) {
     auto varName = typeSpecifierExpression->varName;
     auto specifierName = typeSpecifierExpression->specifierName;
     ctx.back().declarationMap[varName] = specifierName;
@@ -140,11 +140,11 @@ void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) 
     /* unused - handled as any arg num function */
 }
 
-void EvaluationVisitor::visit(NewLineExpression *newLineExpression) {
+void EvaluationVisitor::visit(NewLineOperator *newLineExpression) {
     /* unused */
 }
 
-void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
+void EvaluationVisitor::visit(BodyStatement *bodyExpression) {
     ctx.push_back({});
     for(auto statement : bodyExpression->statements) {
         statement->accept(this);
@@ -188,7 +188,7 @@ void EvaluationVisitor::visit(WhileExpression *whileExpression) {
     }
 }
 
-void EvaluationVisitor::visit(DoExpression *doExpression) {
+void EvaluationVisitor::visit(DoNode *doExpression) {
     /* unused */
 }
 
@@ -221,7 +221,7 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
     while(!currentArgs.empty()) {
 
         if(const auto isString = std::get_if<std::string>(&currentArgs.front()); isString) {
-            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "string"){
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierStatement>(*declaredArgsIt); decl->specifierName == "string"){
                 ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
                 declaredArgsIt++;
                 currentArgs.pop_front();
@@ -230,7 +230,7 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         }
 
         if(const auto isInt = std::get_if<int>(&currentArgs.front()); isInt) {
-            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "int"){
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierStatement>(*declaredArgsIt); decl->specifierName == "int"){
                 ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
                 declaredArgsIt++;
                 currentArgs.pop_front();
@@ -239,7 +239,7 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         }
 
         if(const auto isFloat = std::get_if<double>(&currentArgs.front()); isFloat) {
-            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierExpression>(*declaredArgsIt); decl->specifierName == "float"){
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierStatement>(*declaredArgsIt); decl->specifierName == "float"){
                 ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
                 declaredArgsIt++;
                 currentArgs.pop_front();
@@ -314,7 +314,7 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
 }
 
 
-void EvaluationVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
+void EvaluationVisitor::visit(SystemHandlerDeclStatement *systemHandlerDeclExpression) {
     auto handlerName = systemHandlerDeclExpression->name->value;
     auto& currentContext = ctx.back();
     ctx.back().systemHandlerDeclarations[handlerName] = std::make_shared<SystemHandlerInfo>();

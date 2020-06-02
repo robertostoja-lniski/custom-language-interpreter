@@ -60,13 +60,13 @@ void ExpressionVisitor::visit(RootExpression *rootExpression) {
 //    rootExpression->right->accept(this);
 }
 
-void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
+void ExpressionVisitor::visit(VarDeclarationStatement *varDeclarationExpression) {
     std::cout << "Initialising: ";
     varDeclarationExpression->left->accept(this);
     varDeclarationExpression->right->accept(this);
 }
 
-void ExpressionVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
+void ExpressionVisitor::visit(TypeSpecifierStatement *typeSpecifierExpression) {
     std::cout << typeSpecifierExpression->specifierName << " "
         << typeSpecifierExpression->varName << std::endl;
 }
@@ -113,7 +113,7 @@ void ExpressionVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) 
     std::cout << noArgFunctionExpression->name <<"\n";
 }
 
-void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
+void ExpressionVisitor::visit(NewLineOperator *newLineExpression) {
     std::cout << "Analysing next line\n";
     newLineExpression->left->accept(this);
 //    newLineExpression->right->accept(this);
@@ -147,7 +147,7 @@ void ExpressionVisitor::visit(FunctionCallExpression *functionCallExpression) {
 
 }
 
-void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
+void ExpressionVisitor::visit(BodyStatement *bodyExpression) {
 
     std::cout << "Inside a collection\n";
     for(auto statement : bodyExpression->statements) {
@@ -156,7 +156,7 @@ void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
     }
 }
 
-void ExpressionVisitor::visit(DoExpression *doExpression) {
+void ExpressionVisitor::visit(DoNode *doExpression) {
     std::cout << "It is do markdown\n";
 }
 
@@ -180,7 +180,7 @@ void ExpressionVisitor::visit(PutExpression *putExpression) {
     std::cout << putExpression->toPrint;
 }
 
-void ExpressionVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
+void ExpressionVisitor::visit(SystemHandlerDeclStatement *systemHandlerDeclExpression) {
     /* unused */
 }
 

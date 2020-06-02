@@ -23,13 +23,13 @@ private:
 
     std::shared_ptr<Scanner> scanner;
     std::unique_ptr<FileExpression> mainRoot;
-    std::stack <std::shared_ptr<Expression>> recentExpressions;
+    std::stack <std::shared_ptr<Node>> recentExpressions;
     Token token;
     std::shared_ptr<RootExpression> tryToBuildVarNamePrefixStatement();
     std::shared_ptr<RootExpression> tryToBuildBuiltInFunctionCall();
     std::shared_ptr<RootExpression> tryToBuildBlockBoundary();
-    std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier();
-    std::shared_ptr<BodyExpression> getParamsAsManyDeclarations();
+    std::shared_ptr<TypeSpecifierStatement> getExpressionWithAssignedSpecifier();
+    std::shared_ptr<BodyStatement> getParamsAsManyDeclarations();
     std::shared_ptr<RootExpression> assignTreeToRoot();
     bool parseNoArgFunctionCall();
     bool tryToParseManyArgsFunctionCall();
@@ -59,11 +59,11 @@ private:
     void createFieldReferenceExpression(Token token);
     void createFieldNameExpression(Token token);
     void handleNewExpression(std::shared_ptr<RootExpression> newExpr);
-    void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody);
-    void assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody);
-    void assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<IfExpression> condExpr);
-    void assignBodyToUpperWhile(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<WhileExpression> condExpr);
-    void assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
+    void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyStatement> condBody);
+    void assignBodyToUpperExpression(std::shared_ptr<BodyStatement> condBody);
+    void assignBodyToUpperIf(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<IfExpression> condExpr);
+    void assignBodyToUpperWhile(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<WhileExpression> condExpr);
+    void assignBodyToUpperAnyExpression(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<Node> condExpr);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
     void dummy() {};
     Token getTokenValFromScanner();

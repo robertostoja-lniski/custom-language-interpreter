@@ -69,7 +69,7 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
         token = getTokenValFromScanner();
 
         if(token.getType() == T_USER_DEFINED_NAME) {
-            auto systemHandlerDeclExpression = std::make_shared<SystemHandlerDeclExpression>();
+            auto systemHandlerDeclExpression = std::make_shared<SystemHandlerDeclStatement>();
             auto name = std::make_shared<VarNameExpression>(token.getValue());
             systemHandlerDeclExpression->name = name;
             auto newRoot = std::make_shared<RootExpression>();
@@ -84,8 +84,8 @@ std::shared_ptr<RootExpression> Parser::tryToBuildVarNamePrefixStatement() {
     return nullptr;
 }
 
-std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecifier() {
-    auto specifierExpr = std::make_shared<TypeSpecifierExpression>();
+std::shared_ptr<TypeSpecifierStatement> Parser::getExpressionWithAssignedSpecifier() {
+    auto specifierExpr = std::make_shared<TypeSpecifierStatement>();
     auto shouldBeIdentToken = getTokenValFromScanner();
     if(shouldBeIdentToken.getType() != T_USER_DEFINED_NAME) {
         throw std::runtime_error("Type specifier without ident");
@@ -94,8 +94,8 @@ std::shared_ptr<TypeSpecifierExpression> Parser::getExpressionWithAssignedSpecif
     specifierExpr->varName = shouldBeIdentToken.getValue();
     return specifierExpr;
 }
-std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
-    auto argBlock = std::make_shared<BodyExpression>();
+std::shared_ptr<BodyStatement> Parser::getParamsAsManyDeclarations() {
+    auto argBlock = std::make_shared<BodyStatement>();
     token = getTokenValFromScanner();
 
     while(token.getType() == T_SPECIFIER) {
@@ -103,7 +103,7 @@ std::shared_ptr<BodyExpression> Parser::getParamsAsManyDeclarations() {
         token = getTokenValFromScanner();
         if(token.getType() == T_USER_DEFINED_NAME) {
             auto varName = token.getValue();
-            auto currentArg = std::make_shared<TypeSpecifierExpression>();
+            auto currentArg = std::make_shared<TypeSpecifierStatement>();
 
             currentArg->varName = varName;
             currentArg->specifierName = specifierName;
@@ -278,20 +278,20 @@ std::shared_ptr<RootExpression> Parser::assignTreeToRoot() {
 }
 
 void Parser::createDoExpression(Token token) {
-    auto condBody = std::make_shared<DoExpression>();
+    auto condBody = std::make_shared<DoNode>();
     recentExpressions.push(condBody);
 }
 
-void Parser::joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody){
+void Parser::joinUpperStatementsUntilDoFound(std::shared_ptr<BodyStatement> condBody){
     auto upperRoot = mainRoot->roots.back()->expr;
-    while(!std::dynamic_pointer_cast<DoExpression>(upperRoot)) {
+    while(!std::dynamic_pointer_cast<DoNode>(upperRoot)) {
         condBody->statements.push_front(upperRoot);
         mainRoot->roots.pop_back();
         upperRoot = mainRoot->roots.back()->expr;
     }
     mainRoot->roots.pop_back();
 }
-void Parser::assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<IfExpression> condExpr) {
+void Parser::assignBodyToUpperIf(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<IfExpression> condExpr) {
 
     if(!condExpr->ifBlock) {
         condExpr->ifBlock = condBody;
@@ -303,14 +303,14 @@ void Parser::assignBodyToUpperIf(std::shared_ptr<BodyExpression> condBody, std::
     }
 }
 
-void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr) {
+void Parser::assignBodyToUpperAnyExpression(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<Node> condExpr) {
     auto condExprAsDoubleArg = std::dynamic_pointer_cast<DoubleArgsExpression>(condExpr);
     condExprAsDoubleArg->right = condBody;
 }
-void Parser::assignBodyToUpperWhile(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<WhileExpression> condExpr) {
+void Parser::assignBodyToUpperWhile(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<WhileExpression> condExpr) {
     condExpr->block = condBody;
 }
-void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody) {
+void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyStatement> condBody) {
     auto condExpr = mainRoot->roots.back()->expr;
     auto isElse = std::dynamic_pointer_cast<ElseExpression>(condExpr);
     if(isElse) {
@@ -332,7 +332,7 @@ void Parser::assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBod
     }
 }
 void Parser::createDoneExpression(Token token) {
-    auto condBody = std::make_shared<BodyExpression>();
+    auto condBody = std::make_shared<BodyStatement>();
     joinUpperStatementsUntilDoFound(condBody);
     assignBodyToUpperExpression(condBody);
 }
@@ -529,7 +529,7 @@ std::shared_ptr<RootExpression> Parser::tryToBuildBlockBoundary() {
     }
     if(token.getType() == T_DO) {
         token = getTokenValFromScanner();
-        auto condBody = std::make_shared<DoExpression>();
+        auto condBody = std::make_shared<DoNode>();
         if(token.getType() == T_NEXT_LINE) {
             token = getTokenValFromScanner();
         }
