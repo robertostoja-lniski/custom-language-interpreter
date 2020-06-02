@@ -21,22 +21,19 @@ using boost::lexical_cast;
 class Parser {
 private:
 
-    //tmp just for one subtree
     std::shared_ptr<Scanner> scanner;
-    // right not used
     std::unique_ptr<FileExpression> mainRoot;
-    std::stack <std::shared_ptr<Expression>> recentExpressions;
+    std::stack <std::shared_ptr<Node>> recentExpressions;
     Token token;
-    void addDeclarationsToTree(std::shared_ptr<RootExpression> declaration);
     std::shared_ptr<RootExpression> tryToBuildVarNamePrefixStatement();
-    std::shared_ptr<TypeSpecifierExpression> getExpressionWithAssignedSpecifier();
-    std::shared_ptr<BodyExpression> getParamsAsManyDeclarations();
+    std::shared_ptr<RootExpression> tryToBuildBuiltInFunctionCall();
+    std::shared_ptr<RootExpression> tryToBuildBlockBoundary();
+    std::shared_ptr<TypeSpecifierStatement> getExpressionWithAssignedSpecifier();
+    std::shared_ptr<BodyStatement> getParamsAsManyDeclarations();
     std::shared_ptr<RootExpression> assignTreeToRoot();
     bool parseNoArgFunctionCall();
     bool tryToParseManyArgsFunctionCall();
-    bool tryToParseUserDefinedName();
     bool tryToHandleOperand();
-    bool parseConstantValue();
     bool tryToParseFunctionCall();
     void transformTokenIntoTreeNode(std::shared_ptr<Token> token);
     void createIntExpression(Token token);
@@ -62,15 +59,13 @@ private:
     void createFieldReferenceExpression(Token token);
     void createFieldNameExpression(Token token);
     void handleNewExpression(std::shared_ptr<RootExpression> newExpr);
-    void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyExpression> condBody);
-    void assignBodyToUpperExpression(std::shared_ptr<BodyExpression> condBody);
-    void assignBodyToUpperElse(std::shared_ptr<BodyExpression> condBody);
-    void assignBodyToUpperDeclaration(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
-    void assignBodyToUpperAnyExpression(std::shared_ptr<BodyExpression> condBody, std::shared_ptr<Expression> condExpr);
+    void joinUpperStatementsUntilDoFound(std::shared_ptr<BodyStatement> condBody);
+    void assignBodyToUpperExpression(std::shared_ptr<BodyStatement> condBody);
+    void assignBodyToUpperIf(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<IfExpression> condExpr);
+    void assignBodyToUpperWhile(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<WhileExpression> condExpr);
+    void assignBodyToUpperAnyExpression(std::shared_ptr<BodyStatement> condBody, std::shared_ptr<Node> condExpr);
     void setDoubleArgsExpr(std::shared_ptr<DoubleArgsExpression> doubleArgsExpression);
-    void dummy() {
-//        postfixRepresentation.push_front(std::make_shared<Token>());
-    };
+    void dummy() {};
     Token getTokenValFromScanner();
 
     std::map<Type, std::function<void(Token token)>> tokensToNode {
@@ -89,6 +84,8 @@ private:
             {T_FUNCTION_CALL, [&](Token token){createFunctionCallExpression(token);}},
             {T_NEXT_LINE, [&](Token token){dummy();}},
             {T_END, [&](Token token){dummy();}},
+            {T_OPENING_PARENTHESIS, [&](Token token){dummy();}},
+            {T_CLOSING_PARENTHESIS, [&](Token token){dummy();}},
             {T_NO_ARG_FUNCTION_NAME, [&](Token token){createNoArgFunctionExpression(token);}},
             {T_WHILE, [&](Token token){createWhileExpression(token);}},
             {T_IF, [&](Token token){createIfExpression(token);}},
@@ -144,26 +141,40 @@ private:
     std::deque <std::shared_ptr<Token>> postfixRepresentation;
 
     void finalize();
-    bool tryToHandleSpecialToken();
     bool tryToHandleEmbeddedExpression();
     bool tryToHandleEmbeddedDo();
     bool tryToHandleEmbeddedDone();
-    bool tryToGenerateCondition();
     bool tryToHandleNextLine();
-    void printPostfix();
-    bool handleOperator();
+    bool tryToHandleOperator();
     Token seeNextToken();
-    std::deque<std::shared_ptr<Token>> getPostfixRepresentation();
     std::shared_ptr<RootExpression> generatePostfixRepresentation();
     std::shared_ptr<RootExpression> generateTree();
+
+    bool isSpecial() {
+        auto type = token.getType();
+        return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
+               type == T_REAL_NUM || type == T_STRING || type == T_SEND_RAPORT ||
+               type == T_BACKUP || type == T_RUN_SCRIPT || type == T_CHECK_SYSTEM ||
+               type == T_NEXT_LINE || type == T_END || type == T_WHILE ||
+               type == T_IF || type == T_ELSE || type == T_FUNCTION_NAME;
+    }
+
+    bool isOperand() {
+        auto type = token.getType();
+        return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
+               type == T_REAL_NUM || type == T_STRING || type == T_SEND_RAPORT ||
+               type == T_BACKUP || type == T_RUN_SCRIPT || type == T_CHECK_SYSTEM;
+    }
 
 public:
     Parser(std::shared_ptr<Scanner> scanner){
         this->scanner = scanner;
         mainRoot = std::make_unique<FileExpression>();
     };
-    void analyzeTree();
     void parse();
+    auto getProgramTree() {
+        return std::move(mainRoot);
+    }
 };
 
 

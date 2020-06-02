@@ -43,37 +43,16 @@ void EvaluationVisitor::visit(DivideExpression *divideExpression) {
 }
 
 void EvaluationVisitor::visit(AssignExpression *assignExpression) {
-    auto leftOperand = assignExpression->left;
-
-    if(auto isFieldRef = std::dynamic_pointer_cast<FieldReferenceExpression>(leftOperand)) {
-        isFieldRef->accept(this);
-        assignExpression->right->accept(this);
-        updateSystemHandler();
+    if(!assignExpression->fieldReference.empty()) {
+        assignExpression->toAssign->accept(this);
+        updateSystemHandler(assignExpression->variable, assignExpression->fieldReference);
         return;
     }
 
-    auto isVarName = std::dynamic_pointer_cast<VarNameExpression>(leftOperand);
-    if(!isVarName) {
-        throw std::runtime_error("Values can be only assigned to variables");
-    }
-    auto varName = isVarName->value;
+    auto varName = assignExpression->variable;
+    assignExpression->toAssign->accept(this);
 
-    auto wasDeclared = [](std::string varName, const std::deque<Context> ctx) -> bool {
-        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    if(!wasDeclared(varName, ctx)) {
-        throw std::runtime_error(varName + " not declared");
-    }
-
-    assignExpression->right->accept(this);
     auto valueToBeAssigned = moveLocalOperandFromNearestContext();
-
     auto getTypeOf = [](std::string varName, std::deque<Context> ctx) -> std::string {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
             if(currentCtx->declarationMap.find(varName) != currentCtx->declarationMap.end()) {
@@ -85,15 +64,15 @@ void EvaluationVisitor::visit(AssignExpression *assignExpression) {
 
     auto type = getTypeOf(varName, ctx);
     if (const auto val (std::get_if<double>(&valueToBeAssigned)); val
-                                                                  && type != "float") {
+            && type != "float") {
         throw std::runtime_error("Type cast error");
     }
     if (const auto val (std::get_if<int>(&valueToBeAssigned)); val
-                                                               && type != "int") {
+            && type != "int") {
         throw std::runtime_error("Type cast error");
     }
     if (const auto val (std::get_if<std::string>(&valueToBeAssigned)); val
-                                                                       && type != "string") {
+            && type != "string") {
         throw std::runtime_error("Type cast error");
     }
 
@@ -116,17 +95,14 @@ void EvaluationVisitor::visit(RootExpression *rootExpression) {
     auto result = moveLocalOperandFromNearestContext();
 }
 
-void EvaluationVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
+void EvaluationVisitor::visit(VarDeclarationStatement *varDeclarationExpression) {
     /* handled as type specifier */
 }
 
-void EvaluationVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
-    typeSpecifierExpression->left->accept(this);
-    auto& currentContext = ctx.back();
-    auto op = currentContext.getOperandAndPopFromContext();
-    if (const auto varName (std::get_if<std::string>(&op)); varName) {
-        ctx.back().declarationMap[*varName] = typeSpecifierExpression->value;
-    }
+void EvaluationVisitor::visit(TypeSpecifierStatement *typeSpecifierExpression) {
+    auto varName = typeSpecifierExpression->varName;
+    auto specifierName = typeSpecifierExpression->specifierName;
+    ctx.back().declarationMap[varName] = specifierName;
 }
 
 void EvaluationVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -154,47 +130,21 @@ void EvaluationVisitor::visit(FunctionArgExpression *functionArgExpression) {
 
 void EvaluationVisitor::visit(FunctionExpression *functionExpression) {
 
-    functionExpression->left->accept(this);
-    auto varName = moveLocalOperandFromNearestContext();
-    //checks if it is function
-    auto isFunc = std::dynamic_pointer_cast<BodyExpression>(functionExpression->right);
-    std::string strVarName;
-    if (const auto varNameToStr (std::get_if<std::string>(&varName)); varNameToStr) {
-        strVarName = *varNameToStr;
-    } else {
-        throw std::runtime_error("Unknown token to be declared");
-    }
-
-    if(isFunc) {
-
-        FunctionDeclaration functionDeclaration;
-        functionDeclaration.specifier = functionExpression->value;
-
-        auto args = isFunc->statements;
-        for(auto arg : args) {
-            auto argInfo = std::dynamic_pointer_cast<TypeSpecifierExpression>(arg);
-            if(!argInfo) {
-                throw std::runtime_error("Unknown argument in function declaration");
-            }
-            std::string argSpecifier = argInfo->value;
-            std::string argName = std::dynamic_pointer_cast<VarNameExpression>(argInfo->left)->value;
-            functionDeclaration.args.emplace_back(argSpecifier, argName);
-        }
-        functionDeclaration.body = functionExpression->body;
-        auto& currentCtx = ctx.back();
-        currentCtx.functionDeclarationMap[strVarName] = functionDeclaration;
-    }
+    std::string strVarName = functionExpression->name;
+    auto args = functionExpression->body->statements;
+    auto& currentCtx = ctx.back();
+    currentCtx.functionDeclarationMap[strVarName] = functionExpression;
 }
 
 void EvaluationVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) {
     /* unused - handled as any arg num function */
 }
 
-void EvaluationVisitor::visit(NewLineExpression *newLineExpression) {
+void EvaluationVisitor::visit(NewLineOperator *newLineExpression) {
     /* unused */
 }
 
-void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
+void EvaluationVisitor::visit(BodyStatement *bodyExpression) {
     ctx.push_back({});
     for(auto statement : bodyExpression->statements) {
         statement->accept(this);
@@ -203,16 +153,16 @@ void EvaluationVisitor::visit(BodyExpression *bodyExpression) {
 }
 
 void EvaluationVisitor::visit(IfExpression *ifExpression) {
-    ifExpression->left->accept(this);
+    ifExpression->condition->accept(this);
     auto condition = moveLocalOperandFromNearestContext();
     int conditionToInt;
     if (const auto condToInt (std::get_if<int>(&condition)); condToInt) {
         conditionToInt = *condToInt;
     }
     if(conditionToInt != 0) {
-        ifExpression->right->accept(this);
-    } else if(ifExpression->elseCondition != nullptr) {
-        ifExpression->elseCondition->accept(this);
+        ifExpression->ifBlock->accept(this);
+    } else if(ifExpression->elseBlock != nullptr) {
+        ifExpression->elseBlock->accept(this);
     }
 }
 
@@ -222,50 +172,35 @@ void EvaluationVisitor::visit(ElseExpression *elseExpression) {
 
 void EvaluationVisitor::visit(WhileExpression *whileExpression) {
 
-    whileExpression->left->accept(this);
+    whileExpression->condition->accept(this);
     auto condition = moveLocalOperandFromNearestContext();
     int conditionToInt;
     if (const auto condToInt (std::get_if<int>(&condition)); condToInt) {
         conditionToInt = *condToInt;
     }
     while(conditionToInt != 0) {
-        whileExpression->right->accept(this);
-        whileExpression->left->accept(this);
+        whileExpression->block->accept(this);
+        whileExpression->condition->accept(this);
         auto currentCondition = moveLocalOperandFromNearestContext();
         if (const auto condToInt (std::get_if<int>(&currentCondition)); condToInt) {
             conditionToInt = *condToInt;
         }
     }
-    ctx.pop_back();
 }
 
-void EvaluationVisitor::visit(DoExpression *doExpression) {
+void EvaluationVisitor::visit(DoNode *doExpression) {
     /* unused */
 }
 
 void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
 
-    auto funcNameExpression = functionCallExpression->left;
-    auto funcName = std::dynamic_pointer_cast<VarNameExpression>(funcNameExpression)->value;
-
-    auto isDeclaredIntGivenCtx = [](std::string funcName, std::deque<Context> ctx) -> bool {
-        for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
-            if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
-                return true;
-            }
-        }
-        return false;
-    };
-    if(!isDeclaredIntGivenCtx(funcName, ctx)) {
-        throw std::runtime_error("Function not defined");
-    }
-
-    if(functionCallExpression->right) {
-        functionCallExpression->right->accept(this);
+    auto funcName = functionCallExpression->name;
+    if(functionCallExpression->argListHead) {
+        functionCallExpression->argListHead->accept(this);
     }
 
     auto getNearestFunctionDeclaration = [](std::string funcName, std::deque<Context> ctx)
-            -> FunctionDeclaration {
+            -> FunctionExpression* {
         for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
             if(currentCtx->functionDeclarationMap.find(funcName) != currentCtx->functionDeclarationMap.end()) {
                 return currentCtx->functionDeclarationMap[funcName];
@@ -273,35 +208,49 @@ void EvaluationVisitor::visit(FunctionCallExpression *functionCallExpression) {
         }
         throw std::runtime_error("Declaration not found");
     };
+
+    auto& currentArgs = ctx.back().operands;
     auto functionDeclaration = getNearestFunctionDeclaration(funcName, ctx);
-    auto& currentCtxOperands = ctx.back().operands;
-    if(currentCtxOperands.size() != functionDeclaration.args.size()) {
-        throw std::runtime_error("Wrong number of arguments");
+    auto declaredArgs = functionDeclaration->args->statements;
+    auto declaredArgsIt = declaredArgs.begin();
+    if(currentArgs.size() != declaredArgs.size()) {
+        throw std::runtime_error("Arg num mismatch");
     }
+    // sets function call args with values from currentArgs
+    ctx.push_back({});
+    while(!currentArgs.empty()) {
 
-    auto currentArg = functionDeclaration.args.cbegin();
-    while(!currentCtxOperands.empty()) {
-        auto calledArg = moveLocalOperandFromNearestContext();
+        if(const auto isString = std::get_if<std::string>(&currentArgs.front()); isString) {
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierStatement>(*declaredArgsIt); decl->specifierName == "string"){
+                ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+                declaredArgsIt++;
+                currentArgs.pop_front();
+                continue;
+            }
+        }
 
-        if (const auto value (std::get_if<std::string>(&calledArg)); value
-                                                                     && currentArg->specifier != "int") {
-            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
+        if(const auto isInt = std::get_if<int>(&currentArgs.front()); isInt) {
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierStatement>(*declaredArgsIt); decl->specifierName == "int"){
+                ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+                declaredArgsIt++;
+                currentArgs.pop_front();
+                continue;
+            }
         }
-        if (const auto value (std::get_if<double>(&calledArg)); value
-                                                                && currentArg->specifier != "double") {
-            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
-        }
-        if (const auto value (std::get_if<int>(&calledArg)); value
-                                                             && currentArg->specifier != "string") {
-            throw std::runtime_error("Arg mismatch in function " + funcName + " call.");
-        }
-        currentArg++;
 
-        if(currentArg == functionDeclaration.args.cend()) {
-            break;
+        if(const auto isFloat = std::get_if<double>(&currentArgs.front()); isFloat) {
+            if(auto decl = std::dynamic_pointer_cast<TypeSpecifierStatement>(*declaredArgsIt); decl->specifierName == "float"){
+                ctx.back().variableAssignmentMap[decl->varName] = currentArgs.front();
+                declaredArgsIt++;
+                currentArgs.pop_front();
+                continue;
+            }
         }
+
+        throw std::runtime_error("Arg mismatch");
     }
-    functionDeclaration.body->accept(this);
+    functionDeclaration->body->accept(this);
+    ctx.pop_back();
 }
 
 void EvaluationVisitor::visit(FileExpression *fileExpression) {
@@ -316,69 +265,37 @@ void EvaluationVisitor::visit(StringExpression* stringExpression){
 }
 
 void EvaluationVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
-    // check if right is handler control
-    auto isVarNameExpr = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->right);
-    if(isVarNameExpr) {
-        if(isVarNameExpr->value == "start") {
-            auto handlerName = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->left)->value;
-            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
-            handlerRef->run();
-            return;
-        }
-        if(isVarNameExpr->value == "stop") {
-            auto handlerName = std::dynamic_pointer_cast<VarNameExpression>(fieldReferenceExpression->left)->value;
-            auto handlerRef = getSystemHandlerReferenceByName(handlerName);
-            handlerRef->stop();
-            return;
-        }
-
+    auto handlerName = fieldReferenceExpression->varName;
+    auto handlerRef = getSystemHandlerReferenceByName(handlerName);
+    if(fieldReferenceExpression->refName == "start") {
+        handlerRef->run();
+    } else if(fieldReferenceExpression->refName == "stop") {
+        handlerRef->stop();
+    } else {
+        throw std::runtime_error("Command or field unrecognised by handler\n"
+                                 "Use <my_handler>.start or <my_handler>.stop");
     }
-    fieldReferenceExpression->left->accept(this);
-    fieldReferenceExpression->right->accept(this);
 }
 
 void EvaluationVisitor::visit(PutExpression *putExpression) {
     putExpression->toPrint->accept(this);
     auto valueToPrint = moveLocalOperandFromNearestContext();
-
-    if (const auto value (std::get_if<double>(&valueToPrint)); value) {
-        std::cout << *value << " of real type.\n";
-        return;
-    }
-    if (const auto value (std::get_if<int>(&valueToPrint)); value) {
-        std::cout << *value << " of int type.\n";
-        return;
-    }
-    if (const auto value (std::get_if<std::string>(&valueToPrint)); value) {
+    auto isString = std::get_if<std::string>(&valueToPrint);
+    if(isString) {
         auto printIfFuncOrVariable = [](std::string name, std::deque<Context> ctx)
                 -> bool {
             for(auto currentCtx = ctx.rbegin(); currentCtx != ctx.rend(); currentCtx++) {
                 if(currentCtx->functionDeclarationMap.find(name) != currentCtx->functionDeclarationMap.end()) {
                     std::cout << name << " is a function with:\n";
                     auto func = currentCtx->functionDeclarationMap[name];
-                    std::cout << "\t" << func.specifier << " specifier\n";
-                    std::cout << "and args:\n";
-                    for(auto [specifier, name] : func.args) {
-                        std::cout << "\t" << specifier << " " << name << '\n';
-                    }
+                    std::cout << "\t" << func->specifier << " specifier\n";
                     return true;
                 }
 
                 if(currentCtx->declarationMap.find(name) != currentCtx->declarationMap.end()) {
                     auto value = currentCtx->variableAssignmentMap[name];
-
-                    if (const auto valueToPrint (std::get_if<double>(&value)); valueToPrint) {
-                        std::cout << *valueToPrint << " of real type.\n";
-                        return true;
-                    }
-                    if (const auto valueToPrint (std::get_if<int>(&value)); valueToPrint) {
-                        std::cout << *valueToPrint << " of int type.\n";
-                        return true;
-                    }
-                    if (const auto valueToPrint (std::get_if<std::string>(&value)); valueToPrint) {
-                        std::cout << *valueToPrint << " of int type.\n";
-                        return true;
-                    }
+                    std::visit([](const auto &elem) { std::cout << elem << '\n'; }, value);
+                    return true;
                 }
 
                 if(currentCtx->systemHandlerDeclarations.find(name) != currentCtx->systemHandlerDeclarations.end()) {
@@ -388,18 +305,16 @@ void EvaluationVisitor::visit(PutExpression *putExpression) {
             }
             return false;
         };
-
-        if(!printIfFuncOrVariable(*value, ctx)) {
-            std::cout << "no value assigned to " + *value + " variable.\n";
+        if(!printIfFuncOrVariable(*isString, ctx)) {
+            std::cout << "no value assigned to " + *isString + " variable.\n";
         }
+        return;
     }
+    std::visit([](const auto &elem) { std::cout << elem << '\n'; }, valueToPrint);
 }
 
-void EvaluationVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
-    /* unused - handled by AssignExpression */
-}
 
-void EvaluationVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
+void EvaluationVisitor::visit(SystemHandlerDeclStatement *systemHandlerDeclExpression) {
     auto handlerName = systemHandlerDeclExpression->name->value;
     auto& currentContext = ctx.back();
     ctx.back().systemHandlerDeclarations[handlerName] = std::make_shared<SystemHandlerInfo>();
@@ -411,6 +326,7 @@ void EvaluationVisitor::visit(RetExpression *retExpression) {
     // go to previous ctx
     // (ctx from which function was called)
     auto ctxIt = ctx.rbegin();
-    ctxIt++;
-    ctxIt->operands.push(toRet);
+    // goes two ctx upper
+    ctxIt += 2;
+    ctxIt->operands.push_back(toRet);
 }

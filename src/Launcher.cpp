@@ -61,5 +61,7 @@ void Launcher::run() {
     scanner = std::make_shared<Scanner>(configuration);
     parser = std::make_unique<Parser>(scanner);
     parser->parse();
-    parser->analyzeTree();
+    auto tree = parser->getProgramTree();
+    EvaluationVisitor evaluationVisitor;
+    evaluationVisitor.visit(tree.get());
 }

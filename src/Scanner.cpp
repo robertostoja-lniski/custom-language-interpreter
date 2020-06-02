@@ -4,7 +4,7 @@
 
 void Scanner::getNextToken() {
     try {
-        if(removeWhiteSigns() ||tryToBuildAssignmentOrBooleanToken() || tryToBuildSpecialSignToken()
+        if(tryToBuildNextLine() || removeWhiteSigns() ||tryToBuildAssignmentOrBooleanToken() || tryToBuildSpecialSignToken()
             || tryToBuildNumToken() || tryToBuildAlphaTokens() || tryToBuildNotDefinedToken()) {
             return;
         }
@@ -13,6 +13,16 @@ void Scanner::getNextToken() {
         exit(1);
     }
 }
+
+bool Scanner::tryToBuildNextLine() {
+    if(sign == '\n') {
+        auto val = getSignAndReadNext();
+        tokens.push(std::make_shared<Token>(std::move(val), T_NEXT_LINE));
+        return true;
+    }
+    return false;
+}
+
 void Scanner::createTokenFromValue(std::string val) {
     if(complexTokensHandlers.find(val) == complexTokensHandlers.end()) {
         tokens.push(std::make_shared<Token>(std::move(val), T_USER_DEFINED_NAME));

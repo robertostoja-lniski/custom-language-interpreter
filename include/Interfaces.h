@@ -23,6 +23,8 @@ struct SourceInterface {
 };
 struct FileInterface : public SourceInterface {
 
+    size_t charCount = 0;
+    size_t size;
     std::string filepath;
     std::unique_ptr<std::ifstream> is;
     std::string currentLine;

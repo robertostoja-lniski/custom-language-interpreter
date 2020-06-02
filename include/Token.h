@@ -79,11 +79,7 @@ public:
     std::string getValue() { return value; }
     Type getType() { return type; }
     Position getPosition() { return position; }
-    bool isOperand() {
-        return type == T_INT_NUM || type == T_USER_DEFINED_NAME ||
-                type == T_REAL_NUM || type == T_STRING || type == T_SEND_RAPORT ||
-                type == T_BACKUP || type == T_RUN_SCRIPT || type == T_CHECK_SYSTEM;
-    }
+
 
     friend bool operator==(const Token& lhs, const Token& rhs);
     friend bool operator!=(const Token& lhs, const Token& rhs);

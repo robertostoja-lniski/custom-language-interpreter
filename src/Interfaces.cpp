@@ -11,8 +11,10 @@
 FileInterface::FileInterface(std::string path) : filepath(std::move(path)) {
     // appends end sign
     std::fstream uidlFile(filepath, std::fstream::in | std::fstream::out | std::fstream::app);
-    uidlFile << "$";
-    uidlFile.close();
+    const auto begin = uidlFile.tellg();
+    uidlFile.seekg (0, std::ios::end);
+    const auto end = uidlFile.tellg();
+    size = end - begin;
     is = std::make_unique<std::ifstream>(filepath);
 
 }
@@ -21,19 +23,24 @@ FileInterface::~FileInterface() {
 }
 void FileInterface::getNextSign() {
 
+        if(charCount == size -1) {
+            sign = '$';
+            return;
+        }
         if(positionInFile.column == currentLine.size() && !currentLine.empty()) {
-            sign = '?';
+            sign = '\n';
             positionInFile.column++;
+            charCount++;
             return;
         }
         if(currentLine.empty() || positionInFile.column == currentLine.size() +1) {
-
             positionInFile.row++;
             currentLine.clear();
             std::getline(*is, currentLine);
             positionInFile.column = 0;
         }
 
+        charCount++;
         sign = currentLine[positionInFile.column];
         positionInFile.column++;
 }

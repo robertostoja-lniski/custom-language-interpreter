@@ -41,8 +41,11 @@ void ExpressionVisitor::visit(MultiplyExpression *multiplyExpression) {
 
 void ExpressionVisitor::visit(AssignExpression *assignExpression) {
     std::cout << "Assignment\n";
-    assignExpression->left->accept(this);
-    assignExpression->right->accept(this);
+    std::cout << assignExpression->variable;
+    if(!assignExpression->fieldReference.empty()) {
+        std::cout << "." << assignExpression->fieldReference;
+    }
+    std::cout << "=" << assignExpression->toAssign;
 }
 
 void ExpressionVisitor::visit(DivideExpression *divideExpression) {
@@ -57,19 +60,15 @@ void ExpressionVisitor::visit(RootExpression *rootExpression) {
 //    rootExpression->right->accept(this);
 }
 
-void ExpressionVisitor::visit(VarDeclarationExpression *varDeclarationExpression) {
+void ExpressionVisitor::visit(VarDeclarationStatement *varDeclarationExpression) {
     std::cout << "Initialising: ";
     varDeclarationExpression->left->accept(this);
     varDeclarationExpression->right->accept(this);
 }
 
-void ExpressionVisitor::visit(TypeSpecifierExpression *typeSpecifierExpression) {
-    std::cout << typeSpecifierExpression->value << '\n';
-    typeSpecifierExpression->left->accept(this);
-    if(typeSpecifierExpression->right) {
-        std::cout << "Collection with values\n";
-        typeSpecifierExpression->right->accept(this);
-    }
+void ExpressionVisitor::visit(TypeSpecifierStatement *typeSpecifierExpression) {
+    std::cout << typeSpecifierExpression->specifierName << " "
+        << typeSpecifierExpression->varName << std::endl;
 }
 
 void ExpressionVisitor::visit(BooleanAndExpression *booleanAndExpression) {
@@ -114,7 +113,7 @@ void ExpressionVisitor::visit(NoArgFunctionExpression *noArgFunctionExpression) 
     std::cout << noArgFunctionExpression->name <<"\n";
 }
 
-void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
+void ExpressionVisitor::visit(NewLineOperator *newLineExpression) {
     std::cout << "Analysing next line\n";
     newLineExpression->left->accept(this);
 //    newLineExpression->right->accept(this);
@@ -122,22 +121,22 @@ void ExpressionVisitor::visit(NewLineExpression *newLineExpression) {
 void ExpressionVisitor::visit(IfExpression* ifExpression) {
     std::cout << "In if condition\n";
     std::cout << "Condition: ";
-    ifExpression->left->accept(this);
+    ifExpression->condition->accept(this);
     std::cout << "Block positive\n";
-    ifExpression->right->accept(this);
-    if(ifExpression->elseCondition) {
+    ifExpression->ifBlock->accept(this);
+    if(ifExpression->elseBlock) {
         std::cout << "Block else\n";
-        ifExpression->elseCondition->accept(this);
+        ifExpression->elseBlock->accept(this);
     }
 }
 
 void ExpressionVisitor::visit(WhileExpression* whileExpression) {
     std::cout << "In while loop\n";
     std::cout << "Condition:\n";
-    whileExpression->left->accept(this);
+    whileExpression->condition->accept(this);
     std::cout << "Block";
-    if(whileExpression->right) {
-        whileExpression->right->accept(this);
+    if(whileExpression->block) {
+        whileExpression->block->accept(this);
     } else {
         std::cout << " is empty.\n";
     }
@@ -148,7 +147,7 @@ void ExpressionVisitor::visit(FunctionCallExpression *functionCallExpression) {
 
 }
 
-void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
+void ExpressionVisitor::visit(BodyStatement *bodyExpression) {
 
     std::cout << "Inside a collection\n";
     for(auto statement : bodyExpression->statements) {
@@ -157,7 +156,7 @@ void ExpressionVisitor::visit(BodyExpression *bodyExpression) {
     }
 }
 
-void ExpressionVisitor::visit(DoExpression *doExpression) {
+void ExpressionVisitor::visit(DoNode *doExpression) {
     std::cout << "It is do markdown\n";
 }
 
@@ -174,19 +173,14 @@ void ExpressionVisitor::visit(FileExpression *fileExpression) {
 
 void ExpressionVisitor::visit(FieldReferenceExpression *fieldReferenceExpression) {
     std::cout << "Object has field accessed\n";
-    fieldReferenceExpression->left->accept(this);
-    fieldReferenceExpression->right->accept(this);
+    std::cout << fieldReferenceExpression->refName << "." << fieldReferenceExpression->refName << '\n';
 }
 
 void ExpressionVisitor::visit(PutExpression *putExpression) {
     std::cout << putExpression->toPrint;
 }
 
-void ExpressionVisitor::visit(SystemHandlerExpression *systemHandlerExpression) {
-    /* unused */
-}
-
-void ExpressionVisitor::visit(SystemHandlerDeclExpression *systemHandlerDeclExpression) {
+void ExpressionVisitor::visit(SystemHandlerDeclStatement *systemHandlerDeclExpression) {
     /* unused */
 }
 
